@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/habladores"
+            android:icon="@drawable/tag"
+            android:title="@string/menu_etiquetas" />
+        <item
+            android:id="@+id/gestionArticulos"
+            android:icon="@drawable/plugin"
+            android:title="@string/menu_articulos" />
+        <item
+            android:id="@+id/proforma"
+            android:icon="@drawable/proforma"
+            android:title="@string/menu_proformas" />
+        <item
+            android:id="@+id/rotacion"
+            android:icon="@drawable/rotate"
+            android:title="@string/menu_rotacion" />
+        <item
+            android:id="@+id/recepcion_documentos"
+            android:icon="@drawable/check"
+            android:title="@string/menu_documentos" />
+    </group>
+
+    <item android:title="Preferencias">
+        <menu>
+            <item
+                android:id="@+id/preferencias"
+                android:icon="@drawable/config"
+                android:title="@string/menu_configuracion" />
+            <item
+                android:id="@+id/salir"
+                android:icon="@drawable/salir"
+                android:title="@string/menu_salir" />
+        </menu>
+    </item>
+
+</menu>

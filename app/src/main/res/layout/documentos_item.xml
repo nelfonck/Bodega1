@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginBottom="1dp">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+        <TextView
+            android:id="@+id/tvConsecutivoItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Consecutivo hacienda"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/tvNombreComercialVendedor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre comercial del vendedor"/>
+        <TextView
+            android:id="@+id/tvFechaCreacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha de emisión"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
+

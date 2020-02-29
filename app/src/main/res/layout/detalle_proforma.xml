@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tvCliente"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:padding="5sp"
+        android:text="Cliente"
+        android:textSize="20sp"
+        android:textColor="#1E90FF"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvDetalleProforma"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/txtCodigo"
+        android:layout_below="@id/tvCliente"/>
+
+    <ImageButton
+        android:id="@+id/btnScan"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_toEndOf="@id/btnBuscarDescripcion"
+        android:layout_above="@id/cvTotales"
+        android:layout_margin="5dp"
+        android:background="@color/zxing_transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/barcoderead"
+        android:layout_toRightOf="@id/btnBuscarDescripcion" />
+
+    <EditText
+        android:id="@+id/txtCodigo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/btnScan"
+        android:layout_toStartOf="@id/txtCantidad"
+        android:layout_above="@id/cvTotales"
+        android:singleLine="true"
+        android:hint="Codigo"/>
+
+    <EditText
+        android:id="@+id/txtCantidad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/btnAdd"
+        android:layout_above="@id/cvTotales"
+        android:singleLine="true"
+        android:hint="Cant"
+        android:layout_toLeftOf="@id/btnAdd" />
+
+    <ImageButton
+        android:id="@+id/btnAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_next"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/cvTotales"
+        android:layout_alignParentRight="true" />
+
+    <ImageButton
+        android:id="@+id/btnBuscarDescripcion"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_above="@id/cvTotales"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/zxing_transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/googlekeyboard" />
+
+
+    <androidx.cardview.widget.CardView
+    android:id="@+id/cvTotales"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_alignParentBottom="true"
+    android:layout_margin="3dp">
+    <RelativeLayout
+        android:id="@+id/rlTotales"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+        <TextView
+            android:id="@+id/tvTotalExento"
+            android:layout_above="@+id/tvTotalGravado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:textColor="#fff"
+            android:text="TotalExento"
+            android:layout_marginLeft="5dp"
+            android:layout_alignParentLeft="true" />
+        <TextView
+            android:id="@+id/tvTotalGravado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="5dp"
+            android:textColor="#fff"
+            android:text="Total Gravado"
+            android:gravity="end"
+            android:layout_alignParentLeft="true" />
+        <TextView
+            android:id="@+id/tvMontoIV"
+            android:layout_above="@+id/tvTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textColor="#fff"
+            android:text="Monto IV"
+            android:layout_marginRight="5dp"
+
+            android:layout_alignParentRight="true" />
+
+        <TextView
+            android:id="@+id/tvTotal"
+            android:layout_alignParentBottom="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textStyle="bold"
+            android:textColor="#fff"
+            android:layout_marginRight="5dp"
+            android:text="Total"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
+
+
+
+
+</RelativeLayout>

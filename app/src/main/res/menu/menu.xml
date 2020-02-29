@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/clearAll"
+        android:title="Limpiar"
+        android:icon="@drawable/ic_clear_all_"
+        app:showAsAction="ifRoom"/>
+<item android:id="@+id/enviarQpos"
+    android:title="Enviar Qpos"
+    android:icon="@drawable/ic_save_"
+    app:showAsAction="ifRoom"/>
+
+</menu>

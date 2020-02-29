@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.Salidas">
+
+    <EditText
+        android:id="@+id/txtCodigo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_toStartOf="@+id/btnScan"
+        android:layout_toLeftOf="@+id/btnScan"
+        android:layout_toEndOf="@+id/btnBuscarDescripcion"
+        android:layout_toRightOf="@+id/btnBuscarDescripcion"
+        android:hint="Código"
+        android:singleLine="true" />
+
+    <ImageButton
+        android:id="@+id/btnScan"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_margin="5dp"
+        android:src="@drawable/barcoderead"
+        android:scaleType="fitXY"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/zxing_transparent"
+        android:layout_alignParentRight="true" />
+
+    <ImageButton
+        android:id="@+id/btnBuscarDescripcion"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="5dp"
+        android:scaleType="fitXY"
+        android:background="@color/zxing_transparent"
+        android:src="@drawable/googlekeyboard"
+        android:layout_alignParentBottom="true"/>
+
+
+    <LinearLayout
+        android:id="@+id/llfechas"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/txtCodigo">
+
+        <EditText
+            android:id="@+id/txtfi"
+            android:hint="Desde"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:inputType="date"
+            android:focusable="false"
+            android:clickable="true"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/txtff"
+            android:hint="Hasta"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:inputType="date"
+            android:focusable="false"
+            android:clickable="true"
+            android:maxLines="1"
+            android:layout_marginLeft="5dp"
+            android:layout_toEndOf="@id/txtfi"/>
+
+    </LinearLayout>
+
+
+    <RadioGroup
+        android:id="@+id/rg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+       android:layout_margin="5dp"
+        android:orientation="horizontal"
+        android:layout_above="@id/llfechas">
+
+        <RadioButton
+            android:id="@+id/rbDia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DIAS"/>
+        <RadioButton
+            android:id="@+id/rbSemana"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SEMANAS"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/rbMes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MESES"
+            android:checked="true"/>
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tvArticulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentTop="true"
+        android:singleLine="true"/>
+
+    <TextView
+        android:id="@+id/tvASalidas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+       android:layout_below="@id/tvArticulo"
+        android:singleLine="true"/>
+
+
+<com.github.mikephil.charting.charts.RadarChart
+    android:id="@+id/chartSalidas"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_below="@id/tvASalidas"
+    android:layout_above="@id/rg"/>
+
+</RelativeLayout>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp">
+
+<androidx.cardview.widget.CardView
+    android:id="@+id/cardView"
+    android:background="#e2e2e2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="1dp">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:orientation="horizontal"
+    android:layout_gravity="center_vertical">
+<ImageView
+    android:id="@+id/delete"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:src="@android:drawable/ic_menu_delete"/>
+    <TextView
+        android:id="@+id/tvDescripcion"
+        android:layout_width="0dp"
+        android:layout_weight="80"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:text="Descripcion"
+ />
+    <TextView
+        android:id="@+id/tvPrecio"
+        android:layout_width="0dp"
+        android:layout_weight="20"
+        android:layout_height="wrap_content"
+        android:text="Precio"
+        android:gravity="end"
+        android:layout_gravity="center_vertical"/>
+</LinearLayout>
+
+</androidx.cardview.widget.CardView>
+
+</LinearLayout>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <PreferenceCategory android:title="Web service">
+            <EditTextPreference
+                android:key="host"
+                android:summary="Host"/>
+            <EditTextPreference
+                android:key="port"
+                android:summary="Port"/>
+        </PreferenceCategory>
+        <PreferenceCategory android:title="DataBase server"
+            >
+            <EditTextPreference android:key="host_db"
+                android:summary="Host"/>
+
+            <EditTextPreference android:key="port_db"
+                android:summary="Port"/>
+
+            <EditTextPreference android:key="user_name"
+                android:summary="User name"/>
+
+            <EditTextPreference android:key="password"
+                android:summary="Password"/>
+
+            <EditTextPreference android:key="db_name"
+                android:summary="Data base name"/>
+
+            <EditTextPreference android:key="schema"
+                android:summary="Schema"/>
+        </PreferenceCategory>
+        <PreferenceCategory android:title="Web service documentos electrónicos">
+            <EditTextPreference
+                android:key="host_d"
+                android:summary="Host"/>
+            <EditTextPreference
+                android:key="port_d"
+                android:summary="Port"/>
+        </PreferenceCategory>
+        <PreferenceCategory android:title="Database documentos electrónicos">
+            <EditTextPreference android:key="host_db_d"
+                android:summary="Host"/>
+
+            <EditTextPreference android:key="port_db_d"
+                android:summary="Port"/>
+
+            <EditTextPreference android:key="user_name_d"
+                android:summary="User name"/>
+
+            <EditTextPreference android:key="password_d"
+                android:summary="Password"/>
+
+            <EditTextPreference android:key="db_name_d"
+                android:summary="Data base name"/>
+
+            <EditTextPreference android:key="schema_d"
+                android:summary="Schema"/>
+        </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="2dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/tvCodCliente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Codigo cliente"/>
+
+        <TextView
+            android:id="@+id/tvCliente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_below="@+id/tvCodCliente"
+            android:textStyle="bold"
+            android:text="Nombre del cliente" />
+        <TextView
+            android:id="@+id/tvFecha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="Fecha" />
+        <TextView
+            android:id="@+id/tvTotalExento"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvCliente"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="Excento"/>
+        <TextView
+            android:id="@+id/tvTotalGravado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvTotalExento"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="Gravado"/>
+        <TextView
+            android:id="@+id/tvMontoGravado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvTotalGravado"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="Monto gravado"/>
+
+        <TextView
+            android:id="@+id/tvTotalProforma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvMontoGravado"
+            android:textStyle="bold"
+            android:layout_alignParentRight="true"
+            android:text="Total proforma"
+            android:layout_alignParentEnd="true" />
+        <TextView
+            android:id="@+id/tvTopeCredito"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tope credito : ¢0,00"
+            android:layout_below="@id/tvCliente"/>
+
+        <TextView
+            android:id="@+id/tvMontoDeuda"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Monto deuda : ¢0,00"
+            android:layout_below="@id/tvTopeCredito"/>
+
+        <TextView
+            android:id="@+id/tvCreditoDisponible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Credito disponible : ¢0,00"
+            android:layout_below="@id/tvMontoDeuda"/>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
