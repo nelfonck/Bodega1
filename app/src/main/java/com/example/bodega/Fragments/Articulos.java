@@ -31,6 +31,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -57,6 +59,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -104,7 +107,7 @@ public class Articulos extends Fragment {
         View view = inflater.inflate(R.layout.fragment_articulos, container, false);
 
 
-        //user = getArguments().getString("user");
+        user = getArguments().getString("user");
 
 
         getConfiguracion();
@@ -545,7 +548,7 @@ public class Articulos extends Fragment {
                         txtCosto.setText(articulo.getString("costo"));
                         txtUtilidad.setText(articulo.getString("utilidad"));
                         txtVenta.setText(articulo.getString("venta"));
-                        cod_articulo = codigo;
+                        cod_articulo = articulo.getString("cod_articulo");
                         costo = articulo.getDouble("costo");
                         pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
                         spImpuestos.setSelection(pos);
@@ -662,6 +665,10 @@ public class Articulos extends Fragment {
 
     private void aplicarCambios() {
         try {
+            String descripcion = txtDescripcion.getText().toString();
+
+            Toast.makeText(getActivity(),descripcion,Toast.LENGTH_LONG).show();
+
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
             StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulos/" +
                     "?host_db=" + configuracion.getHost_db() +
@@ -671,7 +678,7 @@ public class Articulos extends Fragment {
                     "&db_name=" + configuracion.getDatabase() +
                     "&schema=" + configuracion.getSchema() +
                     "&codigo=" + cod_articulo +
-                    "&descripcion=" + txtDescripcion.getText().toString() +
+                    "&descripcion=" + descripcion +
                     "&cod_familia=" + familias.get(spFamilias.getSelectedItemPosition()).getCod() +
                     "&cod_marca=" + marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca() +
                     "&costo=" + costo +
@@ -691,9 +698,11 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    NetworkResponse statusCode = error.networkResponse;
+                    Toast.makeText(getActivity(),"Código error: " + statusCode + " \n "+ error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
+            request.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(request);
         } catch (Exception e) {
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();

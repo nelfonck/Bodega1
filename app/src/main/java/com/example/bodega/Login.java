@@ -1,5 +1,6 @@
 package com.example.bodega;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -9,6 +10,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -115,13 +119,7 @@ public class Login extends AppCompatActivity {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(Login.this);
 
         if (!p.contains("host")) {
-            Intent home = new Intent(Login.this, Home.class);
-            home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            home.putExtra("user", "No definido");
-            home.putExtra("configurar", true);
-            startActivity(home);
-
-
+            abrirConfiguracion();
         }
 
         configuracion = new Configuracion();
@@ -151,4 +149,28 @@ public class Login extends AppCompatActivity {
         dialog.show();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_login,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.configurar :
+                abrirConfiguracion();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void abrirConfiguracion(){
+        Intent home = new Intent(Login.this, Home.class);
+        home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        home.putExtra("user", "No definido");
+        home.putExtra("configurar", true);
+        startActivity(home);
+    }
 }
