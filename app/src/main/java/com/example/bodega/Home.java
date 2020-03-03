@@ -55,7 +55,7 @@ public class Home extends AppCompatActivity {
                     case R.id.habladores:
                         fr = new Habladores();
                         fragmentTransaction = true ;
-                        titulo = "Habladores";
+                        titulo = "Etiquetas";
                         break;
                     case R.id.proforma :
                         fr = new Proformas();
@@ -113,13 +113,6 @@ public class Home extends AppCompatActivity {
 
     }
 
-    private void LoadHabladores(){
-        Fragment fr = null ;
-        fr = new Habladores();
-        getFragmentManager().beginTransaction().replace(R.id.contenedor,fr).commit();
-        getSupportActionBar().setTitle("Habladores");
-        nav.setCheckedItem(R.id.habladores);
-    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

@@ -29,7 +29,8 @@
         android:id="@+id/tvNombreComercialVendedor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/igualar_ultimos_digitos"/>
+        android:layout_below="@id/igualar_ultimos_digitos"
+        android:textStyle="bold"/>
     <TextView
         android:id="@+id/tvFechaEmision"
         android:layout_width="match_parent"
@@ -72,6 +73,7 @@
             android:layout_centerInParent="true"
             android:background="@drawable/documentos"
             android:scaleType="fitXY"
+            android:minWidth="100dp"
             android:layout_margin="10dp"
             />
 
