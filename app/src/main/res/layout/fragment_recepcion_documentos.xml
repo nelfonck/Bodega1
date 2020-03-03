@@ -4,25 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.RecepcionDocumentos">
-<ImageButton
-    android:id="@+id/imgClear"
-    android:layout_width="50dp"
-    android:layout_height="40dp"
-    android:src="@drawable/cleartext"
-    android:backgroundTint="@color/zxing_transparent"
-    android:padding="0dp"
-    android:scaleType="fitXY"
-    android:layout_below="@id/tvConsecutivo"
-    android:layout_alignParentEnd="true"
-    android:layout_alignParentRight="true" />
 
-<TextView
-    android:id="@+id/tvConsecutivo"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Consecutivo del documento"
-    android:textStyle="bold"
-    android:textSize="16sp"/>
+    <ImageButton
+        android:id="@+id/imgClear"
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:src="@drawable/cleartext"
+        android:backgroundTint="@color/zxing_transparent"
+        android:padding="0dp"
+        android:scaleType="fitXY"
+        android:layout_below="@id/tvConsecutivo"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true" />
+
+    <TextView
+        android:id="@+id/tvConsecutivo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Consecutivo del documento"
+        android:textStyle="bold"
+        android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/tvNombreComercialVendedor"
@@ -63,17 +64,17 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvFechaEmision"
         android:layout_alignParentBottom="true">
+
         <ImageView
             android:id="@+id/imgEstado"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:background="@drawable/documentos"
-            android:scaleType="fitCenter"
+            android:scaleType="fitXY"
             android:layout_margin="10dp"
             />
+
     </RelativeLayout>
-
-
 
 </RelativeLayout>

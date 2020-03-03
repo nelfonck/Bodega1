@@ -41,7 +41,9 @@
         android:layout_toStartOf="@id/txtCantidad"
         android:layout_above="@id/cvTotales"
         android:singleLine="true"
-        android:hint="Codigo"/>
+        android:hint="Codigo"
+        android:layout_toRightOf="@id/btnScan"
+        android:layout_toLeftOf="@id/txtCantidad" />
 
     <EditText
         android:id="@+id/txtCantidad"

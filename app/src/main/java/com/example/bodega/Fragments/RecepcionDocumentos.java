@@ -112,7 +112,7 @@ public class RecepcionDocumentos extends Fragment {
                     if (documento.length()>0){
                         if (documento.length()==1){
                             if (documento.getJSONObject(0).getString("estado_recepcion").equals("01")){
-                                imgEstado.setImageResource(R.drawable.aproved);
+                                imgEstado.setImageResource(R.drawable.aprovado);
                             }else if (documento.getJSONObject(0).getString("estado_recepcion").equals("03")){
                                 imgEstado.setImageResource(R.drawable.rejected);
                             }else if (documento.getJSONObject(0).getString("estado_recepcion").equals("05")){
