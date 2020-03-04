@@ -3,7 +3,6 @@ package com.example.bodega.Fragments;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,6 +42,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adaptadores.BaseAdapter;
 import com.example.bodega.Adaptadores.FiltroArticuloAdapter;
 import com.example.bodega.Modelos.Configuracion;
+import com.example.bodega.Modelos.ContentValues;
 import com.example.bodega.Modelos.ModFamilia;
 import com.example.bodega.Modelos.ModFiltroArticulo;
 import com.example.bodega.Modelos.ModImpuesto;
@@ -59,7 +59,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -92,7 +91,7 @@ public class Articulos extends Fragment {
     private double costo = 0, utilidad = 0, venta = 0;
     private BaseAdapter baseAdapter;
     private Configuracion configuracion;
-    private String user ;
+    private String user;
 
     public Articulos() {
 
@@ -191,14 +190,13 @@ public class Articulos extends Fragment {
         txtCosto.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_UP)
-                {
+                if (event.getAction() == KeyEvent.ACTION_UP) {
                     costo = !txtCosto.getText().toString().equals("") ? Float.valueOf(txtCosto.getText().toString()) : 0;
                     txtVenta.setText(String.valueOf(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
                     //txtUtilidad.requestFocus();
                     return true;
                 }
-                return false ;
+                return false;
             }
         });
 
@@ -211,7 +209,7 @@ public class Articulos extends Fragment {
                     spImpuestos.requestFocus();
                     return true;
                 }
-                return false ;
+                return false;
             }
         });
 
@@ -223,7 +221,7 @@ public class Articulos extends Fragment {
                     txtUtilidad.setText(String.valueOf(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
                     return true;
                 }
-                return false ;
+                return false;
             }
         });
 
@@ -262,8 +260,8 @@ public class Articulos extends Fragment {
 
     }
 
-    private boolean validarTextos(EditText txtDescripcion,EditText txtCosto, EditText txtUtilidad,
-                                  EditText txtVenta,EditText txtFactorMedida) {
+    private boolean validarTextos(EditText txtDescripcion, EditText txtCosto, EditText txtUtilidad,
+                                  EditText txtVenta, EditText txtFactorMedida) {
         if (txtDescripcion.getText().toString().equals("") ||
                 txtCosto.getText().toString().equals("") ||
                 txtUtilidad.getText().toString().equals("") ||
@@ -480,12 +478,12 @@ public class Articulos extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.aplicar:
-                if (validarTextos(txtDescripcion,txtCosto,txtUtilidad,txtVenta,txtFactorMedida)) {
+                if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
                     aplicarCambios();
                 }
                 break;
             case R.id.agregar_a_cola:
-                if (validarTextos(txtDescripcion,txtCosto,txtUtilidad,txtVenta,txtFactorMedida)) {
+                if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
                     addToList(cod_articulo, txtDescripcion.getText().toString(), Double.valueOf(txtVenta.getText().toString()));
                     Toast.makeText(getActivity(), "Agregando a la cola de habladores", Toast.LENGTH_LONG).show();
                 }
@@ -497,7 +495,7 @@ public class Articulos extends Fragment {
     public void addToList(String codigo, String descripcion, double precio) {
         try {
             SQLiteDatabase db = baseAdapter.getWritableDatabase();
-            ContentValues v = new ContentValues();
+            android.content.ContentValues v = new android.content.ContentValues();
             v.put(BaseAdapter.HABLADORES.CODIGO, codigo);
             v.put(BaseAdapter.HABLADORES.DESCRIPCION, descripcion);
             v.put(BaseAdapter.HABLADORES.PRECIO, precio);
@@ -548,7 +546,7 @@ public class Articulos extends Fragment {
                         txtCosto.setText(articulo.getString("costo"));
                         txtUtilidad.setText(articulo.getString("utilidad"));
                         txtVenta.setText(articulo.getString("venta"));
-                        cod_articulo = articulo.getString("cod_articulo");
+                        cod_articulo = codigo;
                         costo = articulo.getDouble("costo");
                         pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
                         spImpuestos.setSelection(pos);
@@ -665,31 +663,31 @@ public class Articulos extends Fragment {
 
     private void aplicarCambios() {
         try {
-            String descripcion = txtDescripcion.getText().toString();
 
-            Toast.makeText(getActivity(),descripcion,Toast.LENGTH_LONG).show();
+            ContentValues params = new ContentValues();
+
+            params.put("host_db" , configuracion.getHost_db()) ;
+            params.put("port_db" , configuracion.getPort_db()) ;
+            params.put("user_name" , configuracion.getUser_name()) ;
+            params.put("password" , configuracion.getPassword());
+            params.put("db_name" , configuracion.getDatabase());
+            params.put("schema" , configuracion.getSchema());
+            params.put("codigo" , cod_articulo);
+            params.put("descripcion", txtDescripcion.getText().toString());
+            params.put("cod_familia", familias.get(spFamilias.getSelectedItemPosition()).getCod());
+            params.put("cod_marca" , marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca());
+            params.put("costo" , String.valueOf(costo));
+            params.put("utilidad" , String.valueOf(utilidad));
+            params.put("cod_impuesto" , impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo());
+            params.put("impuesto", String.valueOf(impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto()));
+            params.put("venta", String.valueOf(venta));
+            params.put("unidad_medida" ,unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida());
+            params.put("factor_medida", txtFactorMedida.getText().toString());
+            params.put("art_granel" , (articulo_granel.isChecked() ? "S" : "N"));
+            params.put("articulo_romana" , (articulo_romana.isChecked() ? "S" : "N"));
 
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-            StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulos/" +
-                    "?host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema() +
-                    "&codigo=" + cod_articulo +
-                    "&descripcion=" + descripcion +
-                    "&cod_familia=" + familias.get(spFamilias.getSelectedItemPosition()).getCod() +
-                    "&cod_marca=" + marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca() +
-                    "&costo=" + costo +
-                    "&utilidad=" + utilidad +
-                    "&cod_impuesto=" + impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo() +
-                    "&impuesto=" + impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto() +
-                    "&venta=" + venta +
-                    "&unidad_medida=" + unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida() +
-                    "&factor_medida=" + txtFactorMedida.getText().toString() +
-                    "&art_granel=" + (articulo_granel.isChecked() ? 'S' : 'N') +
-                    "&articulo_romana=" + (articulo_romana.isChecked() ? 'S' : 'N'), new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulos/" + params.toString() , new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
 
@@ -699,15 +697,17 @@ public class Articulos extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     NetworkResponse statusCode = error.networkResponse;
-                    Toast.makeText(getActivity(),"Código error: " + statusCode + " \n "+ error.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Código error: " + statusCode + " \n " + error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
-            request.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            request.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(request);
         } catch (Exception e) {
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
     private void nuevoArticulo(final String codigo) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -755,7 +755,7 @@ public class Articulos extends Fragment {
                 btnGuardar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (validarTextos(txtDescripcion,txtCosto,txtUtilidad,txtVenta,txtFactorMedida)) {
+                        if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
                             guardarArticulo(codigo, txtDescripcion.getText().toString(),
                                     impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo(),
                                     familias.get(spFamilias.getSelectedItemPosition()).getCod(),
@@ -781,20 +781,20 @@ public class Articulos extends Fragment {
                     //txtUtilidad.requestFocus();
                     return true;
                 }
-                return false ;
+                return false;
             }
         });
 
         txtUtilidad.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_UP){
+                if (event.getAction() == KeyEvent.ACTION_UP) {
                     utilidad = !txtUtilidad.getText().toString().equals("") ? Float.valueOf(txtUtilidad.getText().toString()) : 0;
                     txtVenta.setText(String.valueOf(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
                     spImpuestos.requestFocus();
                     return true;
                 }
-                return false ;
+                return false;
             }
         });
 
@@ -806,7 +806,7 @@ public class Articulos extends Fragment {
                     txtUtilidad.setText(String.valueOf(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
                     return true;
                 }
-                return false ;
+                return false;
             }
         });
 
@@ -868,7 +868,7 @@ public class Articulos extends Fragment {
                 parametros.put("utilidad", String.valueOf(utilidad));
                 parametros.put("venta", String.valueOf(venta));
                 parametros.put("impuesto", String.valueOf(impuesto));
-                parametros.put("user",user);
+                parametros.put("user", user);
                 return parametros;
             }
         };
