@@ -37,6 +37,6 @@ public class ModImpuesto {
     @NonNull
     @Override
     public String toString() {
-        return porcentaje + " %" ;
+        return descripcion ;
     }
 }
