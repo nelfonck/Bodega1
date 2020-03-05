@@ -53,17 +53,23 @@ import com.google.zxing.integration.android.IntentResult;
 import com.example.bodega.R;
 import com.google.gson.Gson;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cz.msebera.android.httpclient.Header;
 
 
 public class Articulos extends Fragment {
@@ -686,6 +692,23 @@ public class Articulos extends Fragment {
             params.put("art_granel" , (articulo_granel.isChecked() ? "S" : "N"));
             params.put("articulo_romana" , (articulo_romana.isChecked() ? "S" : "N"));
 
+            AsyncHttpClient cliente = new AsyncHttpClient();
+            String urla = configuracion.getUrl() + "/articulos/" + params.toString() ;
+            String urlb = URLEncoder.encode(urla,"UTF-8");
+
+            cliente.put(urlb, null, new TextHttpResponseHandler() {
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    msj("Error: " + statusCode, responseString);
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, String response) {
+                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
+                }
+            });
+
+            /*
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
             StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulos/" + params.toString() , new Response.Listener<String>() {
                 @Override
@@ -702,7 +725,7 @@ public class Articulos extends Fragment {
             });
 
             request.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(request);
+            requestQueue.add(request); */
         } catch (Exception e) {
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
