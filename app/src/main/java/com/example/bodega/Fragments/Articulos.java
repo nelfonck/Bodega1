@@ -53,23 +53,26 @@ import com.google.zxing.integration.android.IntentResult;
 import com.example.bodega.R;
 import com.google.gson.Gson;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.TextHttpResponseHandler;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cz.msebera.android.httpclient.Header;
+import javax.net.ssl.HttpsURLConnection;
 
 
 public class Articulos extends Fragment {
@@ -192,7 +195,7 @@ public class Articulos extends Fragment {
                 buscarDescripcion();
             }
         });
-
+        /*
         txtCosto.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -242,7 +245,7 @@ public class Articulos extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
-        });
+        }); */
 
         txtCodigo.requestFocus();
 
@@ -543,15 +546,17 @@ public class Articulos extends Fragment {
                 try {
                     JSONObject articulo = new JSONObject(response);
                     if (articulo.length() > 0) {
+                        DecimalFormat formatter = new DecimalFormat("#");
+                        formatter.setMaximumFractionDigits(2) ;
 
                         txtDescripcion.setText(articulo.getString("descripcion"));
                         int pos = indexOfFamilias(familias, articulo.getString("cod_familia"));
                         spFamilias.setSelection(pos);
                         pos = indexOfMarcas(marcas, articulo.getString("cod_marca"));
                         spMarcas.setSelection(pos);
-                        txtCosto.setText(articulo.getString("costo"));
-                        txtUtilidad.setText(articulo.getString("utilidad"));
-                        txtVenta.setText(articulo.getString("venta"));
+                        txtCosto.setText(formatter.format(articulo.getDouble("costo")));
+                        txtUtilidad.setText(formatter.format(articulo.getDouble("utilidad")));
+                        txtVenta.setText(formatter.format(articulo.getDouble("venta")));
                         cod_articulo = codigo;
                         costo = articulo.getDouble("costo");
                         pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
@@ -563,6 +568,7 @@ public class Articulos extends Fragment {
                         venta = articulo.getDouble("venta");
                         articulo_granel.setChecked(articulo.getString("art_granel").equals("S"));
                         articulo_romana.setChecked(articulo.getString("articulo_romana").equals("S"));
+
                         txtCodigo.setText("");
                         txtCodigo.requestFocus();
                     } else {
@@ -671,7 +677,6 @@ public class Articulos extends Fragment {
         try {
 
             ContentValues params = new ContentValues();
-
             params.put("host_db" , configuracion.getHost_db()) ;
             params.put("port_db" , configuracion.getPort_db()) ;
             params.put("user_name" , configuracion.getUser_name()) ;
@@ -692,23 +697,6 @@ public class Articulos extends Fragment {
             params.put("art_granel" , (articulo_granel.isChecked() ? "S" : "N"));
             params.put("articulo_romana" , (articulo_romana.isChecked() ? "S" : "N"));
 
-            AsyncHttpClient cliente = new AsyncHttpClient();
-            String urla = configuracion.getUrl() + "/articulos/" + params.toString() ;
-            String urlb = URLEncoder.encode(urla,"UTF-8");
-
-            cliente.put(urlb, null, new TextHttpResponseHandler() {
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                    msj("Error: " + statusCode, responseString);
-                }
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, String response) {
-                    Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                }
-            });
-
-            /*
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
             StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulos/" + params.toString() , new Response.Listener<String>() {
                 @Override
@@ -725,9 +713,10 @@ public class Articulos extends Fragment {
             });
 
             request.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(request); */
+            requestQueue.add(request);
+
         } catch (Exception e) {
-            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+            msj("Error",e.getMessage());
         }
     }
 
@@ -779,15 +768,19 @@ public class Articulos extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
-                            guardarArticulo(codigo, txtDescripcion.getText().toString(),
-                                    impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo(),
-                                    familias.get(spFamilias.getSelectedItemPosition()).getCod(),
-                                    marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca(),
-                                    unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida(),
-                                    txtFactorMedida.getText().toString(), (articulo_granel.isChecked() ? "S" : "N"),
-                                    (articulo_romana.isChecked() ? "S" : "N"), Double.valueOf(txtCosto.getText().toString()),
-                                    Double.valueOf(txtUtilidad.getText().toString()), Double.valueOf(txtVenta.getText().toString()),
-                                    impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto());
+                            try {
+                                guardarArticulo(codigo, URLEncoder.encode(txtDescripcion.getText().toString(),"UTF-8"),
+                                        impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo(),
+                                        familias.get(spFamilias.getSelectedItemPosition()).getCod(),
+                                        marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca(),
+                                        unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida(),
+                                        txtFactorMedida.getText().toString(), (articulo_granel.isChecked() ? "S" : "N"),
+                                        (articulo_romana.isChecked() ? "S" : "N"), Double.valueOf(txtCosto.getText().toString()),
+                                        Double.valueOf(txtUtilidad.getText().toString()), Double.valueOf(txtVenta.getText().toString()),
+                                        impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto());
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
                             dialog.dismiss();
                         }
                     }
