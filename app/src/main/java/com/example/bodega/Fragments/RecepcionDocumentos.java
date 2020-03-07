@@ -75,7 +75,7 @@ public class RecepcionDocumentos extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
                 if (KeyEvent.ACTION_DOWN == event.getAction()){
-                    verificar();
+                    verificar(txtConsecutivo.getText().toString());
                     return true ;
                 }
                 return false;
@@ -94,8 +94,9 @@ public class RecepcionDocumentos extends Fragment {
         });
                 return view;
     }
+    //OVERLOAD METHODS
 
-    private void verificar(){
+    private void verificar(String consecutivo){
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos" +
                 "?host_db=" + configuracion.getHost_db() +
@@ -106,6 +107,54 @@ public class RecepcionDocumentos extends Fragment {
                 "&schema=" + configuracion.getSchema() +
                 "&consecutivo=" + txtConsecutivo.getText().toString() +
                 "&iud=" + (igualar_ultimos_digitos.isChecked() ? true :false),null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray documento) {
+                try {
+                    if (documento.length()>0){
+                        if (documento.length()==1){
+                            if (documento.getJSONObject(0).getString("estado_recepcion").equals("01")){
+                                imgEstado.setImageResource(R.drawable.aprovado);
+                            }else if (documento.getJSONObject(0).getString("estado_recepcion").equals("03")){
+                                imgEstado.setImageResource(R.drawable.rejected);
+                            }else if (documento.getJSONObject(0).getString("estado_recepcion").equals("05")){
+                                imgEstado.setImageResource(R.drawable.fileerror);
+                                imgEstado.setBackgroundResource(0);
+                            }
+                            txtConsecutivo.setText(documento.getJSONObject(0).getString("consecutivo_documento"));
+                            tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_comercial_vendedor"));
+                            tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
+                        }else if (documento.length()>1){
+                            mostrarResultados(documento);
+                        }
+
+                    }else{
+                        imgEstado.setImageResource(R.drawable.noresults);
+                    }
+                } catch (JSONException e) {
+                    msj("Error",e.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                msj("Error",error.getMessage());
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+    private void verificar(String consecutivo,String cod_proveedor){
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos" +
+                "?host_db=" + configuracion.getHost_db() +
+                "&port_db=" + configuracion.getPort_db() +
+                "&user_name=" + configuracion.getUser_name() +
+                "&password=" + configuracion.getPassword() +
+                "&db_name=" + configuracion.getDatabase() +
+                "&schema=" + configuracion.getSchema() +
+                "&consecutivo=" + txtConsecutivo.getText().toString() +
+                "&iud=" + (igualar_ultimos_digitos.isChecked() ? true :false)+
+                "&cod_proveedor="+cod_proveedor,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray documento) {
                 try {
@@ -154,7 +203,7 @@ public class RecepcionDocumentos extends Fragment {
             try {
                 listDocumentos.add(new ModDocumentos(documentos.getJSONObject(i).getString("consecutivo_documento"),
                         documentos.getJSONObject(i).getString("nombre_comercial_vendedor"),
-                        documentos.getJSONObject(i).getString("fecha_emision_documento")));
+                        documentos.getJSONObject(i).getString("fecha_emision_documento"),documentos.getJSONObject(i).getString("cod_proveedor")));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -176,7 +225,7 @@ public class RecepcionDocumentos extends Fragment {
             @Override
             public void itemClick(int pos) {
                 txtConsecutivo.setText(listDocumentos.get(pos).getConsecutivo_hacienda());
-                verificar();
+                verificar(txtConsecutivo.getText().toString(),listDocumentos.get(pos).getCod_proveedor());
                 dialog.dismiss();
             }
         });

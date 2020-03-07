@@ -530,8 +530,19 @@ public class DetalleProforma extends AppCompatActivity {
             StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/proformas/", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    msj("Response request", response);
-                    finish();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(DetalleProforma.this);
+                    builder.setTitle("Mensaje");
+                    builder.setMessage(response);
+                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            eliminarProformaDB(consecutivo);
+                            finish();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -563,7 +574,6 @@ public class DetalleProforma extends AppCompatActivity {
                 }
             };
             queue.add(request);
-            eliminarProformaDB(consecutivo);
         } catch (Exception e) {
             msj("Error", e.getMessage());
         }
@@ -663,7 +673,6 @@ public class DetalleProforma extends AppCompatActivity {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    articulos.clear();
                     final Gson gson = new Gson();
                     RequestQueue queue = Volley.newRequestQueue(DetalleProforma.this);
                     StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
@@ -677,6 +686,7 @@ public class DetalleProforma extends AppCompatActivity {
                         @Override
                         public void onResponse(String response) {
                             try {
+                                articulos.clear();
                                 articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
                                 adapter.notifyDataSetChanged();
                             } catch (Exception e) {

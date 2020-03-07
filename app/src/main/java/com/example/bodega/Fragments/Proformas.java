@@ -211,7 +211,7 @@ public class Proformas extends Fragment {
 
                 incluirProforma(baseAdapter,cod_cliente,cliente);
                 String consecutivo = String.valueOf(getLastId(baseAdapter));
-                String date = new SimpleDateFormat("Y-m-d", Locale.getDefault()).format(new Date());
+                String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
                 proformaList.add(new ModProforma(consecutivo,cod_cliente,cliente,date,0,0,0,0,0,0,0));
                 getCreditoDisponible(cod_cliente,proformaList.size()-1);
 
@@ -266,7 +266,7 @@ public class Proformas extends Fragment {
         try{
             SQLiteDatabase db = baseAdapter.getWritableDatabase();
 
-            String date = new SimpleDateFormat("Y-m-d", Locale.getDefault()).format(new Date());
+            String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
             ContentValues values = new ContentValues();
             values.put(BaseAdapter.PROFORMA.FECHA,date);
