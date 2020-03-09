@@ -1,6 +1,7 @@
 package com.example.bodega;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,13 +9,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -163,10 +167,13 @@ public class DetalleProforma extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
                         txtCantidad.setText("1");
                         txtCantidad.requestFocus();
+                        showKeyboard(DetalleProforma.this,txtCantidad);
+                        return true;
                     }
                 return false;
             }
         });
+
 
         txtCantidad.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -211,6 +218,24 @@ public class DetalleProforma extends AppCompatActivity {
             }
         });
     }
+
+    public void showKeyboard(Context activityContext, final EditText editText){
+
+        final InputMethodManager imm = (InputMethodManager)
+                activityContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        if (!editText.hasFocus()) {
+            editText.requestFocus();
+        }
+
+        editText.post(new Runnable() {
+            @Override
+            public void run() {
+                imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
+            }
+        });
+    }
+
 
     private void getConfiguracion() {
 

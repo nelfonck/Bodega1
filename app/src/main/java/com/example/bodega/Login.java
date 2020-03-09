@@ -3,7 +3,9 @@ package com.example.bodega;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -49,6 +52,7 @@ public class Login extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
                         txtPass.setText("");
                         txtPass.requestFocus();
+                        showKeyboard(Login.this,txtPass);
                         return true;
                     }
                 return false;
@@ -78,6 +82,23 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+    }
+
+    public void showKeyboard(Context activityContext, final EditText editText){
+
+        final InputMethodManager imm = (InputMethodManager)
+                activityContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        if (!editText.hasFocus()) {
+            editText.requestFocus();
+        }
+
+        editText.post(new Runnable() {
+            @Override
+            public void run() {
+                imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
             }
         });
     }
