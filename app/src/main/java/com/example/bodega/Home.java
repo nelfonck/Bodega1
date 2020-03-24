@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.bodega.Fragments.Articulos;
 import com.example.bodega.Fragments.Habladores;
+import com.example.bodega.Fragments.NotasCredito;
 import com.example.bodega.Fragments.Preferencias;
 import com.example.bodega.Fragments.Proformas;
 import com.example.bodega.Fragments.RecepcionDocumentos;
@@ -88,6 +89,11 @@ public class Home extends AppCompatActivity {
                         fr = new RecepcionDocumentos();
                         fragmentTransaction = true ;
                         titulo = "Verificar recepción de documentos";
+                        break;
+                    case R.id.notas_credito:
+                        fr = new NotasCredito();
+                        fragmentTransaction = true ;
+                        titulo = "Nótas de crédito";
                         break;
                     case R.id.salir :
                         finish();

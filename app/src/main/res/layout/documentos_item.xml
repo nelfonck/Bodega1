@@ -24,6 +24,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fecha de emisión"/>
+        <TextView
+            android:id="@+id/tvCliente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cliente"/>
+        <TextView
+            android:id="@+id/tvTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
 

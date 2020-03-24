@@ -50,6 +50,8 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -200,31 +202,36 @@ public class Habladores extends Fragment {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     articulos.clear();
                     final Gson gson = new Gson();
-                    StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                            "/articulos/?descripcion=" + txtArticulo.getText().toString()+
-                            "&host_db=" + configuracion.getHost_db() +
-                            "&port_db=" + configuracion.getPort_db() +
-                            "&user_name=" + configuracion.getUser_name() +
-                            "&password=" + configuracion.getPassword() +
-                            "&db_name=" + configuracion.getDatabase() +
-                            "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
-                                adapter.notifyDataSetChanged();
-                            } catch (Exception e) {
-                                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    StringRequest request = null;
+                    try {
+                        request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                                "/articulos/?descripcion=" + URLEncoder.encode(txtArticulo.getText().toString(),"utf-8")+
+                                "&host_db=" + configuracion.getHost_db() +
+                                "&port_db=" + configuracion.getPort_db() +
+                                "&user_name=" + configuracion.getUser_name() +
+                                "&password=" + configuracion.getPassword() +
+                                "&db_name=" + configuracion.getDatabase() +
+                                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
+                                    adapter.notifyDataSetChanged();
+                                } catch (Exception e) {
+                                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
                             }
 
-                        }
-
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     request.setTag(TAG);
                     queue.add(request);
                     queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
@@ -296,7 +303,7 @@ public class Habladores extends Fragment {
 
     public void scanNow() {
         IntentIntegrator intentIntegrator = IntentIntegrator.forFragment(Habladores.this);
-        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.EAN_13,IntentIntegrator.EAN_8,IntentIntegrator.UPC_A,IntentIntegrator.UPC_E);
         intentIntegrator.setPrompt("Scan barcode");
         intentIntegrator.setCameraId(0);
         intentIntegrator.setBeepEnabled(true);
@@ -351,41 +358,46 @@ public class Habladores extends Fragment {
     public void doCall(final String codigo) {
         if (!existeItem(codigo)) {
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
-                    "/habladores/?codigo=" + codigo +
-                    "&host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema(),null, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject articulo) {
-                    try {
+            JsonObjectRequest request = null;
+            try {
+                request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
+                        "/habladores/?codigo=" + URLEncoder.encode(codigo,"utf-8") +
+                        "&host_db=" + configuracion.getHost_db() +
+                        "&port_db=" + configuracion.getPort_db() +
+                        "&user_name=" + configuracion.getUser_name() +
+                        "&password=" + configuracion.getPassword() +
+                        "&db_name=" + configuracion.getDatabase() +
+                        "&schema=" + configuracion.getSchema(),null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject articulo) {
+                        try {
 
-                        if (articulo.length()>0){
-                            if (articulo.getBoolean("en_cola")) {
-                                Toast.makeText(getActivity(), "El artículo está en proceso de impresión en QPOS...", Toast.LENGTH_LONG).show();
-                            }else
-                                if (articulo.getString("activo").equals("S")) {
-                                addToList(articulo.getString("codigo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
-                            } else {
-                                activarArticulo(articulo.getString("codigo"));
+                            if (articulo.length()>0){
+                                if (articulo.getBoolean("en_cola")) {
+                                    Toast.makeText(getActivity(), "El artículo está en proceso de impresión en QPOS...", Toast.LENGTH_LONG).show();
+                                }else
+                                    if (articulo.getString("activo").equals("S")) {
+                                    addToList(articulo.getString("codigo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
+                                } else {
+                                    activarArticulo(articulo.getString("codigo"));
+                                }
+                            }else{
+                                Toast.makeText(getActivity(), "El artículo no éxiste : "+ codigo, Toast.LENGTH_SHORT).show();
                             }
-                        }else{
-                            Toast.makeText(getActivity(), "El artículo no éxiste : "+ codigo, Toast.LENGTH_SHORT).show();
-                        }
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             request.setTag(TAG);
             queue.add(request);
             queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
@@ -407,7 +419,7 @@ public class Habladores extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     StringRequest stringRequest = new StringRequest(Request.Method.PUT, configuracion.getUrl() +
-                            "/articulos/?codigo=" + codigo +
+                            "/habladores/?codigo=" + URLEncoder.encode(codigo,"utf-8") +
                             "&host_db=" + configuracion.getHost_db() +
                             "&port_db=" + configuracion.getPort_db() +
                             "&user_name=" + configuracion.getUser_name() +

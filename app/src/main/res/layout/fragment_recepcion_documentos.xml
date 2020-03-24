@@ -36,7 +36,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvNombreComercialVendedor"/>
-
+    <TextView
+        android:id="@+id/tvCliente"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvFechaEmision"/>
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvCliente"/>
     <EditText
         android:id="@+id/txtConsecutivo"
         android:layout_width="wrap_content"
@@ -63,7 +72,7 @@
         android:id="@+id/llbackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvFechaEmision"
+        android:layout_below="@+id/tvTotal"
         android:layout_alignParentBottom="true">
 
         <ImageView

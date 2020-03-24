@@ -24,6 +24,11 @@
             android:id="@+id/recepcion_documentos"
             android:icon="@drawable/check"
             android:title="@string/menu_documentos" />
+
+        <item
+            android:id="@+id/notas_credito"
+            android:icon="@drawable/notas"
+            android:title="@string/n_tas_de_cr_dito" />
     </group>
 
     <item android:title="Preferencias">

@@ -39,7 +39,8 @@
             android:layout_marginRight="10dp"
             android:hint="Nombre de usuario"
             android:textSize="24sp"
-            android:layout_below="@id/imgLogo"/>
+            android:layout_below="@id/imgLogo"
+            android:singleLine="true"/>
         <EditText
             android:id="@+id/txtPass"
             android:layout_width="match_parent"

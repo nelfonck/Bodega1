@@ -36,24 +36,6 @@
                 android:key="port_d"
                 android:summary="Port"/>
         </PreferenceCategory>
-        <PreferenceCategory android:title="Database documentos electrónicos">
-            <EditTextPreference android:key="host_db_d"
-                android:summary="Host"/>
 
-            <EditTextPreference android:key="port_db_d"
-                android:summary="Port"/>
-
-            <EditTextPreference android:key="user_name_d"
-                android:summary="User name"/>
-
-            <EditTextPreference android:key="password_d"
-                android:summary="Password"/>
-
-            <EditTextPreference android:key="db_name_d"
-                android:summary="Data base name"/>
-
-            <EditTextPreference android:key="schema_d"
-                android:summary="Schema"/>
-        </PreferenceCategory>
 
 </PreferenceScreen>

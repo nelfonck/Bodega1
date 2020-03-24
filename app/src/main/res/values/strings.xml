@@ -14,4 +14,8 @@
     <string name="menu_documentos">Verificar documentos</string>
     <string name="menu_configuracion">Configuración</string>
     <string name="menu_salir">Salir</string>
+    <string name="n_tas_de_cr_dito">Nótas de crédito</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

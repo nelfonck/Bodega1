@@ -39,7 +39,8 @@ public class AdapterDocumentos extends RecyclerView.Adapter<AdapterDocumentos.Vi
         holder.tvConsecutivo.setText(documentos.get(position).getConsecutivo_hacienda());
         holder.tvNombreComercialVendedor.setText(documentos.get(position).getNombre_comercial_vendedor());
         holder.tvFechaCreacion.setText(("Fecha de emisión: " + documentos.get(position).getFecha_emision()));
-
+        holder.tvCliente.setText("cliente: "+ documentos.get(position).getCliente());
+        holder.tvTotal.setText("total ¢ " + documentos.get(position).getTotal());
     }
 
     @Override
@@ -48,7 +49,7 @@ public class AdapterDocumentos extends RecyclerView.Adapter<AdapterDocumentos.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvConsecutivo,tvNombreComercialVendedor, tvFechaCreacion ;
+        TextView tvConsecutivo,tvNombreComercialVendedor, tvFechaCreacion, tvCliente, tvTotal ;
         OnItemClick onItemClick ;
 
         public ViewHolder(@NonNull View item, final OnItemClick onItemClick) {
@@ -57,6 +58,8 @@ public class AdapterDocumentos extends RecyclerView.Adapter<AdapterDocumentos.Vi
             tvConsecutivo = item.findViewById(R.id.tvConsecutivoItem);
             tvNombreComercialVendedor = item.findViewById(R.id.tvNombreComercialVendedor);
             tvFechaCreacion = item.findViewById(R.id.tvFechaCreacion);
+            tvCliente = item.findViewById(R.id.tvCliente);
+            tvTotal = item.findViewById(R.id.tvTotal);
             item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

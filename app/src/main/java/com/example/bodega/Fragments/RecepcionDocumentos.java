@@ -45,6 +45,8 @@ public class RecepcionDocumentos extends Fragment {
     private EditText txtConsecutivo ;
     private TextView tvNombreComercialVendedor ;
     private TextView tvFechaEmision ;
+    private TextView tvCliente ;
+    private TextView tvTotal ;
     private ImageView imgEstado ;
     private CheckBox igualar_ultimos_digitos ;
 
@@ -64,7 +66,8 @@ public class RecepcionDocumentos extends Fragment {
         ImageButton imgClear = view.findViewById(R.id.imgClear);
         tvNombreComercialVendedor = view.findViewById(R.id.tvNombreComercialVendedor);
         tvFechaEmision = view.findViewById(R.id.tvFechaEmision);
-
+        tvCliente = view.findViewById(R.id.tvCliente);
+        tvTotal = view.findViewById(R.id.tvTotal);
         imgEstado.getBackground().setAlpha(120);
 
         getConfiguracion();
@@ -90,6 +93,8 @@ public class RecepcionDocumentos extends Fragment {
                 imgEstado.setBackgroundResource(R.drawable.documentos);
                 tvNombreComercialVendedor.setText("");
                 tvFechaEmision.setText("");
+                tvCliente.setText("");
+                tvTotal.setText("");
             }
         });
                 return view;
@@ -101,10 +106,6 @@ public class RecepcionDocumentos extends Fragment {
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos" +
                 "?host_db=" + configuracion.getHost_db() +
                 "&port_db=" + configuracion.getPort_db() +
-                "&user_name=" + configuracion.getUser_name() +
-                "&password=" + configuracion.getPassword() +
-                "&db_name=" + configuracion.getDatabase() +
-                "&schema=" + configuracion.getSchema() +
                 "&consecutivo=" + txtConsecutivo.getText().toString() +
                 "&iud=" + (igualar_ultimos_digitos.isChecked() ? true :false),null, new Response.Listener<JSONArray>() {
             @Override
@@ -123,6 +124,8 @@ public class RecepcionDocumentos extends Fragment {
                             txtConsecutivo.setText(documento.getJSONObject(0).getString("consecutivo_documento"));
                             tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_comercial_vendedor"));
                             tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
+                            tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
+                            tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
                         }else if (documento.length()>1){
                             mostrarResultados(documento);
                         }
@@ -143,18 +146,14 @@ public class RecepcionDocumentos extends Fragment {
         queue.add(stringRequest);
     }
 
-    private void verificar(String consecutivo,String cod_proveedor){
+    private void verificar(int id, String consecutivo){
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos" +
                 "?host_db=" + configuracion.getHost_db() +
                 "&port_db=" + configuracion.getPort_db() +
-                "&user_name=" + configuracion.getUser_name() +
-                "&password=" + configuracion.getPassword() +
-                "&db_name=" + configuracion.getDatabase() +
-                "&schema=" + configuracion.getSchema() +
-                "&consecutivo=" + txtConsecutivo.getText().toString() +
                 "&iud=" + (igualar_ultimos_digitos.isChecked() ? true :false)+
-                "&cod_proveedor="+cod_proveedor,null, new Response.Listener<JSONArray>() {
+                "&id="+id+
+                "&consecutivo="+ consecutivo,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray documento) {
                 try {
@@ -171,6 +170,8 @@ public class RecepcionDocumentos extends Fragment {
                             txtConsecutivo.setText(documento.getJSONObject(0).getString("consecutivo_documento"));
                             tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_comercial_vendedor"));
                             tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
+                            tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
+                            tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
                         }else if (documento.length()>1){
                             mostrarResultados(documento);
                         }
@@ -203,7 +204,10 @@ public class RecepcionDocumentos extends Fragment {
             try {
                 listDocumentos.add(new ModDocumentos(documentos.getJSONObject(i).getString("consecutivo_documento"),
                         documentos.getJSONObject(i).getString("nombre_comercial_vendedor"),
-                        documentos.getJSONObject(i).getString("fecha_emision_documento"),documentos.getJSONObject(i).getString("cod_proveedor")));
+                        documentos.getJSONObject(i).getString("fecha_emision_documento"),
+                        documentos.getJSONObject(i).getInt("id"),
+                        documentos.getJSONObject(i).getString("cliente"),
+                        documentos.getJSONObject(i).getString("total")));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -225,7 +229,7 @@ public class RecepcionDocumentos extends Fragment {
             @Override
             public void itemClick(int pos) {
                 txtConsecutivo.setText(listDocumentos.get(pos).getConsecutivo_hacienda());
-                verificar(txtConsecutivo.getText().toString(),listDocumentos.get(pos).getCod_proveedor());
+                verificar(listDocumentos.get(pos).getId(),listDocumentos.get(pos).getConsecutivo_hacienda());
                 dialog.dismiss();
             }
         });
@@ -242,12 +246,6 @@ public class RecepcionDocumentos extends Fragment {
 
         configuracion.setHost(p.getString("host_d", ""));
         configuracion.setPort(p.getString("port_d", ""));
-        configuracion.setHost_db(p.getString("host_db_d", ""));
-        configuracion.setPort_db(p.getString("port_db_d", ""));
-        configuracion.setUser_name(p.getString("user_name_d", ""));
-        configuracion.setPassword(p.getString("password_d", ""));
-        configuracion.setDatabase(p.getString("db_name_d", ""));
-        configuracion.setSchema(p.getString("schema_d", ""));
 
     }
 

@@ -7,8 +7,10 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -28,6 +30,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,6 +42,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adaptadores.BaseAdapter;
@@ -104,7 +108,7 @@ public class Articulos extends Fragment {
     private Configuracion configuracion;
     private String user;
     private ProgressDialog progress;
-    private boolean block ;
+    private boolean block;
 
     public Articulos() {
 
@@ -206,11 +210,11 @@ public class Articulos extends Fragment {
         txtCosto.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (event.getAction() == KeyEvent.ACTION_UP) {
-                        costo = (!txtCosto.getText().toString().equals("")? Double.valueOf(txtCosto.getText().toString()):0);
-                        txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
-                        return true;
-                    }
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    costo = (!txtCosto.getText().toString().equals("") ? Double.valueOf(txtCosto.getText().toString()) : 0);
+                    txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
+                    return true;
+                }
                 return false;
             }
         });
@@ -218,12 +222,12 @@ public class Articulos extends Fragment {
         txtUtilidad.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (event.getAction() == KeyEvent.ACTION_UP) {
-                        utilidad = (!txtUtilidad.getText().toString().equals("")? Double.valueOf(txtUtilidad.getText().toString()):0);
-                        txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
-                        spImpuestos.requestFocus();
-                        return true;
-                    }
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    utilidad = (!txtUtilidad.getText().toString().equals("") ? Double.valueOf(txtUtilidad.getText().toString()) : 0);
+                    txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
+                    spImpuestos.requestFocus();
+                    return true;
+                }
                 return false;
             }
         });
@@ -231,11 +235,11 @@ public class Articulos extends Fragment {
         txtVenta.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (event.getAction() == KeyEvent.ACTION_UP) {
-                        venta = (!txtVenta.getText().toString().equals("")? Double.valueOf(txtVenta.getText().toString()):0);
-                        txtUtilidad.setText(formatter.format(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
-                        return true;
-                    }
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    venta = (!txtVenta.getText().toString().equals("") ? Double.valueOf(txtVenta.getText().toString()) : 0);
+                    txtUtilidad.setText(formatter.format(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
+                    return true;
+                }
                 return false;
             }
         });
@@ -248,19 +252,19 @@ public class Articulos extends Fragment {
             }
         });
 
-     spImpuestos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-         @Override
-         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-             if (!block){
-                 txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(position).getImpuesto(), utilidad)));
-             }
-         }
+        spImpuestos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!block) {
+                    txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(position).getImpuesto(), utilidad)));
+                }
+            }
 
-         @Override
-         public void onNothingSelected(AdapterView<?> parent) {
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
-         }
-     });
+            }
+        });
 
 
         txtCodigo.requestFocus();
@@ -330,31 +334,36 @@ public class Articulos extends Fragment {
                     articulos.clear();
                     final Gson gson = new Gson();
                     RequestQueue queue = Volley.newRequestQueue(getActivity());
-                    StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                            "/articulos/?descripcion=" + txtArticulo.getText().toString() +
-                            "&host_db=" + configuracion.getHost_db() +
-                            "&port_db=" + configuracion.getPort_db() +
-                            "&user_name=" + configuracion.getUser_name() +
-                            "&password=" + configuracion.getPassword() +
-                            "&db_name=" + configuracion.getDatabase() +
-                            "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
-                                adapter.notifyDataSetChanged();
-                            } catch (Exception e) {
-                                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    StringRequest request = null;
+                    try {
+                        request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                                "/articulos/?descripcion=" + URLEncoder.encode(txtArticulo.getText().toString(), "utf-8") +
+                                "&host_db=" + configuracion.getHost_db() +
+                                "&port_db=" + configuracion.getPort_db() +
+                                "&user_name=" + configuracion.getUser_name() +
+                                "&password=" + configuracion.getPassword() +
+                                "&db_name=" + configuracion.getDatabase() +
+                                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
+                                    adapter.notifyDataSetChanged();
+                                } catch (Exception e) {
+                                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
                             }
 
-                        }
-
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
 
                     queue.add(request);
                     return true;
@@ -499,6 +508,7 @@ public class Articulos extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -509,8 +519,11 @@ public class Articulos extends Fragment {
                 break;
             case R.id.agregar_a_cola:
                 if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
-                    addToList(cod_articulo, txtDescripcion.getText().toString(), Double.valueOf(txtVenta.getText().toString()));
-                    Toast.makeText(getActivity(), "Agregando a la cola de habladores", Toast.LENGTH_LONG).show();
+                    if (existeItem(cod_articulo)){
+                        Toast.makeText(getActivity(), "El artículo ya está en la lista", Toast.LENGTH_SHORT).show();
+                    }else{
+                        estaEnQupos(cod_articulo);
+                    }
                 }
                 break;
         }
@@ -530,6 +543,68 @@ public class Articulos extends Fragment {
             msj("Error", e.getMessage());
         }
     }
+
+    private boolean existeItem(String codigo) {
+        SQLiteDatabase db = baseAdapter.getReadableDatabase();
+        Cursor c = db.rawQuery("select * from " + BaseAdapter.HABLADORES.TABLE_NAME + " WHERE " + BaseAdapter.HABLADORES.CODIGO + "=?", new String[]{codigo});
+
+        if (c.getCount() > 0) {
+            c.close();
+            db.close();
+            return true;
+        } else {
+            c.close();
+            db.close();
+            return false;
+        }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void estaEnQupos(final String codigo) {
+
+                RequestQueue queue = Volley.newRequestQueue(getActivity());
+
+                ContentValues cv = new ContentValues();
+                cv.put("codigo",codigo);
+                cv.put("host_db",configuracion.getHost_db());
+                cv.put("port_db",configuracion.getPort_db());
+                cv.put("user_name",configuracion.getUser_name());
+                cv.put("password",configuracion.getPassword());
+                cv.put("db_name",configuracion.getDatabase());
+                cv.put("schema",configuracion.getSchema());
+
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
+                        "/habladores/" + cv.toString(), null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject articulo) {
+
+                            if (articulo.length() > 0) {
+                                try {
+                                    if (!articulo.getBoolean("en_cola")) {
+                                        addToList(cod_articulo, txtDescripcion.getText().toString(), Double.valueOf(txtVenta.getText().toString()));
+                                        Toast.makeText(getActivity(), "Agregando a la cola de habladores", Toast.LENGTH_LONG).show();
+                                    }else{
+                                        Toast.makeText(getActivity(),"El artículo está en proceso de impresión en QPOS...", Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    msj("Error",e.getMessage());
+                                }
+                            }
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                queue.add(request);
+
+    }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -554,80 +629,85 @@ public class Articulos extends Fragment {
         if (!progress.isShowing()) progress.show();
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" +
-                "?codigo=" + codigo +
-                "&host_db=" + configuracion.getHost_db() +
-                "&port_db=" + configuracion.getPort_db() +
-                "&user_name=" + configuracion.getUser_name() +
-                "&password=" + configuracion.getPassword() +
-                "&db_name=" + configuracion.getDatabase() +
-                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject articulo = new JSONObject(response);
-                    if (articulo.length() > 0) {
-                        DecimalFormat formatter = new DecimalFormat("#");
-                        formatter.setMaximumFractionDigits(2);
+        StringRequest request = null;
+        try {
+            request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" +
+                    "?codigo=" + URLEncoder.encode(codigo,"utf-8") +
+                    "&host_db=" + configuracion.getHost_db() +
+                    "&port_db=" + configuracion.getPort_db() +
+                    "&user_name=" + configuracion.getUser_name() +
+                    "&password=" + configuracion.getPassword() +
+                    "&db_name=" + configuracion.getDatabase() +
+                    "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject articulo = new JSONObject(response);
+                        if (articulo.length() > 0) {
+                            DecimalFormat formatter = new DecimalFormat("#");
+                            formatter.setMaximumFractionDigits(2);
 
-                        txtDescripcion.setText(articulo.getString("descripcion"));
-                        int pos = indexOfFamilias(familias, articulo.getString("cod_familia"));
-                        spFamilias.setSelection(pos);
-                        pos = indexOfMarcas(marcas, articulo.getString("cod_marca"));
-                        spMarcas.setSelection(pos);
+                            txtDescripcion.setText(articulo.getString("descripcion"));
+                            int pos = indexOfFamilias(familias, articulo.getString("cod_familia"));
+                            spFamilias.setSelection(pos);
+                            pos = indexOfMarcas(marcas, articulo.getString("cod_marca"));
+                            spMarcas.setSelection(pos);
 
-                        cod_articulo = codigo;
-                        costo = articulo.getDouble("costo");
-                        pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
-                        spImpuestos.setSelection(pos);
-                        pos = indexOfUnidadMedida(unidadMedidas, articulo.getString("unidad_medida"));
-                        spUnidadMedida.setSelection(pos);
-                        txtFactorMedida.setText(articulo.getString("factor_medida"));
-                        utilidad = articulo.getDouble("utilidad");
-                        venta = articulo.getDouble("venta");
-                        articulo_granel.setChecked(articulo.getString("art_granel").equals("S"));
-                        articulo_romana.setChecked(articulo.getString("articulo_romana").equals("S"));
+                            cod_articulo = codigo;
+                            costo = articulo.getDouble("costo");
+                            pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
+                            spImpuestos.setSelection(pos);
+                            pos = indexOfUnidadMedida(unidadMedidas, articulo.getString("unidad_medida"));
+                            spUnidadMedida.setSelection(pos);
+                            txtFactorMedida.setText(articulo.getString("factor_medida"));
+                            utilidad = articulo.getDouble("utilidad");
+                            venta = articulo.getDouble("venta");
+                            articulo_granel.setChecked(articulo.getString("art_granel").equals("S"));
+                            articulo_romana.setChecked(articulo.getString("articulo_romana").equals("S"));
 
-                        txtCosto.setText(formatter.format(costo));
-                        txtUtilidad.setText(formatter.format(utilidad));
-                        txtVenta.setText(formatter.format(venta));
+                            txtCosto.setText(formatter.format(costo));
+                            txtUtilidad.setText(formatter.format(utilidad));
+                            txtVenta.setText(formatter.format(venta));
 
-                        txtCodigo.setText("");
-                        txtCodigo.requestFocus();
+                            txtCodigo.setText("");
+                            txtCodigo.requestFocus();
 
-                        if (progress.isShowing()) progress.dismiss();
-                    } else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle("No registrado").setMessage("El artículo no está registrado \nDesea registrarlo ahora?");
-                        builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (progress.isShowing()) progress.dismiss();
-                                nuevoArticulo(codigo);
-                                dialog.dismiss();
-                            }
-                        });
-                        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (progress.isShowing()) progress.dismiss();
-                                dialog.dismiss();
-                            }
-                        });
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
+                            if (progress.isShowing()) progress.dismiss();
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("No registrado").setMessage("El artículo no está registrado \nDesea registrarlo ahora?");
+                            builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (progress.isShowing()) progress.dismiss();
+                                    nuevoArticulo(codigo);
+                                    dialog.dismiss();
+                                }
+                            });
+                            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (progress.isShowing()) progress.dismiss();
+                                    dialog.dismiss();
+                                }
+                            });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                if (progress.isShowing()) progress.dismiss();
-                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    if (progress.isShowing()) progress.dismiss();
+                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         queue.add(request);
     }
 
@@ -670,7 +750,7 @@ public class Articulos extends Fragment {
 
     public void scanNow() {
         IntentIntegrator intentIntegrator = IntentIntegrator.forFragment(Articulos.this);
-        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.EAN_13,IntentIntegrator.EAN_8,IntentIntegrator.UPC_A,IntentIntegrator.UPC_E);
         intentIntegrator.setPrompt("Scan barcode");
         intentIntegrator.setCameraId(0);
         intentIntegrator.setBeepEnabled(true);
@@ -701,6 +781,7 @@ public class Articulos extends Fragment {
         return 0;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void aplicarCambios() {
         try {
 
@@ -797,7 +878,7 @@ public class Articulos extends Fragment {
                     public void onClick(View v) {
                         if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
                             try {
-                                guardarArticulo(codigo, URLEncoder.encode(txtDescripcion.getText().toString(), "UTF-8"),
+                                guardarArticulo(codigo, txtDescripcion.getText().toString(),
                                         impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo(),
                                         familias.get(spFamilias.getSelectedItemPosition()).getCod(),
                                         marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca(),
@@ -806,7 +887,7 @@ public class Articulos extends Fragment {
                                         (articulo_romana.isChecked() ? "S" : "N"), Double.valueOf(txtCosto.getText().toString()),
                                         Double.valueOf(txtUtilidad.getText().toString()), Double.valueOf(txtVenta.getText().toString()),
                                         impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto());
-                            } catch (UnsupportedEncodingException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                             dialog.dismiss();

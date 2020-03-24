@@ -53,6 +53,8 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +79,7 @@ public class DetalleProforma extends AppCompatActivity {
     private List<ModDetalleProforma> detalles;
     private AdapterDetalleProforma adapterDetalleProforma;
     private Configuracion configuracion;
-
+    private boolean scanned_from_scan ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -165,8 +167,9 @@ public class DetalleProforma extends AppCompatActivity {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                        txtCantidad.setText("1");
+
                         txtCantidad.requestFocus();
+                        scanned_from_scan = false ;
                         showKeyboard(DetalleProforma.this,txtCantidad);
                         return true;
                     }
@@ -180,11 +183,16 @@ public class DetalleProforma extends AppCompatActivity {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                        if (validar(txtCodigo, txtCantidad)) {
+                        if (validar(txtCodigo.getText().toString(), txtCantidad.getText().toString())) {
                             findArticulo(txtCodigo.getText().toString(), Integer.valueOf(txtCantidad.getText().toString()), detalles, adapterDetalleProforma);
                             txtCodigo.setText("");
                             txtCantidad.setText("");
                             txtCodigo.requestFocus();
+                            if (scanned_from_scan){
+                                hideKeyboard(DetalleProforma.this,txtCodigo);
+                            }else{
+                                showKeyboard(DetalleProforma.this,txtCodigo);
+                            }
                         } else {
                             Toast.makeText(DetalleProforma.this, "El código y la cantidad no pueden estar vaciós", Toast.LENGTH_SHORT).show();
                         }
@@ -211,12 +219,22 @@ public class DetalleProforma extends AppCompatActivity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                findArticulo(txtCodigo.getText().toString(), Integer.valueOf(txtCantidad.getText().toString()), detalles, adapterDetalleProforma);
-                txtCodigo.setText("");
-                txtCantidad.setText("");
-                txtCodigo.requestFocus();
+                if (validar(txtCodigo.getText().toString(),txtCantidad.getText().toString())){
+                    findArticulo(txtCodigo.getText().toString(), Integer.valueOf(txtCantidad.getText().toString()), detalles, adapterDetalleProforma);
+                    txtCodigo.setText("");
+                    txtCantidad.setText("");
+                    txtCodigo.requestFocus();
+                    if (scanned_from_scan){
+                        hideKeyboard(DetalleProforma.this,txtCodigo);
+                    }else{
+                        showKeyboard(DetalleProforma.this,txtCodigo);
+                    }
+                }
+
             }
         });
+
+
     }
 
     public void showKeyboard(Context activityContext, final EditText editText){
@@ -236,6 +254,12 @@ public class DetalleProforma extends AppCompatActivity {
         });
     }
 
+    protected void hideKeyboard(Context activityContext,EditText editText) {
+        InputMethodManager imm = (InputMethodManager)
+                activityContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
 
     private void getConfiguracion() {
 
@@ -264,7 +288,8 @@ public class DetalleProforma extends AppCompatActivity {
 
         txtCant.setText(String.valueOf(lista.get(pos).getCantidad()));
         txtCant.setSelectAllOnFocus(true);
-
+        txtCant.requestFocus();
+        showKeyboard(DetalleProforma.this,txtCant);
         builder.setPositiveButton("Aceptar", null);
         builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             @Override
@@ -346,8 +371,8 @@ public class DetalleProforma extends AppCompatActivity {
     }
 
 
-    private boolean validar(EditText txtCodigo, EditText txtCant) {
-        if (txtCodigo.getText().toString().isEmpty() || txtCant.getText().toString().isEmpty()) {
+    private boolean validar(String codigo, String cant) {
+        if (codigo.equals("") || cant.equals("")) {
             return false;
         } else {
             return true;
@@ -356,68 +381,92 @@ public class DetalleProforma extends AppCompatActivity {
 
     private void findArticulo(final String codigo, final double cant, final List<ModDetalleProforma> detalles, final AdapterDetalleProforma adapter) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" +
-                "?codigo=" + codigo +
-                "&host_db=" + configuracion.getHost_db() +
-                "&port_db=" + configuracion.getPort_db() +
-                "&user_name=" + configuracion.getUser_name() +
-                "&password=" + configuracion.getPassword() +
-                "&db_name=" + configuracion.getDatabase() +
-                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject articulo = new JSONObject(response);
-                    if (articulo.length() > 0) {
-                        if (articulo.getString("activo").equals("S")) {
-                            if (!enLaLista(detalles , adapter, articulo.getString("codigo"), cant)) {
-                                String cod_articulo = articulo.getString("codigo");
-                                String descripcion = articulo.getString("descripcion");
-                                double venta = articulo.getDouble("venta");
-                                int iv = articulo.getInt("porc_impuesto");
-                                double total = venta * cant;
-                                insertarLinea(cod_articulo, descripcion, venta, iv, cant, total);
-                                detalles.add(new ModDetalleProforma(cod_articulo, descripcion, venta, iv, cant, total));
-                                sumarTotales(detalles);
-                                adapter.notifyDataSetChanged();
-                            }
+        StringRequest request = null;
+        try {
+            request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" +
+                    "?codigo=" + URLEncoder.encode(codigo,"utf-8") +
+                    "&host_db=" + configuracion.getHost_db() +
+                    "&port_db=" + configuracion.getPort_db() +
+                    "&user_name=" + configuracion.getUser_name() +
+                    "&password=" + configuracion.getPassword() +
+                    "&db_name=" + configuracion.getDatabase() +
+                    "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject articulo = new JSONObject(response);
+                        if (articulo.length() > 0) {
+                            if (articulo.getString("activo").equals("S")) {
+                                if (!enLaLista(detalles , adapter, articulo.getString("codigo"), cant)) {
+                                    String cod_articulo = articulo.getString("codigo");
+                                    String descripcion = articulo.getString("descripcion");
+                                    double venta = articulo.getDouble("venta");
+                                    int iv = articulo.getInt("porc_impuesto");
+                                    double total = venta * cant;
+                                    insertarLinea(cod_articulo, descripcion, venta, iv, cant, total);
+                                    detalles.add(new ModDetalleProforma(cod_articulo, descripcion, venta, iv, cant, total));
+                                    sumarTotales(detalles);
+                                    adapter.notifyDataSetChanged();
+                                }
 
+                            } else {
+                                Toast.makeText(DetalleProforma.this, "El artículo se  encuentra inactivo. : " + articulo.getString("codigo"), Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            Toast.makeText(DetalleProforma.this, "El artículo se  encuentra inactivo. : " + articulo.getString("codigo"), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DetalleProforma.this, "El articulo no existe", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(DetalleProforma.this, "El articulo no existe", Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
+                        msj("Error", e.getMessage());
                     }
-                } catch (JSONException e) {
-                    msj("Error", e.getMessage());
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                msj("Error", error.getMessage());
-            }
-        });
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    msj("Error", error.getMessage());
+                }
+            });
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         queue.add(request);
     }
     //Si el código se encuentra en la lista entonces cambiamos ajustamos la cantidad y el total de dicha linea
-    private boolean enLaLista(List<ModDetalleProforma> lista,AdapterDetalleProforma adaptador, String codigo, double cant) {
+    private boolean enLaLista(final List<ModDetalleProforma> lista, final AdapterDetalleProforma adaptador, final String codigo, double cant) {
 
         for (int i = 0; i <= lista.size() -1; i++){
             if (lista.get(i).getCod_articulo().equals(codigo)){
-                double newCant = lista.get(i).getCantidad() + cant ;
-                double newTotal = lista.get(i).getPrecio() * newCant ;
+                final double newCant = lista.get(i).getCantidad() + cant ;
+                final double newTotal = lista.get(i).getPrecio() * newCant ;
 
-                lista.get(i).setCantidad(newCant);
-                lista.get(i).setTotal(newTotal);
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetalleProforma.this);
+                builder.setTitle("Advertencia!")
+                        .setMessage("Hay " + lista.get(i).getCantidad() + " en la lista \n " +
+                                "Desea adjuntar " + cant + " "+ lista.get(i).getDescripcion() + " a la cantidad actual?");
+                final int finalI = i;
+                builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        lista.get(finalI).setCantidad(newCant);
+                        lista.get(finalI).setTotal(newTotal);
 
-                editarLineaDB(consecutivo, codigo, newCant, newTotal);
+                        editarLineaDB(consecutivo, codigo, newCant, newTotal);
 
-                sumarTotales(lista);
+                        sumarTotales(lista);
 
-                adaptador.notifyDataSetChanged();
-                editarEncabezadoDB();
+                        adaptador.notifyDataSetChanged();
+                        editarEncabezadoDB();
+
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 return true ;
             }
         }
@@ -700,32 +749,37 @@ public class DetalleProforma extends AppCompatActivity {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     final Gson gson = new Gson();
                     RequestQueue queue = Volley.newRequestQueue(DetalleProforma.this);
-                    StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                            "/articulos/?descripcion=" + txtArticulo.getText().toString() +
-                            "&host_db=" + configuracion.getHost_db() +
-                            "&port_db=" + configuracion.getPort_db() +
-                            "&user_name=" + configuracion.getUser_name() +
-                            "&password=" + configuracion.getPassword() +
-                            "&db_name=" + configuracion.getDatabase() +
-                            "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                articulos.clear();
-                                articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
-                                adapter.notifyDataSetChanged();
-                            } catch (Exception e) {
-                                Toast.makeText(DetalleProforma.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    StringRequest request = null;
+                    try {
+                        request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                                "/articulos/?descripcion=" + URLEncoder.encode(txtArticulo.getText().toString(),"utf-8") +
+                                "&host_db=" + configuracion.getHost_db() +
+                                "&port_db=" + configuracion.getPort_db() +
+                                "&user_name=" + configuracion.getUser_name() +
+                                "&password=" + configuracion.getPassword() +
+                                "&db_name=" + configuracion.getDatabase() +
+                                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    articulos.clear();
+                                    articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
+                                    adapter.notifyDataSetChanged();
+                                } catch (Exception e) {
+                                    Toast.makeText(DetalleProforma.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
                             }
 
-                        }
-
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(DetalleProforma.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(DetalleProforma.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
 
                     queue.add(request);
                     return true;
@@ -738,8 +792,9 @@ public class DetalleProforma extends AppCompatActivity {
             @Override
             public void OnItemClick(int pos) {
                 txtCodigo.setText(articulos.get(pos).getCodigo());
-                txtCantidad.setText("1");
+                //txtCantidad.setText("1");
                 txtCantidad.requestFocus();
+                showKeyboard(DetalleProforma.this,txtCantidad);
                 dialog.dismiss();
             }
         });
@@ -747,7 +802,7 @@ public class DetalleProforma extends AppCompatActivity {
 
     public void scanNow() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(this);
-        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.EAN_13,IntentIntegrator.EAN_8,IntentIntegrator.UPC_A,IntentIntegrator.UPC_E);
         intentIntegrator.setPrompt("Scan barcode");
         intentIntegrator.setCameraId(0);
         intentIntegrator.setBeepEnabled(true);
@@ -765,6 +820,8 @@ public class DetalleProforma extends AppCompatActivity {
             txtCodigo.setText(scanResult);
             txtCantidad.setText("1");
             txtCantidad.requestFocus();
+            scanned_from_scan = true ;
+            showKeyboard(DetalleProforma.this,txtCantidad);
         } else {
             Toast toast = Toast.makeText(this, "No scan data received!", Toast.LENGTH_SHORT);
             toast.show();

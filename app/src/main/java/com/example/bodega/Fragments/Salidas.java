@@ -59,6 +59,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -255,7 +257,7 @@ public class Salidas extends Fragment {
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
             StringRequest stringRequest = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/salidas/" +
-                    "?codigo=" + codigo +
+                    "?codigo=" + URLEncoder.encode(codigo,"utf-8") +
                     "&host_db=" + configuracion.getHost_db() +
                     "&port_db=" + configuracion.getPort_db() +
                     "&user_name=" + configuracion.getUser_name() +
@@ -299,6 +301,8 @@ public class Salidas extends Fragment {
             Calendar c = Calendar.getInstance();
             c.setTime(fi);
             Calendar tempCalendar = (Calendar)c.clone();
+            Calendar cff =  Calendar.getInstance();
+            cff.setTime(ff);
 
             switch (tf){
                 case 1 :
@@ -308,39 +312,49 @@ public class Salidas extends Fragment {
                     }
                     break;
                 case 2:
-
-                    c.set(Calendar.DAY_OF_WEEK,Calendar.MONDAY);
-                    c.add(Calendar.WEEK_OF_YEAR,1);
-
-                    while(c.getTime().before(ff)){
-
-                        fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(c.getTime())));
-
-                        tempCalendar = (Calendar)c.clone();
-                        tempCalendar.add(Calendar.DAY_OF_YEAR,1);
+                    if (c.get(Calendar.WEEK_OF_YEAR) == cff.get(Calendar.WEEK_OF_YEAR)){
+                        fechas.add(new ModSalidas(df.format(c.getTime()),df.format(cff.getTime())));
+                    }else{
+                        c.set(Calendar.DAY_OF_WEEK,Calendar.MONDAY);
                         c.add(Calendar.WEEK_OF_YEAR,1);
 
-                        if (c.getTime().after(ff) || c.getTime().equals(ff)){
-                            fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(ff)));
+                        while(c.getTime().before(ff)){
+
+                            fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(c.getTime())));
+
+                            tempCalendar = (Calendar)c.clone();
+                            tempCalendar.add(Calendar.DAY_OF_YEAR,1);
+                            c.add(Calendar.WEEK_OF_YEAR,1);
+
+                            if (c.getTime().after(ff) || c.getTime().equals(ff)){
+                                fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(ff)));
+                            }
                         }
                     }
+
                     break;
                 case 3 :
-                    c.set(Calendar.DAY_OF_MONTH,1);
-                    c.add(Calendar.MONTH,1);
-                    c.add(Calendar.DAY_OF_YEAR,-1);
-                    while(c.getTime().before(ff)){
-
-                        fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(c.getTime())));
-
-                        tempCalendar = (Calendar)c.clone();
-                        tempCalendar.add(Calendar.DAY_OF_YEAR,1);
+                    if (c.get(Calendar.MONTH) == cff.get(Calendar.MONTH)){
+                        fechas.add(new ModSalidas(df.format(c.getTime()),df.format(cff.getTime())));
+                    }else{
+                        c.set(Calendar.DAY_OF_MONTH,1);
                         c.add(Calendar.MONTH,1);
                         c.add(Calendar.DAY_OF_YEAR,-1);
-                        if (c.getTime().after(ff) || c.getTime().equals(ff)){
-                            fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(ff)));
+                        while(c.getTime().before(ff)){
+
+                            fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(c.getTime())));
+
+                            tempCalendar = (Calendar)c.clone();
+                            tempCalendar.add(Calendar.DAY_OF_YEAR,1);
+                            c.add(Calendar.MONTH,1);
+                            c.add(Calendar.DAY_OF_YEAR,-1);
+
+                            if (c.getTime().after(ff) || c.getTime().equals(ff)){
+                                fechas.add(new ModSalidas(df.format(tempCalendar.getTime()),df.format(ff)));
+                            }
                         }
                     }
+
                     break;
             }
         }catch (Exception e){
@@ -430,31 +444,36 @@ public class Salidas extends Fragment {
                     articulos.clear();
                     final Gson gson = new Gson();
                     RequestQueue queue = Volley.newRequestQueue(getActivity());
-                    StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                            "/articulos/?descripcion=" + txtArticulo.getText().toString() +
-                            "&host_db=" + configuracion.getHost_db() +
-                            "&port_db=" + configuracion.getPort_db() +
-                            "&user_name=" + configuracion.getUser_name() +
-                            "&password=" + configuracion.getPassword() +
-                            "&db_name=" + configuracion.getDatabase() +
-                            "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
-                                adapter.notifyDataSetChanged();
-                            } catch (Exception e) {
-                                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    StringRequest request = null;
+                    try {
+                        request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                                "/articulos/?descripcion=" + URLEncoder.encode(txtArticulo.getText().toString(),"utf-8") +
+                                "&host_db=" + configuracion.getHost_db() +
+                                "&port_db=" + configuracion.getPort_db() +
+                                "&user_name=" + configuracion.getUser_name() +
+                                "&password=" + configuracion.getPassword() +
+                                "&db_name=" + configuracion.getDatabase() +
+                                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
+                                    adapter.notifyDataSetChanged();
+                                } catch (Exception e) {
+                                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
                             }
 
-                        }
-
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
 
                     queue.add(request);
                     return true;
@@ -489,7 +508,7 @@ public class Salidas extends Fragment {
 
     public void scanNow() {
         IntentIntegrator intentIntegrator = IntentIntegrator.forFragment(Salidas.this);
-        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.EAN_13,IntentIntegrator.EAN_8,IntentIntegrator.UPC_A,IntentIntegrator.UPC_E);
         intentIntegrator.setPrompt("Scan barcode");
         intentIntegrator.setCameraId(0);
         intentIntegrator.setBeepEnabled(true);

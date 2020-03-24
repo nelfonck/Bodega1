@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -41,10 +42,14 @@ import com.example.bodega.Modelos.ModProforma;
 import com.example.bodega.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,7 +97,11 @@ public class Proformas extends Fragment {
         fabNueva.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                nuevaProforma(baseAdapter);
+                try {
+                    nuevaProforma(baseAdapter);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -167,7 +176,7 @@ public class Proformas extends Fragment {
     }
 
 
-    private void nuevaProforma(final BaseAdapter baseAdapter){
+    private void nuevaProforma(final BaseAdapter baseAdapter) throws UnsupportedEncodingException {
         AlertDialog.Builder builder =  new AlertDialog.Builder(getActivity());
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_nueva_proforma,null);
         builder.setView(v);
@@ -192,7 +201,11 @@ public class Proformas extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER){
                     if (event.getAction() == KeyEvent.ACTION_DOWN){
-                        filtrarCliente(txtFiltroCliente.getText().toString());
+                        try {
+                            filtrarCliente(txtFiltroCliente.getText().toString());
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                         return true ;
                     }
                 }
@@ -302,11 +315,11 @@ public class Proformas extends Fragment {
         return -1 ;
     }
 
-    private void filtrarCliente(String cliente){
+    private void filtrarCliente(final String cliente) throws UnsupportedEncodingException {
         final Gson gson = new Gson();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         final StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl()+"/clientes/"+
-                "?cliente="+cliente +
+                "?cliente="+ URLEncoder.encode(cliente,"UTF-8") +
                 "&host_db=" + configuracion.getHost_db() +
                 "&port_db=" + configuracion.getPort_db() +
                 "&user_name=" + configuracion.getUser_name() +
@@ -315,9 +328,14 @@ public class Proformas extends Fragment {
                 "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                clientes.clear();
-                clientes.addAll(Arrays.asList(gson.fromJson(response,Clientes[].class)));
-                adapterClientes.notifyDataSetChanged();
+
+                  clientes.clear();
+
+                        clientes.addAll(Arrays.asList(gson.fromJson(response.toString(),Clientes[].class)));
+
+
+                    adapterClientes.notifyDataSetChanged();
+
             }
         }, new Response.ErrorListener() {
             @Override
