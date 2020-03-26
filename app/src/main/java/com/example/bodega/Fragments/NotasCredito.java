@@ -20,8 +20,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
-
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,7 +29,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adaptadores.AdapterNotaCredito;
 import com.example.bodega.Adaptadores.BaseAdapter;
@@ -47,11 +44,9 @@ import com.google.gson.Gson;
 
 import org.json.JSONArray;
 
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -100,6 +95,26 @@ public class NotasCredito extends Fragment {
 
         cargarNotas();
 
+        adapter.SetOnClickListener(new AdapterNotaCredito.OnClickListener() {
+            @Override
+            public void onClick(int pos) {
+                //lanzar activity detalles
+                lanzarDetalles(
+                        notas.get(pos).get_id(),
+                        notas.get(pos).getCod_proveedor(),
+                        notas.get(pos).getRazsocial(),
+                        notas.get(pos).getRazon_comercial()
+                        );
+            }
+        });
+
+        adapter.SetOnLongClickListener(new AdapterNotaCredito.OnLongClickListener() {
+            @Override
+            public void onLongClick(int pos) {
+                //eliminar la nota
+            }
+        });
+
         return v ;
     }
 
@@ -121,6 +136,8 @@ public class NotasCredito extends Fragment {
             }while (c.moveToNext());
 
             adapter.notifyDataSetChanged();
+            db.close();
+            c.close();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -156,11 +173,13 @@ public class NotasCredito extends Fragment {
         adapter.SetOnItemClick(new ProveedorAdapter.OnItemClick() {
             @Override
             public void onClick(int pos) {
+
                 String cod_proveedor = proveedorList.get(pos).getCod_proveedor();
                 String razsocial = proveedorList.get(pos).getRazocial();
                 String razon_comercial = proveedorList.get(pos).getRazon_comercial();
                 insertarNota(cod_proveedor,razsocial,razon_comercial);
-                lanzarDetalles(cod_proveedor,razsocial,razon_comercial);
+                int lastId = getLastId();
+                lanzarDetalles(lastId,cod_proveedor,razsocial,razon_comercial);
                 dialog.dismiss();
             }
         });
@@ -191,8 +210,30 @@ public class NotasCredito extends Fragment {
         }
     }
 
-    private void lanzarDetalles(String cod_proveedor, String razsocial,String razon_comercial){
+    private int getLastId(){
+        try{
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor c = db.rawQuery("select max("+BaseAdapter.NOTAS_CREDITO.ID+") as max_id from " + BaseAdapter.NOTAS_CREDITO.TABLE_NAME,null);
+
+            if (c != null)
+            {
+                int id = c.getInt(c.getColumnIndex("max_id"));
+
+                c.close();
+
+                return id ;
+            }
+
+            db.close();
+        }catch (SQLiteException e){
+            msj("Error",e.getMessage());
+        }
+        return -1 ;
+    }
+
+    private void lanzarDetalles(int id ,String cod_proveedor, String razsocial,String razon_comercial){
         Intent detallesNota = new Intent(getActivity(), DetalleNotaCredito.class);
+        detallesNota.putExtra("id_nota",String.valueOf(id));
         detallesNota.putExtra("cod_proveedor",cod_proveedor);
         detallesNota.putExtra("razsocial",razsocial);
         detallesNota.putExtra("razon_comercial",razon_comercial);

@@ -17,6 +17,7 @@ import java.util.List;
 public class AdapterNotaCredito extends RecyclerView.Adapter<AdapterNotaCredito.ViewHolder> {
     private List<ModNotaCredito> notas ;
     private OnLongClickListener onLongClickListener ;
+    private OnClickListener onClickListener ;
 
     public AdapterNotaCredito(List<ModNotaCredito> notas) {
         this.notas = notas;
@@ -26,16 +27,20 @@ public class AdapterNotaCredito extends RecyclerView.Adapter<AdapterNotaCredito.
         this.onLongClickListener = onLongClickListener;
     }
 
+    public void SetOnClickListener(OnClickListener onClickListener){
+        this.onClickListener = onClickListener ;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.nota_credito_item,null);
-        return new ViewHolder(view,onLongClickListener);
+        return new ViewHolder(view,onClickListener,onLongClickListener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.tvId.setText(notas.get(position).get_id());
+        holder.tvId.setText((String.valueOf(notas.get(position).get_id())));
         holder.tvCodProveedor.setText(notas.get(position).getCod_proveedor());
         holder.tvRazsocial.setText(notas.get(position).getRazsocial());
         holder.tvRazonComercial.setText(notas.get(position).getRazon_comercial());
@@ -50,12 +55,15 @@ public class AdapterNotaCredito extends RecyclerView.Adapter<AdapterNotaCredito.
         return notas.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
+    class ViewHolder extends RecyclerView.ViewHolder{
         TextView tvId, tvCodProveedor, tvRazsocial, tvRazonComercial, tvEstado, tvTotal,tvFecha;
         OnLongClickListener onLongClickListener ;
-        public ViewHolder(@NonNull View itemView, OnLongClickListener onLongClickListener) {
+        OnClickListener onClickListener ;
+
+         ViewHolder(@NonNull View itemView, final OnClickListener onClickListener, final OnLongClickListener onLongClickListener) {
             super(itemView);
             this.onLongClickListener = onLongClickListener;
+            this.onClickListener = onClickListener ;
             tvId = itemView.findViewById(R.id.tvId);
             tvCodProveedor = itemView.findViewById(R.id.tvCodProveedor);
             tvRazsocial = itemView.findViewById(R.id.tvRazsocial);
@@ -63,18 +71,29 @@ public class AdapterNotaCredito extends RecyclerView.Adapter<AdapterNotaCredito.
             tvEstado = itemView.findViewById(R.id.tvEstado);
             tvTotal = itemView.findViewById(R.id.tvTotal);
             tvFecha = itemView.findViewById(R.id.tvFecha);
-            itemView.setOnLongClickListener(this);
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onLongClickListener.onLongClick(getAdapterPosition());
+                    return false;
+                }
+            });
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickListener.onClick(getAdapterPosition());
+                }
+            });
         }
 
-
-        @Override
-        public boolean onLongClick(View v) {
-            onLongClickListener.onLongClick(getAdapterPosition());
-            return false;
-        }
     }
 
     public interface OnLongClickListener{
         void onLongClick(int pos);
+    }
+
+    public interface OnClickListener{
+        void onClick(int pos);
     }
 }

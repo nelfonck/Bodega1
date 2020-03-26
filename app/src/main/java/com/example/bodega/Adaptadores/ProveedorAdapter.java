@@ -33,7 +33,7 @@ public class ProveedorAdapter extends RecyclerView.Adapter<ProveedorAdapter.View
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.proveedor_item,null);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.proveedor_item,parent,false);
         return new ViewHolder(v,onItemClick);
     }
 
