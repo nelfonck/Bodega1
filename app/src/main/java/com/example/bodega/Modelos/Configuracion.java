@@ -11,7 +11,7 @@ public class Configuracion {
     private String schema ;
 
     public static final String WEBAPI = "KiwiUT" ;
-
+    public static final String WEBAPIUPDATES = "actualizador" ;
     public Configuracion() {
     }
 
@@ -92,6 +92,9 @@ public class Configuracion {
 
     public String getUrl(){
         return "http://" + host + ":" + port + "/" + WEBAPI ;
+    }
+    public String getUrlUpdates(){
+        return "http://" + host + ":" + port + "/" + WEBAPIUPDATES + "/" ;
     }
 
 }
