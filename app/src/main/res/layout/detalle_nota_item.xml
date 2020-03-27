@@ -14,6 +14,77 @@
             android:layout_height="match_parent"
             android:padding="5dp">
 
+            <TextView
+                android:id="@+id/tvCodigo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Codigo"/>
+
+            <TextView
+                android:id="@+id/tvDescripcion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvCodigo"
+                android:textStyle="bold"
+                android:text="Descripción"/>
+
+            <LinearLayout
+                android:id="@+id/l1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@id/tvDescripcion"
+                >
+                <TextView
+                android:id="@+id/tvCantidad"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="0.3"
+                android:text="Cantidad"
+                />
+
+                <TextView
+                    android:id="@+id/tvCosto"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.6"
+                    android:text="Costo"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/l2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@id/l1"
+                >
+                <TextView
+                    android:id="@+id/tvPorcImpuesto"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.3"
+                    android:text="%Imp"
+                    />
+
+                <TextView
+                    android:id="@+id/tvMontoImpuesto"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.3"
+                    android:text="Total imp"
+                    />
+
+                <TextView
+                    android:id="@+id/tvTotalLinea"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.3"
+                    android:text="Total IVI"
+
+                    />
+            </LinearLayout>
+
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>

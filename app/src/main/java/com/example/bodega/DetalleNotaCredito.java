@@ -1,6 +1,7 @@
 package com.example.bodega;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -9,14 +10,25 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.bodega.Adaptadores.AdapterDetalleNota;
+import com.example.bodega.Modelos.ModDetalleNota;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class DetalleNotaCredito extends AppCompatActivity {
-    int id_nota  ;
-    String cod_proveedor, razsocial, razon_comercial ;
+    private int id_nota  ;
+    private String cod_proveedor, razsocial, razon_comercial ;
+    private List<ModDetalleNota> detalle ;
+    private AdapterDetalleNota adapter ;
+    private double total ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle_nota_credito);
+
+        total = 0 ;
 
         TextView tvNumeroNota = findViewById(R.id.tvNumeroNota);
         TextView tvCodProveedor = findViewById(R.id.tvCodProveedor);
@@ -43,7 +55,12 @@ public class DetalleNotaCredito extends AppCompatActivity {
             tvRazonComercial.setText(razon_comercial);
         }
 
+        detalle = new ArrayList<>();
+        adapter = new AdapterDetalleNota(detalle);
 
+        rvDetalleNota.setHasFixedSize(true);
+        rvDetalleNota.setLayoutManager(new LinearLayoutManager(this));
+        rvDetalleNota.setAdapter(adapter);
 
     }
 }

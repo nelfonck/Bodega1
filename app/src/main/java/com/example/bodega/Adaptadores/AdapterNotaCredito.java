@@ -40,8 +40,8 @@ public class AdapterNotaCredito extends RecyclerView.Adapter<AdapterNotaCredito.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.tvId.setText((String.valueOf(notas.get(position).get_id())));
-        holder.tvCodProveedor.setText(notas.get(position).getCod_proveedor());
+        holder.tvId.setText(("# " + notas.get(position).get_id()));
+        holder.tvCodProveedor.setText(("Proveedor:"+notas.get(position).getCod_proveedor()));
         holder.tvRazsocial.setText(notas.get(position).getRazsocial());
         holder.tvRazonComercial.setText(notas.get(position).getRazon_comercial());
         holder.tvEstado.setText(notas.get(position).getEstado());
