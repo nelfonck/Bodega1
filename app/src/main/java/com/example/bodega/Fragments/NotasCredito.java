@@ -110,8 +110,25 @@ public class NotasCredito extends Fragment {
 
         adapter.SetOnLongClickListener(new AdapterNotaCredito.OnLongClickListener() {
             @Override
-            public void onLongClick(int pos) {
-                //eliminar la nota
+            public void onLongClick(final int pos) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Advertencia").setMessage("Está seguro(a) de eliminar la nota?") ;
+                builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        eliminarNota(notas.get(pos).get_id(),pos);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create() ;
+                dialog.show();
+
             }
         });
 
@@ -138,6 +155,19 @@ public class NotasCredito extends Fragment {
             adapter.notifyDataSetChanged();
             db.close();
             c.close();
+    }
+
+    private void eliminarNota(int id, int pos){
+        try{
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete(BaseAdapter.DETALLE_NOTAS_CREDITO.TABLE_NAME,BaseAdapter.DETALLE_NOTAS_CREDITO.REF+"=?",new String[]{String.valueOf(id)});
+            db.delete(BaseAdapter.NOTAS_CREDITO.TABLE_NAME,BaseAdapter.NOTAS_CREDITO.ID+"=?",new String[]{String.valueOf(id)});
+            db.close();
+            notas.remove(pos);
+            adapter.notifyDataSetChanged();
+        }catch (SQLiteException e){
+            msj("Error",e.getMessage());
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -178,6 +208,8 @@ public class NotasCredito extends Fragment {
                 String razsocial = proveedorList.get(pos).getRazocial();
                 String razon_comercial = proveedorList.get(pos).getRazon_comercial();
                 insertarNota(cod_proveedor,razsocial,razon_comercial);
+
+                cargarNotas();
                 int lastId = getLastId();
                 lanzarDetalles(lastId,cod_proveedor,razsocial,razon_comercial);
                 dialog.dismiss();
@@ -213,18 +245,21 @@ public class NotasCredito extends Fragment {
     private int getLastId(){
         try{
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor c = db.rawQuery("select max("+BaseAdapter.NOTAS_CREDITO.ID+") as max_id from " + BaseAdapter.NOTAS_CREDITO.TABLE_NAME,null);
+            Cursor c = db.rawQuery("SELECT "+BaseAdapter.NOTAS_CREDITO.ID+" FROM " + BaseAdapter.NOTAS_CREDITO.TABLE_NAME +
+                    " WHERE " + BaseAdapter.NOTAS_CREDITO.ID + "=(SELECT MAX("+BaseAdapter.NOTAS_CREDITO.ID+") FROM "+BaseAdapter.NOTAS_CREDITO.TABLE_NAME+")",null);
 
-            if (c != null)
-            {
-                int id = c.getInt(c.getColumnIndex("max_id"));
+            int id = -1 ;
 
-                c.close();
+            if (c.moveToFirst()){
 
-                return id ;
+                id = c.getInt(0);
             }
 
+            c.close();
             db.close();
+
+            return id ;
+
         }catch (SQLiteException e){
             msj("Error",e.getMessage());
         }
@@ -232,8 +267,9 @@ public class NotasCredito extends Fragment {
     }
 
     private void lanzarDetalles(int id ,String cod_proveedor, String razsocial,String razon_comercial){
+
         Intent detallesNota = new Intent(getActivity(), DetalleNotaCredito.class);
-        detallesNota.putExtra("id_nota",String.valueOf(id));
+        detallesNota.putExtra("id_nota",id);
         detallesNota.putExtra("cod_proveedor",cod_proveedor);
         detallesNota.putExtra("razsocial",razsocial);
         detallesNota.putExtra("razon_comercial",razon_comercial);
