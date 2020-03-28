@@ -431,6 +431,7 @@ public class DetalleProforma extends AppCompatActivity {
 
         queue.add(request);
     }
+
     //Si el código se encuentra en la lista entonces cambiamos ajustamos la cantidad y el total de dicha linea
     private boolean enLaLista(final List<ModDetalleProforma> lista, final AdapterDetalleProforma adaptador, final String codigo, double cant) {
 
