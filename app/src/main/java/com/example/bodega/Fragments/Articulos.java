@@ -45,15 +45,15 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.bodega.Adaptadores.BaseAdapter;
-import com.example.bodega.Adaptadores.FiltroArticuloAdapter;
-import com.example.bodega.Modelos.Configuracion;
-import com.example.bodega.Modelos.ContentValues;
-import com.example.bodega.Modelos.ModFamilia;
-import com.example.bodega.Modelos.ModFiltroArticulo;
-import com.example.bodega.Modelos.ModImpuesto;
-import com.example.bodega.Modelos.ModMarca;
-import com.example.bodega.Modelos.UnidadMedida;
+import com.example.bodega.Adapters.BaseAdapter;
+import com.example.bodega.Adapters.FiltroArticuloAdapter;
+import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ContentValues;
+import com.example.bodega.Models.ModFamilia;
+import com.example.bodega.Models.ModFiltroArticulo;
+import com.example.bodega.Models.ModImpuesto;
+import com.example.bodega.Models.ModMarca;
+import com.example.bodega.Models.UnidadMedida;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.example.bodega.R;
@@ -65,11 +65,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -77,8 +73,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
 
 
 public class Articulos extends Fragment {

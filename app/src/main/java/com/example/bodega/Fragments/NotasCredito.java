@@ -30,14 +30,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.bodega.Adaptadores.AdapterNotaCredito;
-import com.example.bodega.Adaptadores.BaseAdapter;
-import com.example.bodega.Adaptadores.ProveedorAdapter;
-import com.example.bodega.DetalleNotaCredito;
-import com.example.bodega.Modelos.Configuracion;
-import com.example.bodega.Modelos.ContentValues;
-import com.example.bodega.Modelos.ModNotaCredito;
-import com.example.bodega.Modelos.ModProveedor;
+import com.example.bodega.Adapters.AdapterNotaCredito;
+import com.example.bodega.Adapters.BaseAdapter;
+import com.example.bodega.Adapters.ProveedorAdapter;
+import com.example.bodega.Activities.DetalleNotaCredito;
+import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ContentValues;
+import com.example.bodega.Models.ModNotaCredito;
+import com.example.bodega.Models.ModProveedor;
 import com.example.bodega.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
@@ -93,7 +93,7 @@ public class NotasCredito extends Fragment {
 
         rvNotasCredito.setAdapter(adapter);
 
-        cargarNotas();
+
 
         adapter.SetOnClickListener(new AdapterNotaCredito.OnClickListener() {
             @Override
@@ -332,6 +332,13 @@ public class NotasCredito extends Fragment {
         configuracion.setDatabase(p.getString("db_name", ""));
         configuracion.setSchema(p.getString("schema", ""));
 
+    }
+
+    @Override
+    public void onResume() {
+        notas.clear();
+        cargarNotas();
+        super.onResume();
     }
 
     private void msj(String title, String message) {

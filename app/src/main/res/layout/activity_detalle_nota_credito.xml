@@ -4,30 +4,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetalleNotaCredito">
-    <TextView
-        android:id="@+id/tvNumeroNota"
+    tools:context=".Activities.DetalleNotaCredito">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        />
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        card_view:cardBackgroundColor="#00BFFF"
 
-    <TextView
-        android:id="@+id/tvCodProveedor"
-        android:layout_below="@id/tvNumeroNota"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:padding="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            >
 
-    <TextView
-        android:id="@+id/tvRazsocial"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tvCodProveedor"/>
+            <TextView
+                android:id="@+id/tvNumeroNota"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff" />
 
-    <TextView
-        android:id="@+id/tvRazonComercial"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tvRazsocial"/>
+            <TextView
+                android:id="@+id/tvCodProveedor"
+                android:layout_below="@id/tvNumeroNota"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"/>
+
+            <TextView
+                android:id="@+id/tvRazsocial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvCodProveedor"
+                android:textColor="#fff"/>
+
+            <TextView
+                android:id="@+id/tvRazonComercial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvRazsocial"
+                android:textColor="#fff"/>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDetalleNota"
@@ -35,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        android:layout_below="@+id/tvRazonComercial"
+        android:layout_below="@+id/cv"
         android:layout_above="@id/txtCodigo"/>
     <EditText
         android:id="@+id/txtCantidad"

@@ -36,12 +36,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import com.example.bodega.Adaptadores.BaseAdapter;
-import com.example.bodega.Adaptadores.FiltroArticuloAdapter;
-import com.example.bodega.Adaptadores.HabladoresAdapter;
-import com.example.bodega.Modelos.Configuracion;
-import com.example.bodega.Modelos.ModFiltroArticulo;
-import com.example.bodega.Modelos.ModHablador;
+import com.example.bodega.Adapters.BaseAdapter;
+import com.example.bodega.Adapters.FiltroArticuloAdapter;
+import com.example.bodega.Adapters.HabladoresAdapter;
+import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ModFiltroArticulo;
+import com.example.bodega.Models.ModHablador;
 import com.example.bodega.R;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;

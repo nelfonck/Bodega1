@@ -39,10 +39,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import com.example.bodega.Adaptadores.FiltroArticuloAdapter;
-import com.example.bodega.Modelos.Configuracion;
-import com.example.bodega.Modelos.ModFiltroArticulo;
-import com.example.bodega.Modelos.ModSalidas;
+import com.example.bodega.Adapters.FiltroArticuloAdapter;
+import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ModFiltroArticulo;
+import com.example.bodega.Models.ModSalidas;
 import com.example.bodega.R;
 import com.github.mikephil.charting.charts.RadarChart;
 import com.github.mikephil.charting.components.XAxis;

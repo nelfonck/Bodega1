@@ -25,9 +25,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.bodega.Adaptadores.AdapterDocumentos;
-import com.example.bodega.Modelos.Configuracion;
-import com.example.bodega.Modelos.ModDocumentos;
+import com.example.bodega.Adapters.AdapterDocumentos;
+import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ModDocumentos;
 import com.example.bodega.R;
 
 import org.json.JSONArray;

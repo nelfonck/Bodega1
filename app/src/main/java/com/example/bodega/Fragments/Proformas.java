@@ -27,24 +27,21 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import com.example.bodega.Adaptadores.AdapterClientes;
-import com.example.bodega.Adaptadores.BaseAdapter;
-import com.example.bodega.Adaptadores.ProformasAdapter;
-import com.example.bodega.DetalleProforma;
-import com.example.bodega.Modelos.Clientes;
-import com.example.bodega.Modelos.Configuracion;
-import com.example.bodega.Modelos.ModProforma;
+import com.example.bodega.Adapters.AdapterClientes;
+import com.example.bodega.Adapters.BaseAdapter;
+import com.example.bodega.Adapters.ProformasAdapter;
+import com.example.bodega.Activities.DetalleProforma;
+import com.example.bodega.Models.Clientes;
+import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ModProforma;
 import com.example.bodega.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -391,7 +388,6 @@ public class Proformas extends Fragment {
             public void onResponse(JSONObject response) {
                 if (response.length()>0){
                     try {
-
                         proformaList.get(pos).setCredito_disponible(response.getDouble("credito_disponible"));
                         proformaList.get(pos).setTope_credito(response.getDouble("tope_credito"));
                         proformaList.get(pos).setMonto_deuda(response.getDouble("monto_deuda_cliente"));
