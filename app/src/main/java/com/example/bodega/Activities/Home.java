@@ -348,26 +348,16 @@ public class Home extends AppCompatActivity {
     }
 
     private void lauchApp(String path){
-        /*
+
         Intent i = new Intent();
         i.setAction(Intent.ACTION_VIEW);
-        i.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive" );
+        Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path));
+        i.setDataAndType(uri,"application/vnd.android.package-archive");
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(i);
-        */
-        try {
-            Intent myIntent = new Intent(android.content.Intent.ACTION_VIEW);
-            File file = new File(path);
-            String extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-            String mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            myIntent.setDataAndType(Uri.fromFile(file),mimetype); startActivity(myIntent);
-            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            myIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(myIntent);
-        } catch (Exception e) { // TODO: handle exception String data = e.getMessage(); }
-            msj("Ha ocurrido un error ", e.getMessage());
-        }
+
+
         }
 
     @SuppressWarnings("SameParameterValue")

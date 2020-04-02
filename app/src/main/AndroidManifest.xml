@@ -38,7 +38,7 @@
             tools:replace="screenOrientation" />
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name=".GenericFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
