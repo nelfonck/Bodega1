@@ -7,7 +7,7 @@ import android.provider.BaseColumns;
 
 public class BaseAdapter extends SQLiteOpenHelper {
     private static final String DB_NAME ="DB" ;
-    private static final int VERSION = 11;
+    private static final int VERSION = 12;
 
     public static abstract class HABLADORES implements BaseColumns{
         public static final String TABLE_NAME = "HABLADORES";
@@ -62,6 +62,7 @@ public class BaseAdapter extends SQLiteOpenHelper {
         public static final String IMPUETO = "IMPUESTO";
         public static final String MONTO_IMPUESTO = "MONTO_IMPUESTO";
         public static final String TOTAL = "TOTAL";
+        public static final String COD_IMPUESTO = "COD_IMPUESTO";
 
     }
 
@@ -119,6 +120,7 @@ public class BaseAdapter extends SQLiteOpenHelper {
                     DETALLE_NOTAS_CREDITO.IMPUETO + " REAL NOT NULL DEFAULT 0," +
                     DETALLE_NOTAS_CREDITO.MONTO_IMPUESTO + " REAL NOT NULL DEFAULT 0," +
                     DETALLE_NOTAS_CREDITO.TOTAL + " REAL NOT NULL DEFAULT 0," +
+                    DETALLE_NOTAS_CREDITO.COD_IMPUESTO + " TEXT (20) NOT NULL ," +
                     "FOREIGN KEY("+DETALLE_NOTAS_CREDITO.REF+") REFERENCES "+NOTAS_CREDITO.TABLE_NAME+"("+NOTAS_CREDITO.ID+"))";
 
     public BaseAdapter(Context context) {
@@ -137,12 +139,14 @@ public class BaseAdapter extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + HABLADORES.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + PROFORMA.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + DETALLE_PROFORMA.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + NOTAS_CREDITO.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + DETALLE_NOTAS_CREDITO.TABLE_NAME);
-        onCreate(db);
+        if (oldVersion < newVersion){
+            db.execSQL("DROP TABLE IF EXISTS " + HABLADORES.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + PROFORMA.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + DETALLE_PROFORMA.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + NOTAS_CREDITO.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + DETALLE_NOTAS_CREDITO.TABLE_NAME);
+            onCreate(db);
+        }
     }
 
 

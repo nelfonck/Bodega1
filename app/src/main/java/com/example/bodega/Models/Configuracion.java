@@ -9,13 +9,15 @@ public class Configuracion {
     private String password ;
     private String database;
     private String schema ;
+    private String host_update ;
+    private String port_update ;
 
     public static final String WEBAPI = "KiwiUT" ;
     public static final String WEBAPIUPDATES = "actualizador" ;
     public Configuracion() {
     }
 
-    public Configuracion(String host, String port, String host_db, String port_db, String user_name, String password, String database, String schema) {
+    public Configuracion(String host, String port, String host_db, String port_db, String user_name, String password, String database, String schema,String host_update, String port_update) {
         this.host = host;
         this.port = port;
         this.host_db = host_db;
@@ -24,6 +26,8 @@ public class Configuracion {
         this.password = password;
         this.database = database;
         this.schema = schema;
+        this.host_update = host_update;
+        this.port_update = port_update ;
     }
 
     public void setHost(String host) {
@@ -56,6 +60,14 @@ public class Configuracion {
 
     public void setSchema(String schema) {
         this.schema = schema;
+    }
+
+    public void setHost_update(String host_update) {
+        this.host_update = host_update;
+    }
+
+    public void setPort_update(String port_update) {
+        this.port_update = port_update;
     }
 
     public String getHost() {
@@ -93,8 +105,9 @@ public class Configuracion {
     public String getUrl(){
         return "http://" + host + ":" + port + "/" + WEBAPI ;
     }
+
     public String getUrlUpdates(){
-        return "http://" + host + ":" + port + "/" + WEBAPIUPDATES + "/" ;
+        return "http://" + host_update + ":" + port_update + "/" + WEBAPIUPDATES + "/" ;
     }
 
 }

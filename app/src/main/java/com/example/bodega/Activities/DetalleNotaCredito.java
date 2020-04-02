@@ -30,6 +30,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -55,7 +56,9 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DetalleNotaCredito extends AppCompatActivity {
     private int id_nota  ;
@@ -241,7 +244,8 @@ public class DetalleNotaCredito extends AppCompatActivity {
                         c.getDouble(c.getColumnIndex(BaseAdapter.DETALLE_NOTAS_CREDITO.COSTO)),
                         c.getDouble(c.getColumnIndex(BaseAdapter.DETALLE_NOTAS_CREDITO.IMPUETO)),
                         c.getDouble(c.getColumnIndex(BaseAdapter.DETALLE_NOTAS_CREDITO.MONTO_IMPUESTO)),
-                        c.getDouble(c.getColumnIndex(BaseAdapter.DETALLE_NOTAS_CREDITO.TOTAL))));
+                        c.getDouble(c.getColumnIndex(BaseAdapter.DETALLE_NOTAS_CREDITO.TOTAL)),
+                        c.getString(c.getColumnIndex(BaseAdapter.DETALLE_NOTAS_CREDITO.COD_IMPUESTO))));
 
             }
 
@@ -285,8 +289,9 @@ public class DetalleNotaCredito extends AppCompatActivity {
                                     int iv = articulo.getInt("porc_impuesto");
                                     double monto_impuesto = (costo  *  iv) / 100 ;
                                     double totalIVI = (costo * cant) + (monto_impuesto * cant) ;
+                                    String cod_impuesto = articulo.getString("cod_impuesto");
                                     insertarLinea(cant,codigo,descripcion,costo,iv,monto_impuesto,totalIVI);
-                                    detalle.add(new ModDetalleNota(cod_articulo, descripcion,cant, costo, iv, monto_impuesto, totalIVI));
+                                    detalle.add(new ModDetalleNota(cod_articulo, descripcion,cant, costo, iv, monto_impuesto, totalIVI,cod_impuesto));
                                     tvTotal.setText(("Total IVI ₡" + formatter.format(getTotal())));
                                     editarEncabezadoDB(total);
                                     adapter.notifyDataSetChanged();
@@ -695,9 +700,37 @@ public class DetalleNotaCredito extends AppCompatActivity {
         }
     }
 
+
     private void enviarQpos(){
         try {
 
+            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/notas_credito/", new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() {
+                    Gson gson = new Gson();
+                    String user = (getIntent().getExtras()!=null) ? getIntent().getExtras().getString("user") : "undefined" ;
+                    Map<String, String> params = new HashMap<>();
+                    params.put("host_db",configuracion.getHost_db());
+                    params.put("port_db",configuracion.getPort_db());
+                    params.put("user_name",configuracion.getUser_name());
+                    params.put("password",configuracion.getPassword());
+                    params.put("db_name",configuracion.getDatabase());
+                    params.put("schema",configuracion.getSchema());
+                    params.put("detalle", gson.toJson(detalle));
+                    params.put("user",user);
+                    return params;
+                }
+            };
         }catch (Exception e){
             msj("Errro", e.getMessage());
         }

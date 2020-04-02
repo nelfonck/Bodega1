@@ -58,6 +58,7 @@ public class NotasCredito extends Fragment {
     private BaseAdapter dbHelper ;
     private AdapterNotaCredito adapter ;
     private List<ModNotaCredito> notas ;
+    private String user ;
 
     public NotasCredito() {
         // Required empty public constructor
@@ -69,6 +70,8 @@ public class NotasCredito extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_notas_credito, container, false);
         FloatingActionButton fabNuevo = v.findViewById(R.id.fabNuevaNota);
+
+        user = getArguments().getString("user") ;
 
         getConfiguracion();
 
@@ -273,6 +276,7 @@ public class NotasCredito extends Fragment {
         detallesNota.putExtra("cod_proveedor",cod_proveedor);
         detallesNota.putExtra("razsocial",razsocial);
         detallesNota.putExtra("razon_comercial",razon_comercial);
+        detallesNota.putExtra("user",user);
         startActivity(detallesNota);
     }
 

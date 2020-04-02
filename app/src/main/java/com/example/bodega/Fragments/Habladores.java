@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -24,6 +25,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +44,7 @@ import com.example.bodega.Adapters.HabladoresAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModHablador;
+import com.example.bodega.Models.ModSalidas;
 import com.example.bodega.R;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -115,6 +118,7 @@ public class Habladores extends Fragment {
         });
 
         txtCodigo.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
 
@@ -197,21 +201,25 @@ public class Habladores extends Fragment {
         dialog.show();
 
         txtArticulo.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     articulos.clear();
                     final Gson gson = new Gson();
                     StringRequest request = null;
-                    try {
+
+                        com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
+                        values.put("descripcion",txtArticulo.getText().toString());
+                        values.put("host_db", configuracion.getHost_db());
+                        values.put("port_db", configuracion.getPort_db());
+                        values.put("user_name", configuracion.getUser_name());
+                        values.put("password", configuracion.getPassword());
+                        values.put("db_name", configuracion.getDatabase());
+                        values.put("schema", configuracion.getSchema());
+
                         request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                                "/articulos/?descripcion=" + URLEncoder.encode(txtArticulo.getText().toString(),"utf-8")+
-                                "&host_db=" + configuracion.getHost_db() +
-                                "&port_db=" + configuracion.getPort_db() +
-                                "&user_name=" + configuracion.getUser_name() +
-                                "&password=" + configuracion.getPassword() +
-                                "&db_name=" + configuracion.getDatabase() +
-                                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                                "/articulos/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
@@ -229,9 +237,7 @@ public class Habladores extends Fragment {
                                 Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+
                     request.setTag(TAG);
                     queue.add(request);
                     queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
@@ -247,6 +253,7 @@ public class Habladores extends Fragment {
         });
 
         adapter.SetOnItemClickListener(new FiltroArticuloAdapter.OnItemClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void OnItemClick(int pos) {
                 doCall(articulos.get(pos).getCodigo());
@@ -280,6 +287,7 @@ public class Habladores extends Fragment {
         return false;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -355,19 +363,23 @@ public class Habladores extends Fragment {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void doCall(final String codigo) {
         if (!existeItem(codigo)) {
 
             JsonObjectRequest request = null;
-            try {
+
+                com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
+                values.put("codigo",codigo);
+                values.put("host_db", configuracion.getHost_db());
+                values.put("port_db", configuracion.getPort_db());
+                values.put("user_name", configuracion.getUser_name());
+                values.put("password", configuracion.getPassword());
+                values.put("db_name", configuracion.getDatabase());
+                values.put("schema", configuracion.getSchema());
+
                 request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
-                        "/habladores/?codigo=" + URLEncoder.encode(codigo,"utf-8") +
-                        "&host_db=" + configuracion.getHost_db() +
-                        "&port_db=" + configuracion.getPort_db() +
-                        "&user_name=" + configuracion.getUser_name() +
-                        "&password=" + configuracion.getPassword() +
-                        "&db_name=" + configuracion.getDatabase() +
-                        "&schema=" + configuracion.getSchema(),null, new Response.Listener<JSONObject>() {
+                        "/habladores/"+values.toString(),null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject articulo) {
                         try {
@@ -392,12 +404,10 @@ public class Habladores extends Fragment {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                        msj("Error",error.getMessage());
                     }
                 });
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+
             request.setTag(TAG);
             queue.add(request);
             queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
@@ -415,17 +425,21 @@ public class Habladores extends Fragment {
         builder.setTitle("Activar");
         builder.setMessage("Artículo inactivo\nDesea activar este artículo?");
         builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
+                    com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
+                    values.put("codigo",codigo);
+                    values.put("host_db", configuracion.getHost_db());
+                    values.put("port_db", configuracion.getPort_db());
+                    values.put("user_name", configuracion.getUser_name());
+                    values.put("password", configuracion.getPassword());
+                    values.put("db_name", configuracion.getDatabase());
+                    values.put("schema", configuracion.getSchema());
+
                     StringRequest stringRequest = new StringRequest(Request.Method.PUT, configuracion.getUrl() +
-                            "/habladores/?codigo=" + URLEncoder.encode(codigo,"utf-8") +
-                            "&host_db=" + configuracion.getHost_db() +
-                            "&port_db=" + configuracion.getPort_db() +
-                            "&user_name=" + configuracion.getUser_name() +
-                            "&password=" + configuracion.getPassword() +
-                            "&db_name=" + configuracion.getDatabase() +
-                            "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                            "/habladores/"+ values.toString(), new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             doCall(codigo);
@@ -433,7 +447,7 @@ public class Habladores extends Fragment {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                            msj("Error", error.getMessage());
                         }
                     });
                     queue.add(stringRequest);
@@ -444,7 +458,7 @@ public class Habladores extends Fragment {
                         }
                     });
                 } catch (Exception e) {
-                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    msj("Error",e.getMessage());
                 }
                 dialog.dismiss();
             }
@@ -460,47 +474,51 @@ public class Habladores extends Fragment {
     }
 
     public void enviar(final List<ModHablador> lista) {
-        if (lista.isEmpty())
-            Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
-        else {
-            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/habladores/", new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
-                    lista.clear();
-                    adapter.notifyDataSetChanged();
-                    SQLiteDatabase db = baseAdapter.getWritableDatabase();
-                    db.execSQL("delete from " + BaseAdapter.HABLADORES.TABLE_NAME);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Gson gson = new Gson();
-                    final String jsonList = gson.toJson(lista);
+        try{
+            if (lista.isEmpty())
+                Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
+            else {
+                StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/habladores/", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
+                        lista.clear();
+                        adapter.notifyDataSetChanged();
+                        SQLiteDatabase db = baseAdapter.getWritableDatabase();
+                        db.execSQL("delete from " + BaseAdapter.HABLADORES.TABLE_NAME);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        msj("Error",error.getMessage());
+                    }
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Gson gson = new Gson();
+                        final String jsonList = gson.toJson(lista);
 
-                    Map<String, String> params = new HashMap<>();
-                    params.put("host_db",configuracion.getHost_db());
-                    params.put("port_db",configuracion.getPort_db());
-                    params.put("user_name",configuracion.getUser_name());
-                    params.put("password",configuracion.getPassword());
-                    params.put("db_name",configuracion.getDatabase());
-                    params.put("schema",configuracion.getSchema());
-                    params.put("lista", jsonList);
-                    return params;
-                }
-            };
-            queue.add(request);
-            queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
-                @Override
-                public void onRequestFinished(Request<Object> request) {
-                    queue.getCache().clear();
-                }
-            });
+                        Map<String, String> params = new HashMap<>();
+                        params.put("host_db",configuracion.getHost_db());
+                        params.put("port_db",configuracion.getPort_db());
+                        params.put("user_name",configuracion.getUser_name());
+                        params.put("password",configuracion.getPassword());
+                        params.put("db_name",configuracion.getDatabase());
+                        params.put("schema",configuracion.getSchema());
+                        params.put("lista", jsonList);
+                        return params;
+                    }
+                };
+                queue.add(request);
+                queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
+                    @Override
+                    public void onRequestFinished(Request<Object> request) {
+                        queue.getCache().clear();
+                    }
+                });
+            }
+        }catch (Exception e){
+            msj("Error",e.getMessage());
         }
     }
 
@@ -528,8 +546,8 @@ public class Habladores extends Fragment {
             v.put(BaseAdapter.HABLADORES.PRECIO, precio);
             db.insert(BaseAdapter.HABLADORES.TABLE_NAME, null, v);
             db.close();
-        } catch (Exception e) {
-            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e) {
+            msj("Error", e.getMessage());
         }
     }
 

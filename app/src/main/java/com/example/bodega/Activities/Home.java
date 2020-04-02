@@ -16,12 +16,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -125,6 +127,9 @@ public class Home extends AppCompatActivity {
                     case R.id.notas_credito:
                         fr = new NotasCredito();
                         fragmentTransaction = true ;
+                        Bundle b = new Bundle();
+                        b.putString("user",user);
+                        fr.setArguments(b);
                         titulo = "Nótas de crédito";
                         break;
                     case R.id.salir :
@@ -165,6 +170,8 @@ public class Home extends AppCompatActivity {
         configuracion.setPassword(p.getString("password", ""));
         configuracion.setDatabase(p.getString("db_name", ""));
         configuracion.setSchema(p.getString("schema", ""));
+        configuracion.setHost_update(p.getString("host_update",""));
+        configuracion.setPort_update(p.getString("port_update",""));
 
     }
 
@@ -198,10 +205,12 @@ public class Home extends AppCompatActivity {
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             int version = pInfo.versionCode ;
-
+            String version_name = pInfo.versionName ;
             ContentValues cv = new ContentValues() ;
+
             cv.put("app_name","bodega");
             cv.put("version",String.valueOf(version));
+            cv.put("version_name",version_name);
 
             final String url = configuracion.getUrlUpdates()  + cv.toString() ;
 
@@ -214,13 +223,15 @@ public class Home extends AppCompatActivity {
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(Home.this);
                             builder.setTitle("Actualización requerida");
-                            builder.setMessage("Desea acutalizar ahora?");
+                            builder.setMessage("\nv "+obj.getString("new_version")+
+                                    "\n\nDesea acutalizar ahora?");
                             builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     try {
                                         String urlFile = obj.getString("urlFile") ;
-                                        actualizar(urlFile);
+                                        updateWebApi(urlFile);
+
                                     } catch (JSONException e) {
                                        msj("Error",e.getMessage());
                                    }
@@ -255,9 +266,45 @@ public class Home extends AppCompatActivity {
         }
     }
 
+    private void updateWebApi(final String uriFile){
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Actualizando servicio web");
+        progressDialog.setMessage("Porfavor espere..");
+        progressDialog.show();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/updateWebApi.php", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+
+                if (response.equals("")){
+                    //proceder a descargar la app
+                    String urlFile = uriFile ;
+                    actualizar(urlFile);
+                }else{
+                    //mostrar el error obtenido
+                    msj("",response);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+                msj("Error","Ha ocurrido un error al actualizar el servicio web \n "+ error.networkResponse.statusCode);
+            }
+        });
+        //timeout 1 minute
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(60000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(stringRequest);
+    }
+
     private void actualizar(String urlFile){
         final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Descargando");
+        progressDialog.setTitle("Descargando app");
         progressDialog.setMessage("Porfavor espere..");
         progressDialog.show();
 
@@ -291,18 +338,37 @@ public class Home extends AppCompatActivity {
                 msj("Error",error.getMessage());
             }
         }, null);
+
+        request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new HurlStack());
         mRequestQueue.add(request);
     }
 
     private void lauchApp(String path){
+        /*
         Intent i = new Intent();
         i.setAction(Intent.ACTION_VIEW);
         i.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive" );
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(i);
-    }
+        */
+        try {
+            Intent myIntent = new Intent(android.content.Intent.ACTION_VIEW);
+            File file = new File(path);
+            String extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
+            String mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            myIntent.setDataAndType(Uri.fromFile(file),mimetype); startActivity(myIntent);
+            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            myIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(myIntent);
+        } catch (Exception e) { // TODO: handle exception String data = e.getMessage(); }
+            msj("Ha ocurrido un error ", e.getMessage());
+        }
+        }
 
     @SuppressWarnings("SameParameterValue")
     private void msj(String title, String msj){

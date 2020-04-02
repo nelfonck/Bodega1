@@ -37,5 +37,12 @@
                 android:summary="Port"/>
         </PreferenceCategory>
 
-
+    <PreferenceCategory android:title="Updates">
+        <EditTextPreference
+            android:key="host_update"
+            android:summary="Host update"/>
+        <EditTextPreference
+            android:key="port_update"
+            android:summary="Port update"/>
+    </PreferenceCategory>
 </PreferenceScreen>
