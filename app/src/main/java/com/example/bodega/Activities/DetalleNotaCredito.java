@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -290,7 +291,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                                     double monto_impuesto = (costo  *  iv) / 100 ;
                                     double totalIVI = (costo * cant) + (monto_impuesto * cant) ;
                                     String cod_impuesto = articulo.getString("cod_impuesto");
-                                    insertarLinea(cant,codigo,descripcion,costo,iv,monto_impuesto,totalIVI);
+                                    insertarLinea(cant,codigo,descripcion,costo,iv,monto_impuesto,totalIVI,cod_impuesto);
                                     detalle.add(new ModDetalleNota(cod_articulo, descripcion,cant, costo, iv, monto_impuesto, totalIVI,cod_impuesto));
                                     tvTotal.setText(("Total IVI ₡" + formatter.format(getTotal())));
                                     editarEncabezadoDB(total);
@@ -482,7 +483,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
         });
     }
 
-    private void insertarLinea(double cant,String codigo,String descripcion,double costo, double impuesto, double monto_impuesto, double total){
+    private void insertarLinea(double cant,String codigo,String descripcion,double costo, double impuesto, double monto_impuesto, double total, String cod_impuesto){
         try{
 
             android.content.ContentValues cv = new android.content.ContentValues();
@@ -494,6 +495,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
             cv.put(BaseAdapter.DETALLE_NOTAS_CREDITO.IMPUETO,impuesto);
             cv.put(BaseAdapter.DETALLE_NOTAS_CREDITO.MONTO_IMPUESTO,monto_impuesto);
             cv.put(BaseAdapter.DETALLE_NOTAS_CREDITO.TOTAL,total);
+            cv.put(BaseAdapter.DETALLE_NOTAS_CREDITO.COD_IMPUESTO,cod_impuesto);
 
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -707,12 +709,16 @@ public class DetalleNotaCredito extends AppCompatActivity {
             StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/notas_credito/", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-
+                    if (!response.equals("")){
+                        msj("Error",response);
+                    }else{
+                        Toast.makeText(DetalleNotaCredito.this,"La nota ha sido enviada a Qpos",Toast.LENGTH_SHORT).show();
+                    }
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-
+                    msj("Ha ocurrido un error",error.getMessage());
                 }
             }){
                 @Override
@@ -728,9 +734,18 @@ public class DetalleNotaCredito extends AppCompatActivity {
                     params.put("schema",configuracion.getSchema());
                     params.put("detalle", gson.toJson(detalle));
                     params.put("user",user);
+                    params.put("cod_proveedor",cod_proveedor);
+                    params.put("total",String.valueOf(total));
                     return params;
                 }
             };
+            request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            RequestQueue queue = Volley.newRequestQueue(this);
+            queue.add(request);
+
         }catch (Exception e){
             msj("Errro", e.getMessage());
         }
