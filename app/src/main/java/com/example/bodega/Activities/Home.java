@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import com.example.bodega.Fragments.Preferencias;
 import com.example.bodega.Fragments.Proformas;
 import com.example.bodega.Fragments.RecepcionDocumentos;
 import com.example.bodega.Fragments.Salidas;
+import com.example.bodega.GenericFileProvider;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
 import com.example.bodega.R;
@@ -49,6 +51,11 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
+
+import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE;
+import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
+import static android.content.pm.PackageManager.MATCH_SYSTEM_ONLY;
 
 public class Home extends AppCompatActivity {
     private DrawerLayout drawer ;
@@ -348,26 +355,25 @@ public class Home extends AppCompatActivity {
     }
 
     private void lauchApp(String path){
-        /*
-        Intent i = new Intent();
+
+       /* Intent i = new Intent();
         i.setAction(Intent.ACTION_VIEW);
-        i.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive" );
+        //i.setDataAndType(GenericFileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive" );
+        File file = new File(path);
+        i.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(i); */
+
+        Intent i = new Intent();
+        i.setAction(Intent.ACTION_INSTALL_PACKAGE);
+        i.addCategory(Intent.CATEGORY_DEFAULT);
+        File file = new File(path);
+        //i.setDataAndType(GenericFileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive" );
+        i.setDataAndType(Uri.parse("http://com.example.bodega.provider/files/bodega.apk"), "application/vnd.android.package-archive");
+
         startActivity(i);
-        */
-        try {
-            Intent myIntent = new Intent(android.content.Intent.ACTION_VIEW);
-            File file = new File(path);
-            String extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-            String mimetype = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            myIntent.setDataAndType(Uri.fromFile(file),mimetype); startActivity(myIntent);
-            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            myIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(myIntent);
-        } catch (Exception e) { // TODO: handle exception String data = e.getMessage(); }
-            msj("Ha ocurrido un error ", e.getMessage());
-        }
+
         }
 
     @SuppressWarnings("SameParameterValue")
