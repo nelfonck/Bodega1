@@ -3,13 +3,16 @@ package com.example.bodega.Activities;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,9 +23,12 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -40,7 +46,7 @@ import com.example.bodega.Fragments.Preferencias;
 import com.example.bodega.Fragments.Proformas;
 import com.example.bodega.Fragments.RecepcionDocumentos;
 import com.example.bodega.Fragments.Salidas;
-import com.example.bodega.GenericFileProvider;
+
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
 import com.example.bodega.R;
@@ -51,17 +57,19 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.List;
 
-import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE;
-import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
-import static android.content.pm.PackageManager.MATCH_SYSTEM_ONLY;
 
 public class Home extends AppCompatActivity {
     private DrawerLayout drawer ;
     private NavigationView nav ;
     private static String user ;
     private Configuracion configuracion ;
+
+    private static final int REQUEST_CODE = 1;
+    private static final String[] PERMISOS = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -71,6 +79,13 @@ public class Home extends AppCompatActivity {
 
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.naview);
+
+        int leer = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
+        int escribir = ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (leer != PackageManager.PERMISSION_GRANTED || escribir != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,PERMISOS,REQUEST_CODE);
+        }
 
         getConfiguracion();
 
@@ -209,6 +224,7 @@ public class Home extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void checkUpdates(){
+
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             int version = pInfo.versionCode ;
@@ -271,6 +287,7 @@ public class Home extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             msj("Error",e.getMessage());
         }
+
     }
 
     private void updateWebApi(final String uriFile){
@@ -323,13 +340,19 @@ public class Home extends AppCompatActivity {
                         try {
                             if (response!=null) {
 
-                                FileOutputStream outputStream;
                                 String name= "bodega.apk";
+
+
+                                String filePath = getFilesDir() + "/" + name ;
+
+                                FileOutputStream outputStream ;
+
                                 outputStream = openFileOutput(name, Context.MODE_PRIVATE);
                                 outputStream.write(response);
                                 outputStream.close();
-                                String filePath = getFilesDir() + "/" + name ;
-                                if (progressDialog.isShowing())progressDialog.dismiss();
+
+
+                               if (progressDialog.isShowing())progressDialog.dismiss();
                                 lauchApp(filePath);
                             }
                         } catch (Exception e) {
@@ -355,24 +378,25 @@ public class Home extends AppCompatActivity {
     }
 
     private void lauchApp(String path){
-
-       /* Intent i = new Intent();
-        i.setAction(Intent.ACTION_VIEW);
-        //i.setDataAndType(GenericFileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive" );
-        File file = new File(path);
-        i.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(i); */
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         Intent i = new Intent();
-        i.setAction(Intent.ACTION_INSTALL_PACKAGE);
-        i.addCategory(Intent.CATEGORY_DEFAULT);
-        File file = new File(path);
-        //i.setDataAndType(GenericFileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive" );
-        i.setDataAndType(Uri.parse("http://com.example.bodega.provider/files/bodega.apk"), "application/vnd.android.package-archive");
+        i.setAction(Intent.ACTION_VIEW);
 
+        File file = new File(path);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            i.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file), "application/vnd.android.package-archive" );
+        }else{
+
+            i.setDataAndType(Uri.parse("file://" + path),"application/vnd.android.package-archive");
+        }
+
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(i);
+
+
 
         }
 
