@@ -12,14 +12,12 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -64,14 +62,11 @@ public class Home extends AppCompatActivity {
     private NavigationView nav ;
     private static String user ;
     private Configuracion configuracion ;
-
     private static final int REQUEST_CODE = 1;
     private static final String[] PERMISOS = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.INSTALL_PACKAGES,Manifest.permission.REQUEST_INSTALL_PACKAGES
     };
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,13 +74,13 @@ public class Home extends AppCompatActivity {
 
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.naview);
+        int instalar = ActivityCompat.checkSelfPermission(this,Manifest.permission.INSTALL_PACKAGES);
+        int install1 = ActivityCompat.checkSelfPermission(this,Manifest.permission.REQUEST_INSTALL_PACKAGES);
 
-        int leer = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
-        int escribir = ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (leer != PackageManager.PERMISSION_GRANTED || escribir != PackageManager.PERMISSION_GRANTED){
+        if (instalar != PackageManager.PERMISSION_GRANTED || install1 != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,PERMISOS,REQUEST_CODE);
         }
+
 
         getConfiguracion();
 
@@ -303,8 +298,8 @@ public class Home extends AppCompatActivity {
 
                 if (response.equals("")){
                     //proceder a descargar la app
-                    String urlFile = uriFile ;
-                    actualizar(urlFile);
+
+                    actualizar(uriFile);
                 }else{
                     //mostrar el error obtenido
                     msj("",response);
@@ -342,12 +337,11 @@ public class Home extends AppCompatActivity {
 
                                 String name= "bodega.apk";
 
+                                String filePath =  "/storage/emulated/0/Download/" + name ;
 
-                                String filePath = getFilesDir() + "/" + name ;
+                                FileOutputStream outputStream  = new FileOutputStream(new File("/storage/emulated/0/Download/",name));
 
-                                FileOutputStream outputStream ;
-
-                                outputStream = openFileOutput(name, Context.MODE_PRIVATE);
+                               // outputStream = openFileOutput(name, Context.MODE_PRIVATE);
                                 outputStream.write(response);
                                 outputStream.close();
 
@@ -378,24 +372,21 @@ public class Home extends AppCompatActivity {
     }
 
     private void lauchApp(String path){
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
 
         Intent i = new Intent();
         i.setAction(Intent.ACTION_VIEW);
 
-        File file = new File(path);
+        File file = new File(path) ;
+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             i.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file), "application/vnd.android.package-archive" );
         }else{
-
-            i.setDataAndType(Uri.parse("file://" + path),"application/vnd.android.package-archive");
+            i.setDataAndType(Uri.fromFile(file),"application/vnd.android.package-archive");
         }
 
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(i);
-
 
 
         }

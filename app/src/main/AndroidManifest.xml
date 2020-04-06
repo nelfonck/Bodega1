@@ -20,6 +20,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-################~##########"/>
+
         <activity android:name=".Activities.DetalleNotaCredito"></activity>
         <activity android:name=".Activities.Home">
             <intent-filter>
