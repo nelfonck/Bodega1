@@ -341,7 +341,6 @@ public class Home extends AppCompatActivity {
 
                                 FileOutputStream outputStream  = new FileOutputStream(new File("/storage/emulated/0/Download/",name));
 
-                               // outputStream = openFileOutput(name, Context.MODE_PRIVATE);
                                 outputStream.write(response);
                                 outputStream.close();
 
