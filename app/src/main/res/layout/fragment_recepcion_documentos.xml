@@ -29,7 +29,7 @@
         android:id="@+id/tvNombreComercialVendedor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/igualar_ultimos_digitos"
+        android:layout_below="@id/txtTotalFactura"
         android:textStyle="bold"/>
     <TextView
         android:id="@+id/tvFechaEmision"
@@ -57,6 +57,15 @@
         android:inputType="number"
         android:layout_toLeftOf="@id/imgClear"
         android:layout_alignParentLeft="true" />
+
+
+    <EditText
+        android:id="@+id/txtTotalFactura"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtConsecutivo"
+        android:hint="Total"
+        android:singleLine="true" />
 
     <CheckBox
         android:id="@+id/igualar_ultimos_digitos"

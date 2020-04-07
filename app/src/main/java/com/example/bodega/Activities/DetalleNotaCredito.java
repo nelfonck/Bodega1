@@ -67,7 +67,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
     private List<ModDetalleNota> detalle ;
     private AdapterDetalleNota adapter ;
     private TextView tvTotal ;
-    private double total ;
+    private double total, impuesto ;
     private boolean scanned_from_scan ;
     private Configuracion configuracion;
     private BaseAdapter dbHelper ;
@@ -615,9 +615,12 @@ public class DetalleNotaCredito extends AppCompatActivity {
 
     private double getTotal(){
         total = 0 ;
+        impuesto = 0 ;
+
         for(int i = 0; i<= detalle.size()-1;i++)
         {
             total+= detalle.get(i).getTotal_ivi();
+            impuesto+= detalle.get(i).getMonto_impuesto();
         }
         return total ;
     }
@@ -735,6 +738,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                     params.put("detalle", gson.toJson(detalle));
                     params.put("user",user);
                     params.put("cod_proveedor",cod_proveedor);
+                    params.put("impuesto",String.valueOf(impuesto));
                     params.put("total",String.valueOf(total));
                     return params;
                 }

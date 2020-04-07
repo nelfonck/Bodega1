@@ -27,6 +27,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adapters.AdapterDocumentos;
 import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ContentValues;
 import com.example.bodega.Models.ModDocumentos;
 import com.example.bodega.R;
 
@@ -47,8 +48,10 @@ public class RecepcionDocumentos extends Fragment {
     private TextView tvFechaEmision ;
     private TextView tvCliente ;
     private TextView tvTotal ;
+    private EditText txtTotalFactura ;
     private ImageView imgEstado ;
     private CheckBox igualar_ultimos_digitos ;
+    private ImageButton imgClear ;
 
     public RecepcionDocumentos() {
         // Required empty public constructor
@@ -63,12 +66,13 @@ public class RecepcionDocumentos extends Fragment {
         imgEstado = view.findViewById(R.id.imgEstado);
         txtConsecutivo = view.findViewById(R.id.txtConsecutivo);
         igualar_ultimos_digitos = view.findViewById(R.id.igualar_ultimos_digitos);
-        ImageButton imgClear = view.findViewById(R.id.imgClear);
+        imgClear = view.findViewById(R.id.imgClear);
         tvNombreComercialVendedor = view.findViewById(R.id.tvNombreComercialVendedor);
         tvFechaEmision = view.findViewById(R.id.tvFechaEmision);
         tvCliente = view.findViewById(R.id.tvCliente);
         tvTotal = view.findViewById(R.id.tvTotal);
         imgEstado.getBackground().setAlpha(120);
+        txtTotalFactura = view.findViewById(R.id.txtTotalFactura);
 
         getConfiguracion();
 
@@ -78,10 +82,36 @@ public class RecepcionDocumentos extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
                 if (KeyEvent.ACTION_DOWN == event.getAction()){
-                    verificar(txtConsecutivo.getText().toString());
+                    verificar(txtConsecutivo.getText().toString(),txtTotalFactura.getText().toString());
                     return true ;
                 }
                 return false;
+            }
+        });
+
+        txtTotalFactura.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                    if (KeyEvent.ACTION_DOWN == event.getAction()){
+                        verificar(txtConsecutivo.getText().toString(),txtTotalFactura.getText().toString());
+                        return true ;
+                    }
+                return false;
+            }
+        });
+
+        txtTotalFactura.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                txtConsecutivo.setText("");
+            }
+        });
+
+        txtConsecutivo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                txtTotalFactura.setText("");
             }
         });
 
@@ -95,19 +125,23 @@ public class RecepcionDocumentos extends Fragment {
                 tvFechaEmision.setText("");
                 tvCliente.setText("");
                 tvTotal.setText("");
+                txtTotalFactura.setText("");
+                txtConsecutivo.requestFocus();
             }
         });
                 return view;
     }
     //OVERLOAD METHODS
 
-    private void verificar(String consecutivo){
+    private void verificar(String consecutivo,String totalFactura){
+        ContentValues values = new ContentValues();
+        values.put("consecutivo", (consecutivo.length() >0) ? consecutivo : "");
+        values.put("total", (totalFactura.length() >0) ? totalFactura : "");
+        values.put("iud",(igualar_ultimos_digitos.isChecked() ? "true" :"false"));
+
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos" +
-                "?host_db=" + configuracion.getHost_db() +
-                "&port_db=" + configuracion.getPort_db() +
-                "&consecutivo=" + txtConsecutivo.getText().toString() +
-                "&iud=" + (igualar_ultimos_digitos.isChecked() ? true :false),null, new Response.Listener<JSONArray>() {
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos/" +
+           values.toString(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray documento) {
                 try {
@@ -126,6 +160,7 @@ public class RecepcionDocumentos extends Fragment {
                             tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
                             tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
                             tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
+
                         }else if (documento.length()>1){
                             mostrarResultados(documento);
                         }
@@ -147,13 +182,14 @@ public class RecepcionDocumentos extends Fragment {
     }
 
     private void verificar(int id, String consecutivo){
+        ContentValues values = new ContentValues();
+        values.put("consecutivo", consecutivo);
+        values.put("iud",(igualar_ultimos_digitos.isChecked() ? "true" :"false"));
+        values.put("id",String.valueOf(id));
+
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos" +
-                "?host_db=" + configuracion.getHost_db() +
-                "&port_db=" + configuracion.getPort_db() +
-                "&iud=" + (igualar_ultimos_digitos.isChecked() ? true :false)+
-                "&id="+id+
-                "&consecutivo="+ consecutivo,null, new Response.Listener<JSONArray>() {
+                values.toString(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray documento) {
                 try {
@@ -172,6 +208,7 @@ public class RecepcionDocumentos extends Fragment {
                             tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
                             tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
                             tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
+
                         }else if (documento.length()>1){
                             mostrarResultados(documento);
                         }

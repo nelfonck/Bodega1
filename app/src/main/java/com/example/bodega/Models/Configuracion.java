@@ -12,6 +12,7 @@ public class Configuracion {
     private String host_update ;
     private String port_update ;
 
+
     public static final String WEBAPI = "KiwiUT" ;
     public static final String WEBAPIUPDATES = "actualizador" ;
     public Configuracion() {
@@ -70,6 +71,7 @@ public class Configuracion {
         this.port_update = port_update;
     }
 
+
     public String getHost() {
         return host;
     }
@@ -105,6 +107,7 @@ public class Configuracion {
     public String getUrl(){
         return "http://" + host + ":" + port + "/" + WEBAPI ;
     }
+
 
     public String getUrlUpdates(){
         return "http://" + host_update + ":" + port_update + "/" + WEBAPIUPDATES + "/" ;
