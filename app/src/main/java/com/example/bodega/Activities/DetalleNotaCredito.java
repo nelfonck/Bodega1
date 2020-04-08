@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
@@ -431,7 +432,8 @@ public class DetalleNotaCredito extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                if (event.getAction() == KeyEvent.ACTION_DOWN){
                         final Gson gson = new Gson();
                     ContentValues values  = new ContentValues();
                     values.put("descripcion",txtArticulo.getText().toString());
@@ -716,6 +718,8 @@ public class DetalleNotaCredito extends AppCompatActivity {
                         msj("Error",response);
                     }else{
                         Toast.makeText(DetalleNotaCredito.this,"La nota ha sido enviada a Qpos",Toast.LENGTH_SHORT).show();
+                        limpiarLista();
+                        eliminarNotaDb();
                     }
                 }
             }, new Response.ErrorListener() {
@@ -752,6 +756,21 @@ public class DetalleNotaCredito extends AppCompatActivity {
 
         }catch (Exception e){
             msj("Errro", e.getMessage());
+        }
+    }
+
+    public void eliminarNotaDb()
+    {
+        try{
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            double result = db.delete(BaseAdapter.NOTAS_CREDITO.TABLE_NAME,
+                    BaseAdapter.NOTAS_CREDITO.ID + "=?",new String[]{String.valueOf(id_nota)});
+            if (result == 0)
+            {
+                msj("Error", "Ocurrió un error al eliminar la nota.");
+            }
+        }catch (SQLException e){
+            msj("Error", e.getMessage());
         }
     }
 

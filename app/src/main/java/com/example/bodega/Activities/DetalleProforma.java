@@ -730,8 +730,8 @@ public class DetalleProforma extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                if (event.getAction() == KeyEvent.ACTION_DOWN){
                         final Gson gson = new Gson();
                         com.example.bodega.Models.ContentValues values  = new com.example.bodega.Models.ContentValues();
                         values.put("descripcion",txtArticulo.getText().toString());

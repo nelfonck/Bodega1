@@ -324,49 +324,50 @@ public class Articulos extends Fragment {
                 dialog.dismiss();
             }
         });
+
         final AlertDialog dialog = builder.create();
         dialog.show();
 
         txtArticulo.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    articulos.clear();
-                    final Gson gson = new Gson();
-                    RequestQueue queue = Volley.newRequestQueue(getActivity());
-                    StringRequest request = null;
-                    try {
-                        request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                                "/articulos/?descripcion=" + URLEncoder.encode(txtArticulo.getText().toString(), "utf-8") +
-                                "&host_db=" + configuracion.getHost_db() +
-                                "&port_db=" + configuracion.getPort_db() +
-                                "&user_name=" + configuracion.getUser_name() +
-                                "&password=" + configuracion.getPassword() +
-                                "&db_name=" + configuracion.getDatabase() +
-                                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
-                                    adapter.notifyDataSetChanged();
-                                } catch (Exception e) {
-                                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
-                                }
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                    if (event.getAction() == KeyEvent.ACTION_DOWN){
+                        ContentValues values = new ContentValues() ;
+                        values.put("descripcion",txtArticulo.getText().toString());
+                        values.put("host_db",configuracion.getHost_db());
+                        values.put("port_db",configuracion.getPort_db());
+                        values.put("user_name",configuracion.getUser_name());
+                        values.put("password",configuracion.getPassword());
+                        values.put("db_name",configuracion.getDatabase());
+                        values.put("schema",configuracion.getSchema());
+                        final Gson gson = new Gson();
 
-                            }
+                        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                                 "/articulos/" + values.toString(), new Response.Listener<String>() {
+                             @Override
+                             public void onResponse(String response) {
+                                 try {
+                                     articulos.clear();
+                                     articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
+                                     adapter.notifyDataSetChanged();
+                                 } catch (Exception e) {
+                                     Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                 }
 
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+                             }
 
-                    queue.add(request);
-                    return true;
+                         }, new Response.ErrorListener() {
+                             @Override
+                             public void onErrorResponse(VolleyError error) {
+                                 Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                             }
+                         });
+                        RequestQueue queue = Volley.newRequestQueue(getActivity());
+                        queue.add(request);
+
+
+                        return true;
                 }
                 return false;
             }
@@ -385,13 +386,17 @@ public class Articulos extends Fragment {
         try {
             final Gson gson = new Gson();
             RequestQueue queue = Volley.newRequestQueue(getActivity());
+
+            ContentValues values = new ContentValues();
+            values.put("host_db",configuracion.getHost_db());
+            values.put("port_db",configuracion.getPort_db());
+            values.put("user_name",configuracion.getUser_name());
+            values.put("password",configuracion.getPassword());
+            values.put("db_name",configuracion.getDatabase());
+            values.put("schema",configuracion.getSchema());
+
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/familias/" +
-                    "?host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema(), null, new Response.Listener<JSONArray>() {
+                    values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
                     if (response.length() > 0) {
@@ -417,13 +422,17 @@ public class Articulos extends Fragment {
         try {
             final Gson gson = new Gson();
             RequestQueue queue = Volley.newRequestQueue(getActivity());
+
+            ContentValues values = new ContentValues();
+            values.put("host_db",configuracion.getHost_db());
+            values.put("port_db",configuracion.getPort_db());
+            values.put("user_name",configuracion.getUser_name());
+            values.put("password",configuracion.getPassword());
+            values.put("db_name",configuracion.getDatabase());
+            values.put("schema",configuracion.getSchema());
+
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/impuestos/" +
-                    "?host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema(), null, new Response.Listener<JSONArray>() {
+                    values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
                     if (response.length() > 0) {
@@ -448,13 +457,17 @@ public class Articulos extends Fragment {
         try {
             final Gson gson = new Gson();
             RequestQueue queue = Volley.newRequestQueue(getActivity());
+
+            ContentValues values = new ContentValues();
+            values.put("host_db",configuracion.getHost_db());
+            values.put("port_db",configuracion.getPort_db());
+            values.put("user_name",configuracion.getUser_name());
+            values.put("password",configuracion.getPassword());
+            values.put("db_name",configuracion.getDatabase());
+            values.put("schema",configuracion.getSchema());
+
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/marcas/" +
-                    "?host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema(), null, new Response.Listener<JSONArray>() {
+                 values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
                     marcas.clear();
@@ -477,13 +490,17 @@ public class Articulos extends Fragment {
         try {
             final Gson gson = new Gson();
             RequestQueue queue = Volley.newRequestQueue(getActivity());
+
+            ContentValues values = new ContentValues();
+            values.put("host_db",configuracion.getHost_db());
+            values.put("port_db",configuracion.getPort_db());
+            values.put("user_name",configuracion.getUser_name());
+            values.put("password",configuracion.getPassword());
+            values.put("db_name",configuracion.getDatabase());
+            values.put("schema",configuracion.getSchema());
+
             StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/unidad_medida/" +
-                    "?host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+            values.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     unidadMedidas.clear();
@@ -628,95 +645,93 @@ public class Articulos extends Fragment {
         progress.setMessage("Porfavor espere...");
         if (!progress.isShowing()) progress.show();
 
+        ContentValues values = new ContentValues();
+        values.put("host_db",configuracion.getHost_db());
+        values.put("port_db",configuracion.getPort_db());
+        values.put("user_name",configuracion.getUser_name());
+        values.put("password",configuracion.getPassword());
+        values.put("db_name",configuracion.getDatabase());
+        values.put("schema",configuracion.getSchema());
+        values.put("codigo",codigo);
+        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" +
+            values.toString(), new Response.Listener<String>() {
+             @Override
+             public void onResponse(String response) {
+                 try {
+                     JSONObject articulo = new JSONObject(response);
+                     if (articulo.length() > 0) {
+                         DecimalFormat formatter = new DecimalFormat("#");
+                         formatter.setMaximumFractionDigits(2);
+
+                         txtDescripcion.setText(articulo.getString("descripcion"));
+                         int pos = indexOfFamilias(familias, articulo.getString("cod_familia"));
+                         spFamilias.setSelection(pos);
+                         pos = indexOfMarcas(marcas, articulo.getString("cod_marca"));
+                         spMarcas.setSelection(pos);
+
+                         cod_articulo = codigo;
+                         costo = articulo.getDouble("costo");
+                         pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
+                         spImpuestos.setSelection(pos);
+                         pos = indexOfUnidadMedida(unidadMedidas, articulo.getString("unidad_medida"));
+                         spUnidadMedida.setSelection(pos);
+                         txtFactorMedida.setText(articulo.getString("factor_medida"));
+                         utilidad = articulo.getDouble("utilidad");
+                         venta = articulo.getDouble("venta");
+                         articulo_granel.setChecked(articulo.getString("art_granel").equals("S"));
+                         articulo_romana.setChecked(articulo.getString("articulo_romana").equals("S"));
+
+                         txtCosto.setText(formatter.format(costo));
+                         txtUtilidad.setText(formatter.format(utilidad));
+                         txtVenta.setText(formatter.format(venta));
+
+                         cod_proveedor = articulo.getString("cod_proveedor");
+                         razsocial = articulo.getString("razsocial");
+
+                         tvProveedor.setText(razsocial);
+
+                         txtCodigo.setText("");
+                         txtCodigo.requestFocus();
+
+                         if (progress.isShowing()) progress.dismiss();
+                     } else {
+
+                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                         builder.setTitle("No registrado").setMessage("El artículo no está registrado \nDesea registrarlo ahora?");
+                         builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                             @Override
+                             public void onClick(DialogInterface dialog, int which) {
+                                 if (progress.isShowing()) progress.dismiss();
+                                 nuevoArticulo(codigo);
+                                 dialog.dismiss();
+                             }
+                         });
+                         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                             @Override
+                             public void onClick(DialogInterface dialog, int which) {
+                                 if (progress.isShowing()) progress.dismiss();
+                                 dialog.dismiss();
+                             }
+                         });
+                         AlertDialog dialog = builder.create();
+                         dialog.show();
+
+                         tvProveedor.setText("");
+                     }
+                 } catch (JSONException e) {
+                     e.printStackTrace();
+                 }
+             }
+         }, new Response.ErrorListener() {
+             @Override
+             public void onErrorResponse(VolleyError error) {
+                 if (progress.isShowing()) progress.dismiss();
+                 Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+             }
+         });
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        StringRequest request = null;
-        try {
-            request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" +
-                    "?codigo=" + URLEncoder.encode(codigo,"utf-8") +
-                    "&host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONObject articulo = new JSONObject(response);
-                        if (articulo.length() > 0) {
-                            DecimalFormat formatter = new DecimalFormat("#");
-                            formatter.setMaximumFractionDigits(2);
-
-                            txtDescripcion.setText(articulo.getString("descripcion"));
-                            int pos = indexOfFamilias(familias, articulo.getString("cod_familia"));
-                            spFamilias.setSelection(pos);
-                            pos = indexOfMarcas(marcas, articulo.getString("cod_marca"));
-                            spMarcas.setSelection(pos);
-
-                            cod_articulo = codigo;
-                            costo = articulo.getDouble("costo");
-                            pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
-                            spImpuestos.setSelection(pos);
-                            pos = indexOfUnidadMedida(unidadMedidas, articulo.getString("unidad_medida"));
-                            spUnidadMedida.setSelection(pos);
-                            txtFactorMedida.setText(articulo.getString("factor_medida"));
-                            utilidad = articulo.getDouble("utilidad");
-                            venta = articulo.getDouble("venta");
-                            articulo_granel.setChecked(articulo.getString("art_granel").equals("S"));
-                            articulo_romana.setChecked(articulo.getString("articulo_romana").equals("S"));
-
-                            txtCosto.setText(formatter.format(costo));
-                            txtUtilidad.setText(formatter.format(utilidad));
-                            txtVenta.setText(formatter.format(venta));
-
-                            cod_proveedor = articulo.getString("cod_proveedor");
-                            razsocial = articulo.getString("razsocial");
-
-                            tvProveedor.setText(razsocial);
-
-                            txtCodigo.setText("");
-                            txtCodigo.requestFocus();
-
-                            if (progress.isShowing()) progress.dismiss();
-                        } else {
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("No registrado").setMessage("El artículo no está registrado \nDesea registrarlo ahora?");
-                            builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (progress.isShowing()) progress.dismiss();
-                                    nuevoArticulo(codigo);
-                                    dialog.dismiss();
-                                }
-                            });
-                            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (progress.isShowing()) progress.dismiss();
-                                    dialog.dismiss();
-                                }
-                            });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-
-                            tvProveedor.setText("");
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    if (progress.isShowing()) progress.dismiss();
-                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
         queue.add(request);
+
     }
 
     private int indexOfUnidadMedida(final List<UnidadMedida> list, String value) {

@@ -178,7 +178,7 @@ public class Habladores extends Fragment {
 
     private void buscarDescripcion() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_filtro_descripcion, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_filtro_descripcion, (ViewGroup)null);
         builder.setView(view);
         final EditText txtArticulo = view.findViewById(R.id.txtFiltroDescripcion);
         RecyclerView recyclerView = view.findViewById(R.id.rvResultadoFiltroDescripcion);
@@ -204,7 +204,8 @@ public class Habladores extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                if (event.getAction() == KeyEvent.ACTION_DOWN){
                     articulos.clear();
                     final Gson gson = new Gson();
                     StringRequest request = null;
