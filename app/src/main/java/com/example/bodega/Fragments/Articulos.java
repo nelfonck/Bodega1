@@ -28,6 +28,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -94,6 +95,7 @@ public class Articulos extends Fragment {
     private EditText txtVenta;
     private EditText txtFactorMedida;
     private EditText txtCodigo;
+    private TextView tvProveedor ;
     private CheckBox articulo_granel;
     private CheckBox articulo_romana;
     private String cod_articulo;
@@ -103,6 +105,7 @@ public class Articulos extends Fragment {
     private String user;
     private ProgressDialog progress;
     private boolean block;
+    private String cod_proveedor, razsocial ;
 
     public Articulos() {
 
@@ -160,6 +163,8 @@ public class Articulos extends Fragment {
         txtVenta = view.findViewById(R.id.txtVenta);
         txtFactorMedida = view.findViewById(R.id.txtFactorMedida);
 
+        tvProveedor = view.findViewById(R.id.tvProveedor);
+
         articulo_granel = view.findViewById(R.id.check_granel);
         articulo_romana = view.findViewById(R.id.check_romana);
 
@@ -167,6 +172,7 @@ public class Articulos extends Fragment {
         txtCosto.setSelectAllOnFocus(true);
         txtUtilidad.setSelectAllOnFocus(true);
         txtVenta.setSelectAllOnFocus(true);
+
 
         ImageButton btnScan = view.findViewById(R.id.btnScan);
 
@@ -663,11 +669,17 @@ public class Articulos extends Fragment {
                             txtUtilidad.setText(formatter.format(utilidad));
                             txtVenta.setText(formatter.format(venta));
 
+                            cod_proveedor = articulo.getString("cod_proveedor");
+                            razsocial = articulo.getString("razsocial");
+
+                            tvProveedor.setText(razsocial);
+
                             txtCodigo.setText("");
                             txtCodigo.requestFocus();
 
                             if (progress.isShowing()) progress.dismiss();
                         } else {
+
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                             builder.setTitle("No registrado").setMessage("El artículo no está registrado \nDesea registrarlo ahora?");
                             builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
@@ -687,6 +699,8 @@ public class Articulos extends Fragment {
                             });
                             AlertDialog dialog = builder.create();
                             dialog.show();
+
+                            tvProveedor.setText("");
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
