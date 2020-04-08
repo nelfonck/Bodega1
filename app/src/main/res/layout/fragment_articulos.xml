@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:fillViewport="true">
+
 
     <RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
         tools:context=".Fragments.Articulos">
+
+    <ScrollView
+
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_above="@id/rlfiltro"
+        android:layout_alignParentTop="true"
+        android:fillViewport="true">
         <LinearLayout
             android:id="@+id/llContenedor"
             android:layout_width="match_parent"
@@ -211,48 +216,49 @@
             </LinearLayout>
 
         </LinearLayout>
-
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:layout_alignParentBottom="true"
-    android:background="#fff">
-
-    <EditText
-        android:id="@+id/txtCodigo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    </ScrollView>
+    <RelativeLayout
+        android:id="@+id/rlfiltro"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="3dp"
-        android:layout_toStartOf="@+id/btnScan"
-        android:layout_toEndOf="@+id/btnBuscarDescripcion"
-        android:hint="Código"
-        android:singleLine="true" />
+        android:background="#fff">
+
+        <EditText
+            android:id="@+id/txtCodigo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="3dp"
+            android:layout_toStartOf="@+id/btnScan"
+            android:layout_toEndOf="@+id/btnBuscarDescripcion"
+            android:hint="Código"
+            android:singleLine="true" />
 
 
-    <ImageButton
-        android:id="@+id/btnScan"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="5dp"
-        android:background="@color/zxing_transparent"
-        android:scaleType="fitXY"
-        android:src="@drawable/barcoderead" />
+        <ImageButton
+            android:id="@+id/btnScan"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="5dp"
+            android:background="@color/zxing_transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/barcoderead" />
 
-    <ImageButton
-        android:id="@+id/btnBuscarDescripcion"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="5dp"
-        android:layout_marginBottom="10dp"
-        android:background="@color/zxing_transparent"
-        android:scaleType="fitXY"
-        android:src="@drawable/googlekeyboard" />
-</RelativeLayout>
+        <ImageButton
+            android:id="@+id/btnBuscarDescripcion"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/zxing_transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/googlekeyboard" />
     </RelativeLayout>
-</ScrollView>
+    </RelativeLayout>
+
 
