@@ -9,6 +9,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -64,7 +65,11 @@ public class Home extends AppCompatActivity {
     private Configuracion configuracion ;
     private static final int REQUEST_CODE = 1;
     private static final String[] PERMISOS = {
-            Manifest.permission.INSTALL_PACKAGES,Manifest.permission.REQUEST_INSTALL_PACKAGES
+            Manifest.permission.INSTALL_PACKAGES,
+            Manifest.permission.REQUEST_INSTALL_PACKAGES,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
     };
 
     @Override
@@ -74,10 +79,19 @@ public class Home extends AppCompatActivity {
 
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.naview);
+
         int instalar = ActivityCompat.checkSelfPermission(this,Manifest.permission.INSTALL_PACKAGES);
         int install1 = ActivityCompat.checkSelfPermission(this,Manifest.permission.REQUEST_INSTALL_PACKAGES);
+        int readStorage = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
+        int writeStorage = ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int camera = ActivityCompat.checkSelfPermission(this,Manifest.permission.CAMERA);
 
-        if (instalar != PackageManager.PERMISSION_GRANTED || install1 != PackageManager.PERMISSION_GRANTED){
+        if (instalar != PackageManager.PERMISSION_GRANTED ||
+                install1 != PackageManager.PERMISSION_GRANTED ||
+                readStorage != PackageManager.PERMISSION_GRANTED ||
+                writeStorage != PackageManager.PERMISSION_GRANTED ||
+                camera != PackageManager.PERMISSION_GRANTED)
+        {
             ActivityCompat.requestPermissions(this,PERMISOS,REQUEST_CODE);
         }
 
