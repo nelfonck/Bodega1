@@ -80,6 +80,8 @@ public class Home extends AppCompatActivity {
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.naview);
 
+
+
         int instalar = ActivityCompat.checkSelfPermission(this,Manifest.permission.INSTALL_PACKAGES);
         int install1 = ActivityCompat.checkSelfPermission(this,Manifest.permission.REQUEST_INSTALL_PACKAGES);
         int readStorage = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -94,7 +96,6 @@ public class Home extends AppCompatActivity {
         {
             ActivityCompat.requestPermissions(this,PERMISOS,REQUEST_CODE);
         }
-
 
         getConfiguracion();
 
