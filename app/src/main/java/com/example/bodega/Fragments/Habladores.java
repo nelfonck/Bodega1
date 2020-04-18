@@ -10,9 +10,11 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,6 +44,7 @@ import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Adapters.HabladoresAdapter;
 import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModHablador;
 import com.example.bodega.Models.ModSalidas;
@@ -72,6 +75,7 @@ public class Habladores extends Fragment {
     public static final String TAG = "Tag";
     RequestQueue queue;
     Configuracion configuracion;
+    InformeErrores informeErrores ;
 
     public Habladores() {
         // Required empty public constructor
@@ -98,6 +102,8 @@ public class Habladores extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         txtCodigo = view.findViewById(R.id.txtCodigo);
         lista = new ArrayList<>();
+
+        informeErrores = new InformeErrores(getActivity());
 
         getConfiguracion();
 
@@ -366,7 +372,6 @@ public class Habladores extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void doCall(final String codigo) {
-        if (!existeItem(codigo)) {
 
             JsonObjectRequest request = null;
 
@@ -384,20 +389,23 @@ public class Habladores extends Fragment {
                     @Override
                     public void onResponse(JSONObject articulo) {
                         try {
-
-                            if (articulo.length()>0){
-                                if (articulo.getBoolean("en_cola")) {
-                                    Toast.makeText(getActivity(), "El artículo está en proceso de impresión en QPOS...", Toast.LENGTH_LONG).show();
-                                }else
-                                    if (articulo.getString("activo").equals("S")) {
-                                    addToList(articulo.getString("codigo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
-                                } else {
-                                    activarArticulo(articulo.getString("codigo"));
-                                }
-                            }else{
-                                Toast.makeText(getActivity(), "El artículo no éxiste : "+ codigo, Toast.LENGTH_SHORT).show();
-                            }
-
+                         if (!existeItem(articulo.getString("codigo")))
+                         {
+                             if (articulo.length()>0){
+                                 if (articulo.getBoolean("en_cola")) {
+                                     Toast.makeText(getActivity(), "El artículo está en proceso de impresión en QPOS...", Toast.LENGTH_LONG).show();
+                                 }else
+                                 if (articulo.getString("activo").equals("S")) {
+                                     addToList(articulo.getString("codigo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
+                                 } else {
+                                     activarArticulo(articulo.getString("codigo"));
+                                 }
+                             }else{
+                                 Toast.makeText(getActivity(), "El artículo no éxiste : "+ codigo, Toast.LENGTH_SHORT).show();
+                             }
+                         }else{
+                             Toast.makeText(getActivity(), "El artículo está en la lista", Toast.LENGTH_SHORT).show();
+                         }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -417,8 +425,7 @@ public class Habladores extends Fragment {
                     queue.getCache().clear();
                 }
             });
-        } else
-            Toast.makeText(getActivity(), "El artículo ya está en la lista.", Toast.LENGTH_SHORT).show();
+
     }
 
     public void activarArticulo(final String codigo) {
@@ -481,17 +488,46 @@ public class Habladores extends Fragment {
             else {
                 StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/habladores/", new Response.Listener<String>() {
                     @Override
-                    public void onResponse(String response) {
-                        Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
-                        lista.clear();
-                        adapter.notifyDataSetChanged();
-                        SQLiteDatabase db = baseAdapter.getWritableDatabase();
-                        db.execSQL("delete from " + BaseAdapter.HABLADORES.TABLE_NAME);
+                    public void onResponse(final String response) {
+                        if (response.equals("ok"))
+                        {
+                            Toast.makeText(getActivity(),"Lista enviada a Qpos para su impresión", Toast.LENGTH_SHORT).show();
+                            lista.clear();
+                            adapter.notifyDataSetChanged();
+                            SQLiteDatabase db = baseAdapter.getWritableDatabase();
+                            db.execSQL("delete from " + BaseAdapter.HABLADORES.TABLE_NAME);
+                        }else{
+                            new AlertDialog.Builder(getActivity()).setTitle("Error")
+                                    .setMessage("Desea enviar informe de errores?")
+                                    .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            informeErrores.enviarInformeErrores("Ha ocurrido un error", response);
+                                        }
+                                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            }).show();
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        msj("Error",error.getMessage());
+                    public void onErrorResponse(final VolleyError error) {
+                        new AlertDialog.Builder(getActivity()).setTitle("Error")
+                                .setMessage("Desea enviar informe de errores?")
+                                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        informeErrores.enviarInformeErrores("Ha ocurrido un error", error.getMessage());
+                                    }
+                                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).show();
                     }
                 }) {
                     @Override
@@ -518,8 +554,20 @@ public class Habladores extends Fragment {
                     }
                 });
             }
-        }catch (Exception e){
-            msj("Error",e.getMessage());
+        }catch (final Exception e){
+            new AlertDialog.Builder(getActivity()).setTitle("Error")
+                    .setMessage("Desea enviar informe de errores?")
+                    .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            informeErrores.enviarInformeErrores("Ha ocurrido un error", e.getMessage());
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
         }
     }
 
@@ -574,4 +622,6 @@ public class Habladores extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
 }

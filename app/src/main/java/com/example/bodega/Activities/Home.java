@@ -82,15 +82,11 @@ public class Home extends AppCompatActivity {
 
 
 
-        int instalar = ActivityCompat.checkSelfPermission(this,Manifest.permission.INSTALL_PACKAGES);
-        int install1 = ActivityCompat.checkSelfPermission(this,Manifest.permission.REQUEST_INSTALL_PACKAGES);
         int readStorage = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
         int writeStorage = ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int camera = ActivityCompat.checkSelfPermission(this,Manifest.permission.CAMERA);
 
-        if (instalar != PackageManager.PERMISSION_GRANTED ||
-                install1 != PackageManager.PERMISSION_GRANTED ||
-                readStorage != PackageManager.PERMISSION_GRANTED ||
+        if (readStorage != PackageManager.PERMISSION_GRANTED ||
                 writeStorage != PackageManager.PERMISSION_GRANTED ||
                 camera != PackageManager.PERMISSION_GRANTED)
         {

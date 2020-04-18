@@ -669,7 +669,7 @@ public class Articulos extends Fragment {
                          pos = indexOfMarcas(marcas, articulo.getString("cod_marca"));
                          spMarcas.setSelection(pos);
 
-                         cod_articulo = codigo;
+                         cod_articulo = articulo.getString("codigo");
                          costo = articulo.getDouble("costo");
                          pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
                          spImpuestos.setSelection(pos);
