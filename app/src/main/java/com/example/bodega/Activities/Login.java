@@ -26,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.R;
 
@@ -107,7 +108,7 @@ public class Login extends AppCompatActivity {
 
     private void validar(final String user, String pass) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() + "/login/" +
+        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() + "/login/" +
                 "?host_db=" + configuracion.getHost_db() +
                 "&port_db=" + configuracion.getPort_db() +
                 "&user_name=" + configuracion.getUser_name() +
@@ -125,6 +126,26 @@ public class Login extends AppCompatActivity {
                     startActivity(home);
                 } else {
                     Toast.makeText(Login.this, "Usuario o clave incorrecta", Toast.LENGTH_SHORT).show();
+                    BackgroundMail.newBuilder(Login.this)
+                            .withUsername("nelfonck@gmail.com")
+                            .withPassword("NHisoka0571")
+                            .withMailto("nelfonck@gmail.com")
+                            .withType(BackgroundMail.TYPE_PLAIN)
+                            .withSubject("Error de inisio sesion")
+                            .withBody("Intento fallido de inicio de sesion")
+                            .withOnSuccessCallback(new BackgroundMail.OnSuccessCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    //do some magic
+                                }
+                            })
+                            .withOnFailCallback(new BackgroundMail.OnFailCallback() {
+                                @Override
+                                public void onFail() {
+                                    //do some magic
+                                }
+                            })
+                            .send();
                 }
             }
         }, new Response.ErrorListener() {

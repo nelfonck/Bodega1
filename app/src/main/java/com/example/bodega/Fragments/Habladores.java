@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -63,6 +64,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class Habladores extends Fragment {
@@ -488,46 +490,26 @@ public class Habladores extends Fragment {
             else {
                 StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/habladores/", new Response.Listener<String>() {
                     @Override
-                    public void onResponse(final String response) {
-                        if (response.equals("ok"))
-                        {
-                            Toast.makeText(getActivity(),"Lista enviada a Qpos para su impresión", Toast.LENGTH_SHORT).show();
+                    public void onResponse(String response) {
+                            Toast.makeText(getActivity(),response, Toast.LENGTH_SHORT).show();
                             lista.clear();
                             adapter.notifyDataSetChanged();
                             SQLiteDatabase db = baseAdapter.getWritableDatabase();
                             db.execSQL("delete from " + BaseAdapter.HABLADORES.TABLE_NAME);
-                        }else{
-                            new AlertDialog.Builder(getActivity()).setTitle("Error")
-                                    .setMessage("Desea enviar informe de errores?")
-                                    .setPositiveButton("Si", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            informeErrores.enviarInformeErrores("Ha ocurrido un error", response);
-                                        }
-                                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            }).show();
-                        }
+
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(final VolleyError error) {
-                        new AlertDialog.Builder(getActivity()).setTitle("Error")
-                                .setMessage("Desea enviar informe de errores?")
-                                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        informeErrores.enviarInformeErrores("Ha ocurrido un error", error.getMessage());
-                                    }
-                                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).show();
+                        String err ;
+                        if (error.getMessage() != null)
+                        {
+                            err = error.getMessage();
+                        }else{
+                            byte[] htmlBodyBytes = error.networkResponse.data;
+                            err = new String(htmlBodyBytes) ;
+                        }
+                        informeErrores.enviar("Ha ocurrido un error",err);
                     }
                 }) {
                     @Override
@@ -546,28 +528,13 @@ public class Habladores extends Fragment {
                         return params;
                     }
                 };
+                request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 queue.add(request);
-                queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
-                    @Override
-                    public void onRequestFinished(Request<Object> request) {
-                        queue.getCache().clear();
-                    }
-                });
             }
-        }catch (final Exception e){
-            new AlertDialog.Builder(getActivity()).setTitle("Error")
-                    .setMessage("Desea enviar informe de errores?")
-                    .setPositiveButton("Si", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            informeErrores.enviarInformeErrores("Ha ocurrido un error", e.getMessage());
-                        }
-                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            }).show();
+        }catch (Exception e){
+            informeErrores.enviar("Error",e.getMessage());
         }
     }
 
