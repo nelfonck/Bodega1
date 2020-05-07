@@ -266,7 +266,6 @@ public class Articulos extends Fragment {
             }
         });
 
-
         txtCodigo.requestFocus();
 
         return view;

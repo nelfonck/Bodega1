@@ -70,7 +70,7 @@ import java.util.Objects;
 public class Habladores extends Fragment {
     private RecyclerView recyclerView;
     private List<ModHablador> lista;
-
+    private String user ;
     private HabladoresAdapter adapter;
     private EditText txtCodigo;
     private BaseAdapter baseAdapter;
@@ -106,6 +106,9 @@ public class Habladores extends Fragment {
         lista = new ArrayList<>();
 
         informeErrores = new InformeErrores(getActivity());
+
+
+        user = getArguments().getString("user");
 
         cargarLista();
 
@@ -462,6 +465,7 @@ public class Habladores extends Fragment {
                         final String jsonList = gson.toJson(lista);
                         Map<String, String> params = new HashMap<>();
                         params.put("api_key",api_key);
+                        params.put("user",user);
                         params.put("lista", jsonList);
                         return params;
                     }

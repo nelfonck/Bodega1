@@ -28,13 +28,14 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.R;
 
 import org.json.JSONObject;
 
 public class Login extends AppCompatActivity {
     private Configuracion configuracion;
-
+    private InformeErrores informeErrores;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,8 @@ public class Login extends AppCompatActivity {
         Button btnEntrar = findViewById(R.id.btnEntrar);
         Button btnCancelar = findViewById(R.id.btnCancelar);
         getConfiguracion();
+
+        informeErrores = new InformeErrores(Login.this);
 
         txtUser.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -126,32 +129,12 @@ public class Login extends AppCompatActivity {
                     startActivity(home);
                 } else {
                     Toast.makeText(Login.this, "Usuario o clave incorrecta", Toast.LENGTH_SHORT).show();
-                    BackgroundMail.newBuilder(Login.this)
-                            .withUsername("nelfonck@gmail.com")
-                            .withPassword("NHisoka0571")
-                            .withMailto("nelfonck@gmail.com")
-                            .withType(BackgroundMail.TYPE_PLAIN)
-                            .withSubject("Error de inisio sesion")
-                            .withBody("Intento fallido de inicio de sesion")
-                            .withOnSuccessCallback(new BackgroundMail.OnSuccessCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    //do some magic
-                                }
-                            })
-                            .withOnFailCallback(new BackgroundMail.OnFailCallback() {
-                                @Override
-                                public void onFail() {
-                                    //do some magic
-                                }
-                            })
-                            .send();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                msj("Error", error.getMessage());
+                informeErrores.enviar("error", error.getMessage());
             }
         });
         queue.add(objectRequest);

@@ -118,6 +118,9 @@ public class Home extends AppCompatActivity {
                     case R.id.habladores:
                         fr = new Habladores();
                         fragmentTransaction = true ;
+                        Bundle arg = new Bundle();
+                        arg.putString("user",user);
+                        fr.setArguments(arg);
                         titulo = "Etiquetas";
                         break;
                     case R.id.proforma :
