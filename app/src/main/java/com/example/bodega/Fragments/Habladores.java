@@ -75,9 +75,9 @@ public class Habladores extends Fragment {
     private EditText txtCodigo;
     private BaseAdapter baseAdapter;
     public static final String TAG = "Tag";
-    RequestQueue queue;
-    Configuracion configuracion;
     InformeErrores informeErrores ;
+    private static String url = "http://201.192.158.233:82/apibodega/public/hablador";
+    private static String api_key = "$2y$10$ww4b.izY6lDO/.YgQGu4VeIeN5f8YlIgjNDXsZZmDsHBfJCdiyKXC";
 
     public Habladores() {
         // Required empty public constructor
@@ -90,7 +90,7 @@ public class Habladores extends Fragment {
         setHasOptionsMenu(true);
 
         baseAdapter = new BaseAdapter(getActivity());
-        queue = Volley.newRequestQueue(getActivity());
+
     }
 
     @Override
@@ -106,8 +106,6 @@ public class Habladores extends Fragment {
         lista = new ArrayList<>();
 
         informeErrores = new InformeErrores(getActivity());
-
-        getConfiguracion();
 
         cargarLista();
 
@@ -167,22 +165,6 @@ public class Habladores extends Fragment {
         return view;
     }
 
-    private void getConfiguracion() {
-
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
-    }
 
     private void buscarDescripcion() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -216,19 +198,13 @@ public class Habladores extends Fragment {
                 if (event.getAction() == KeyEvent.ACTION_DOWN){
                     articulos.clear();
                     final Gson gson = new Gson();
-                    StringRequest request = null;
 
                         com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
                         values.put("descripcion",txtArticulo.getText().toString());
-                        values.put("host_db", configuracion.getHost_db());
-                        values.put("port_db", configuracion.getPort_db());
-                        values.put("user_name", configuracion.getUser_name());
-                        values.put("password", configuracion.getPassword());
-                        values.put("db_name", configuracion.getDatabase());
-                        values.put("schema", configuracion.getSchema());
+                        values.put("api_key",txtArticulo.getText().toString());
 
-                        request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                                "/articulos/"+ values.toString(), new Response.Listener<String>() {
+                        StringRequest request = new StringRequest(Request.Method.GET, url +
+                                "/descripcion/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
@@ -247,14 +223,9 @@ public class Habladores extends Fragment {
                             }
                         });
 
-                    request.setTag(TAG);
+                    RequestQueue queue = Volley.newRequestQueue(getActivity());
                     queue.add(request);
-                    queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
-                        @Override
-                        public void onRequestFinished(Request<Object> request) {
-                            queue.getCache().clear();
-                        }
-                    });
+
                     return true;
                 }
                 return false;
@@ -375,33 +346,21 @@ public class Habladores extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void doCall(final String codigo) {
 
-            JsonObjectRequest request = null;
-
                 com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
                 values.put("codigo",codigo);
-                values.put("host_db", configuracion.getHost_db());
-                values.put("port_db", configuracion.getPort_db());
-                values.put("user_name", configuracion.getUser_name());
-                values.put("password", configuracion.getPassword());
-                values.put("db_name", configuracion.getDatabase());
-                values.put("schema", configuracion.getSchema());
+                values.put("api_key", api_key);
 
-                request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
-                        "/habladores/"+values.toString(),null, new Response.Listener<JSONObject>() {
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url + "/articulo/"+values.toString(),
+                        null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject articulo) {
                         try {
-                         if (!existeItem(articulo.getString("codigo")))
+                         if (!existeItem(articulo.getString("cod_articulo")))
                          {
                              if (articulo.length()>0){
-                                 if (articulo.getBoolean("en_cola")) {
-                                     Toast.makeText(getActivity(), "El artículo está en proceso de impresión en QPOS...", Toast.LENGTH_LONG).show();
-                                 }else
-                                 if (articulo.getString("activo").equals("S")) {
-                                     addToList(articulo.getString("codigo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
-                                 } else {
-                                     activarArticulo(articulo.getString("codigo"));
-                                 }
+
+                                 addToList(articulo.getString("cod_articulo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
+
                              }else{
                                  Toast.makeText(getActivity(), "El artículo no éxiste : "+ codigo, Toast.LENGTH_SHORT).show();
                              }
@@ -409,7 +368,7 @@ public class Habladores extends Fragment {
                              Toast.makeText(getActivity(), "El artículo está en la lista", Toast.LENGTH_SHORT).show();
                          }
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            msj("Error",e.getMessage());
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -419,15 +378,8 @@ public class Habladores extends Fragment {
                     }
                 });
 
-            request.setTag(TAG);
-            queue.add(request);
-            queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
-                @Override
-                public void onRequestFinished(Request<Object> request) {
-                    queue.getCache().clear();
-                }
-            });
-
+                RequestQueue queue = Volley.newRequestQueue(getActivity());
+                queue.add(request);
     }
 
     public void activarArticulo(final String codigo) {
@@ -441,15 +393,10 @@ public class Habladores extends Fragment {
                 try {
                     com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
                     values.put("codigo",codigo);
-                    values.put("host_db", configuracion.getHost_db());
-                    values.put("port_db", configuracion.getPort_db());
-                    values.put("user_name", configuracion.getUser_name());
-                    values.put("password", configuracion.getPassword());
-                    values.put("db_name", configuracion.getDatabase());
-                    values.put("schema", configuracion.getSchema());
+                    values.put("api_key", api_key);
 
-                    StringRequest stringRequest = new StringRequest(Request.Method.PUT, configuracion.getUrl() +
-                            "/habladores/"+ values.toString(), new Response.Listener<String>() {
+                    StringRequest stringRequest = new StringRequest(Request.Method.PUT, url+
+                            "/activar/"+ values.toString(), new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             doCall(codigo);
@@ -460,13 +407,10 @@ public class Habladores extends Fragment {
                             msj("Error", error.getMessage());
                         }
                     });
+
+                    RequestQueue queue = Volley.newRequestQueue(getActivity());
                     queue.add(stringRequest);
-                    queue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
-                        @Override
-                        public void onRequestFinished(Request<Object> request) {
-                            queue.getCache().clear();
-                        }
-                    });
+
                 } catch (Exception e) {
                     msj("Error",e.getMessage());
                 }
@@ -488,7 +432,7 @@ public class Habladores extends Fragment {
             if (lista.isEmpty())
                 Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
             else {
-                StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/habladores/", new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.POST, url + "/guardar/", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                             Toast.makeText(getActivity(),response, Toast.LENGTH_SHORT).show();
@@ -516,14 +460,8 @@ public class Habladores extends Fragment {
                     protected Map<String, String> getParams() throws AuthFailureError {
                         Gson gson = new Gson();
                         final String jsonList = gson.toJson(lista);
-
                         Map<String, String> params = new HashMap<>();
-                        params.put("host_db",configuracion.getHost_db());
-                        params.put("port_db",configuracion.getPort_db());
-                        params.put("user_name",configuracion.getUser_name());
-                        params.put("password",configuracion.getPassword());
-                        params.put("db_name",configuracion.getDatabase());
-                        params.put("schema",configuracion.getSchema());
+                        params.put("api_key",api_key);
                         params.put("lista", jsonList);
                         return params;
                     }
@@ -531,6 +469,8 @@ public class Habladores extends Fragment {
                 request.setRetryPolicy(new DefaultRetryPolicy(60000,
                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+                RequestQueue queue = Volley.newRequestQueue(getActivity());
                 queue.add(request);
             }
         }catch (Exception e){
