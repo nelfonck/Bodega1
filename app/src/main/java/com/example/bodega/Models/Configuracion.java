@@ -15,6 +15,9 @@ public class Configuracion {
 
     public static final String WEBAPI = "KiwiUT" ;
     public static final String WEBAPIUPDATES = "actualizador" ;
+    public static final String URL_APIBODEGA = "http://201.192.158.233:82/apibodega/public/hablador" ;
+    public static final String API_KEY = "$2y$10$ww4b.izY6lDO/.YgQGu4VeIeN5f8YlIgjNDXsZZmDsHBfJCdiyKXC";
+
     public Configuracion() {
     }
 

@@ -39,6 +39,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Adapters.HabladoresAdapter;
+import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModHablador;
@@ -64,8 +65,6 @@ public class Habladores extends Fragment {
     private EditText txtCodigo;
     private BaseAdapter baseAdapter;
     InformeErrores informeErrores ;
-    private static String url = "http://201.192.158.233:82/apibodega/public/hablador";
-    private static String api_key = "$2y$10$ww4b.izY6lDO/.YgQGu4VeIeN5f8YlIgjNDXsZZmDsHBfJCdiyKXC";
 
 
     public Habladores() {
@@ -192,9 +191,9 @@ public class Habladores extends Fragment {
 
                         com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
                         values.put("descripcion",txtArticulo.getText().toString());
-                        values.put("api_key",api_key);
+                        values.put("api_key", Configuracion.API_KEY);
 
-                        StringRequest request = new StringRequest(Request.Method.GET, url +
+                        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
                                 "/descripcion/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -343,9 +342,9 @@ public class Habladores extends Fragment {
 
                 com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
                 values.put("codigo",codigo);
-                values.put("api_key", api_key);
+                values.put("api_key", Configuracion.API_KEY);
 
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url + "/articulo/"+values.toString(),
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/"+values.toString(),
                         null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject articulo) {
@@ -388,7 +387,7 @@ public class Habladores extends Fragment {
             if (lista.isEmpty())
                 Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
             else {
-                StringRequest request = new StringRequest(Request.Method.POST, url + "/guardar", new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/guardar", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                             Toast.makeText(getActivity(),response, Toast.LENGTH_SHORT).show();
@@ -410,7 +409,7 @@ public class Habladores extends Fragment {
                         Gson gson = new Gson();
                         String jsonList = gson.toJson(lista);
                         Map<String, String> params = new HashMap<>();
-                        params.put("api_key",api_key);
+                        params.put("api_key",Configuracion.API_KEY);
                         params.put("user",user);
                         params.put("lista", jsonList);
                         return params;
