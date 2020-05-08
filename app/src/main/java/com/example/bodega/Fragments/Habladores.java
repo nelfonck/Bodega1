@@ -6,15 +6,11 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +27,6 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -44,11 +39,9 @@ import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Adapters.HabladoresAdapter;
-import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModHablador;
-import com.example.bodega.Models.ModSalidas;
 import com.example.bodega.R;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -56,16 +49,12 @@ import com.google.zxing.integration.android.IntentResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
 
 public class Habladores extends Fragment {
     private RecyclerView recyclerView;
@@ -74,15 +63,14 @@ public class Habladores extends Fragment {
     private HabladoresAdapter adapter;
     private EditText txtCodigo;
     private BaseAdapter baseAdapter;
-    public static final String TAG = "Tag";
     InformeErrores informeErrores ;
     private static String url = "http://201.192.158.233:82/apibodega/public/hablador";
     private static String api_key = "$2y$10$ww4b.izY6lDO/.YgQGu4VeIeN5f8YlIgjNDXsZZmDsHBfJCdiyKXC";
 
+
     public Habladores() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -171,7 +159,7 @@ public class Habladores extends Fragment {
 
     private void buscarDescripcion() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_filtro_descripcion, (ViewGroup)null);
+        View view = View.inflate(getActivity(),R.layout.dialog_filtro_descripcion, null);
         builder.setView(view);
         final EditText txtArticulo = view.findViewById(R.id.txtFiltroDescripcion);
         RecyclerView recyclerView = view.findViewById(R.id.rvResultadoFiltroDescripcion);
@@ -204,7 +192,7 @@ public class Habladores extends Fragment {
 
                         com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
                         values.put("descripcion",txtArticulo.getText().toString());
-                        values.put("api_key",txtArticulo.getText().toString());
+                        values.put("api_key",api_key);
 
                         StringRequest request = new StringRequest(Request.Method.GET, url +
                                 "/descripcion/"+ values.toString(), new Response.Listener<String>() {
@@ -216,15 +204,19 @@ public class Habladores extends Fragment {
                                 } catch (Exception e) {
                                     Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
                                 }
-
                             }
 
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                                informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data,StandardCharsets.UTF_8));
                             }
                         });
+
+                        //Un minuto de timeout porque puede devolver varios registros y puede demorar
+                        request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                     RequestQueue queue = Volley.newRequestQueue(getActivity());
                     queue.add(request);
@@ -341,7 +333,7 @@ public class Habladores extends Fragment {
             db.close();
 
         } catch (Exception e) {
-            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            informeErrores.enviar("Ha ocurrido un error",e.getMessage());
         }
     }
 
@@ -358,84 +350,45 @@ public class Habladores extends Fragment {
                     @Override
                     public void onResponse(JSONObject articulo) {
                         try {
-                         if (!existeItem(articulo.getString("cod_articulo")))
-                         {
                              if (articulo.length()>0){
+                                 if (!existeItem(articulo.getString("cod_articulo")))
+                                 {
+                                     addToList(articulo.getString("cod_articulo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
+                                 }else{
 
-                                 addToList(articulo.getString("cod_articulo"), articulo.getString("descripcion"), articulo.getDouble("venta"));
-
+                                     Toast.makeText(getActivity(), "El artículo está en la lista", Toast.LENGTH_SHORT).show();
+                                 }
                              }else{
                                  Toast.makeText(getActivity(), "El artículo no éxiste : "+ codigo, Toast.LENGTH_SHORT).show();
                              }
-                         }else{
-                             Toast.makeText(getActivity(), "El artículo está en la lista", Toast.LENGTH_SHORT).show();
-                         }
                         } catch (JSONException e) {
-                            msj("Error",e.getMessage());
+                            informeErrores.enviar("Error",e.getMessage());
                         }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        msj("Error",error.getMessage());
+                        if (error.networkResponse.statusCode == 409)
+                            Toast.makeText(getActivity(),new String(error.networkResponse.data, StandardCharsets.UTF_8),Toast.LENGTH_SHORT).show();
+                        else
+                            informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data, StandardCharsets.UTF_8));
                     }
                 });
+
+                request.setRetryPolicy(new DefaultRetryPolicy(10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                 RequestQueue queue = Volley.newRequestQueue(getActivity());
                 queue.add(request);
     }
 
-    public void activarArticulo(final String codigo) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Activar");
-        builder.setMessage("Artículo inactivo\nDesea activar este artículo?");
-        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
-                    values.put("codigo",codigo);
-                    values.put("api_key", api_key);
-
-                    StringRequest stringRequest = new StringRequest(Request.Method.PUT, url+
-                            "/activar/"+ values.toString(), new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            doCall(codigo);
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            msj("Error", error.getMessage());
-                        }
-                    });
-
-                    RequestQueue queue = Volley.newRequestQueue(getActivity());
-                    queue.add(stringRequest);
-
-                } catch (Exception e) {
-                    msj("Error",e.getMessage());
-                }
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
     public void enviar(final List<ModHablador> lista) {
-        try{
+
             if (lista.isEmpty())
                 Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
             else {
-                StringRequest request = new StringRequest(Request.Method.POST, url + "/guardar/", new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.POST, url + "/guardar", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                             Toast.makeText(getActivity(),response, Toast.LENGTH_SHORT).show();
@@ -443,26 +396,19 @@ public class Habladores extends Fragment {
                             adapter.notifyDataSetChanged();
                             SQLiteDatabase db = baseAdapter.getWritableDatabase();
                             db.execSQL("delete from " + BaseAdapter.HABLADORES.TABLE_NAME);
-
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(final VolleyError error) {
-                        String err ;
-                        if (error.getMessage() != null)
-                        {
-                            err = error.getMessage();
-                        }else{
-                            byte[] htmlBodyBytes = error.networkResponse.data;
-                            err = new String(htmlBodyBytes) ;
-                        }
-                        informeErrores.enviar("Ha ocurrido un error",err);
+
+                        informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data,StandardCharsets.UTF_8));
+
                     }
                 }) {
                     @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
+                    protected Map<String, String> getParams()  {
                         Gson gson = new Gson();
-                        final String jsonList = gson.toJson(lista);
+                        String jsonList = gson.toJson(lista);
                         Map<String, String> params = new HashMap<>();
                         params.put("api_key",api_key);
                         params.put("user",user);
@@ -470,22 +416,20 @@ public class Habladores extends Fragment {
                         return params;
                     }
                 };
-                request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                request.setRetryPolicy(new DefaultRetryPolicy(10000,
                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                 RequestQueue queue = Volley.newRequestQueue(getActivity());
                 queue.add(request);
+
             }
-        }catch (Exception e){
-            informeErrores.enviar("Error",e.getMessage());
-        }
     }
 
 
     public boolean existeItem(String codigo) {
         for (ModHablador item : lista) {
-            if (item.getcodigo().toString().equals(codigo)) return true;
+            if (item.getcodigo().equals(codigo)) return true;
         }
         return false;
     }
@@ -507,7 +451,7 @@ public class Habladores extends Fragment {
             db.insert(BaseAdapter.HABLADORES.TABLE_NAME, null, v);
             db.close();
         } catch (SQLiteException e) {
-            msj("Error", e.getMessage());
+            informeErrores.enviar("Ha ocurrido un error",e.getMessage());
         }
     }
 
@@ -517,22 +461,8 @@ public class Habladores extends Fragment {
             db.execSQL("DELETE FROM " + BaseAdapter.HABLADORES.TABLE_NAME + " WHERE " + BaseAdapter.HABLADORES.CODIGO + "=" + codigo);
             db.close();
         } catch (SQLiteException e) {
-            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            informeErrores.enviar("Ha ocurrido un error",e.getMessage());
         }
     }
-
-    private void msj(String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(title).setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
 
 }
