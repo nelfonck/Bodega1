@@ -22,6 +22,16 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+
+            <Switch
+                    android:id="@+id/activo"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Activo"
+                    android:gravity="end"/>
+
+
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -28,6 +28,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,6 +99,7 @@ public class Articulos extends Fragment {
     private TextView tvProveedor ;
     private CheckBox articulo_granel;
     private CheckBox articulo_romana;
+    private Switch activo ;
     private String cod_articulo;
     private double costo = 0, utilidad = 0, venta = 0;
     private BaseAdapter baseAdapter;
@@ -168,6 +170,7 @@ public class Articulos extends Fragment {
         articulo_granel = view.findViewById(R.id.check_granel);
         articulo_romana = view.findViewById(R.id.check_romana);
 
+        activo = view.findViewById(R.id.activo);
 
         txtCosto.setSelectAllOnFocus(true);
         txtUtilidad.setSelectAllOnFocus(true);
@@ -645,14 +648,9 @@ public class Articulos extends Fragment {
         if (!progress.isShowing()) progress.show();
 
         ContentValues values = new ContentValues();
-        values.put("host_db",configuracion.getHost_db());
-        values.put("port_db",configuracion.getPort_db());
-        values.put("user_name",configuracion.getUser_name());
-        values.put("password",configuracion.getPassword());
-        values.put("db_name",configuracion.getDatabase());
-        values.put("schema",configuracion.getSchema());
+        values.put("api_key",Configuracion.API_KEY);
         values.put("codigo",codigo);
-        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" +
+        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/articulo/" +
             values.toString(), new Response.Listener<String>() {
              @Override
              public void onResponse(String response) {
@@ -668,14 +666,14 @@ public class Articulos extends Fragment {
                          pos = indexOfMarcas(marcas, articulo.getString("cod_marca"));
                          spMarcas.setSelection(pos);
 
-                         cod_articulo = articulo.getString("codigo");
+                         cod_articulo = articulo.getString("cod_articulo");
                          costo = articulo.getDouble("costo");
                          pos = indexOfImpuestos(impuestos, articulo.getString("cod_impuesto"));
                          spImpuestos.setSelection(pos);
                          pos = indexOfUnidadMedida(unidadMedidas, articulo.getString("unidad_medida"));
                          spUnidadMedida.setSelection(pos);
                          txtFactorMedida.setText(articulo.getString("factor_medida"));
-                         utilidad = articulo.getDouble("utilidad");
+                         utilidad = articulo.getDouble("porcentaje_utilidad");
                          venta = articulo.getDouble("venta");
                          articulo_granel.setChecked(articulo.getString("art_granel").equals("S"));
                          articulo_romana.setChecked(articulo.getString("articulo_romana").equals("S"));
@@ -684,10 +682,14 @@ public class Articulos extends Fragment {
                          txtUtilidad.setText(formatter.format(utilidad));
                          txtVenta.setText(formatter.format(venta));
 
-                         cod_proveedor = articulo.getString("cod_proveedor");
-                         razsocial = articulo.getString("razsocial");
+                         activo.setChecked(articulo.getString("activo").equals("S"));
 
-                         tvProveedor.setText(razsocial);
+                         if (!articulo.isNull("ultimo_proveedor"))
+                         {
+                             cod_proveedor = articulo.getJSONObject("ultimo_proveedor").getString("cod_proveedor");
+                             razsocial = articulo.getJSONObject("ultimo_proveedor").getString("razsocial");
+                             tvProveedor.setText(razsocial);
+                         }
 
                          txtCodigo.setText("");
                          txtCodigo.requestFocus();

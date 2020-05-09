@@ -194,7 +194,7 @@ public class Habladores extends Fragment {
                         values.put("api_key", Configuracion.API_KEY);
 
                         StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
-                                "/descripcion/"+ values.toString(), new Response.Listener<String>() {
+                                "/hablador/descripcion/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
@@ -344,7 +344,7 @@ public class Habladores extends Fragment {
                 values.put("codigo",codigo);
                 values.put("api_key", Configuracion.API_KEY);
 
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/"+values.toString(),
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/hablador/articulo/"+values.toString(),
                         null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject articulo) {
@@ -387,7 +387,7 @@ public class Habladores extends Fragment {
             if (lista.isEmpty())
                 Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
             else {
-                StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/guardar", new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/hablador/guardar", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                             Toast.makeText(getActivity(),response, Toast.LENGTH_SHORT).show();
