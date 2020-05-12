@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -51,6 +52,7 @@ import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
+import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFamilia;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModImpuesto;
@@ -69,7 +71,9 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -103,11 +107,12 @@ public class Articulos extends Fragment {
     private String cod_articulo;
     private double costo = 0, utilidad = 0, venta = 0;
     private BaseAdapter baseAdapter;
-    private Configuracion configuracion;
+
     private String user;
     private ProgressDialog progress;
     private boolean block;
     private String cod_proveedor, razsocial ;
+    private InformeErrores informeErrores ;
 
     public Articulos() {
 
@@ -124,11 +129,12 @@ public class Articulos extends Fragment {
         final DecimalFormat formatter = new DecimalFormat("#");
         formatter.setMaximumFractionDigits(2);
 
+        informeErrores = new InformeErrores(getActivity());
+
         user = getArguments().getString("user");
 
         progress = new ProgressDialog(getActivity());
 
-        getConfiguracion();
         baseAdapter = new BaseAdapter(getActivity());
 
         ImageButton btnBuscarDescripcion = view.findViewById(R.id.btnBuscarDescripcion);
@@ -274,22 +280,6 @@ public class Articulos extends Fragment {
         return view;
     }
 
-    private void getConfiguracion() {
-
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
-    }
 
     private boolean validarTextos(EditText txtDescripcion, EditText txtCosto, EditText txtUtilidad,
                                   EditText txtVenta, EditText txtFactorMedida) {
@@ -336,17 +326,12 @@ public class Articulos extends Fragment {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
                     if (event.getAction() == KeyEvent.ACTION_DOWN){
                         ContentValues values = new ContentValues() ;
+                        values.put("api_key",Configuracion.API_KEY);
                         values.put("descripcion",txtArticulo.getText().toString());
-                        values.put("host_db",configuracion.getHost_db());
-                        values.put("port_db",configuracion.getPort_db());
-                        values.put("user_name",configuracion.getUser_name());
-                        values.put("password",configuracion.getPassword());
-                        values.put("db_name",configuracion.getDatabase());
-                        values.put("schema",configuracion.getSchema());
-                        final Gson gson = new Gson();
 
-                        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                                 "/articulos/" + values.toString(), new Response.Listener<String>() {
+                        final Gson gson = new Gson();
+                        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                                 "/articulo/articulo" + values.toString(), new Response.Listener<String>() {
                              @Override
                              public void onResponse(String response) {
                                  try {
@@ -362,9 +347,15 @@ public class Articulos extends Fragment {
                          }, new Response.ErrorListener() {
                              @Override
                              public void onErrorResponse(VolleyError error) {
-                                 Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                                 informeErrores.enviar("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
                              }
                          });
+
+                        request.setRetryPolicy(
+                                new DefaultRetryPolicy(50000,
+                                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
                         RequestQueue queue = Volley.newRequestQueue(getActivity());
                         queue.add(request);
 
@@ -385,19 +376,12 @@ public class Articulos extends Fragment {
     }
 
     private void populateFamilias() {
-        try {
+
             final Gson gson = new Gson();
-            RequestQueue queue = Volley.newRequestQueue(getActivity());
-
             ContentValues values = new ContentValues();
-            values.put("host_db",configuracion.getHost_db());
-            values.put("port_db",configuracion.getPort_db());
-            values.put("user_name",configuracion.getUser_name());
-            values.put("password",configuracion.getPassword());
-            values.put("db_name",configuracion.getDatabase());
-            values.put("schema",configuracion.getSchema());
+            values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/familias/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/familia/" +
                     values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -410,30 +394,26 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error", error.getMessage());
+                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
-            queue.add(jsonArrayRequest);
-        } catch (Exception e) {
-            msj("Error", e.getMessage());
-        }
 
+            jsonArrayRequest.setRetryPolicy(
+                    new DefaultRetryPolicy(50000,
+                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
+            queue.add(jsonArrayRequest);
     }
 
     private void populateImpuestos(final ArrayAdapter<ModImpuesto> adapterImpuestos) {
-        try {
+
             final Gson gson = new Gson();
-            RequestQueue queue = Volley.newRequestQueue(getActivity());
-
             ContentValues values = new ContentValues();
-            values.put("host_db",configuracion.getHost_db());
-            values.put("port_db",configuracion.getPort_db());
-            values.put("user_name",configuracion.getUser_name());
-            values.put("password",configuracion.getPassword());
-            values.put("db_name",configuracion.getDatabase());
-            values.put("schema",configuracion.getSchema());
+            values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/impuestos/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/impuesto/" +
                     values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -446,29 +426,26 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error", error.getMessage());
+                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
+
+            jsonArrayRequest.setRetryPolicy(
+                    new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
             queue.add(jsonArrayRequest);
-        } catch (Exception e) {
-            msj("Error", e.getMessage());
-        }
+
     }
 
     private void populateMarcas(final ArrayAdapter<ModMarca> adapterMarcas) {
-        try {
+
             final Gson gson = new Gson();
-            RequestQueue queue = Volley.newRequestQueue(getActivity());
-
             ContentValues values = new ContentValues();
-            values.put("host_db",configuracion.getHost_db());
-            values.put("port_db",configuracion.getPort_db());
-            values.put("user_name",configuracion.getUser_name());
-            values.put("password",configuracion.getPassword());
-            values.put("db_name",configuracion.getDatabase());
-            values.put("schema",configuracion.getSchema());
+            values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/marcas/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/marca/" +
                  values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -479,29 +456,25 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error", error.getMessage());
+                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
+
+            jsonArrayRequest.setRetryPolicy(
+                new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
             queue.add(jsonArrayRequest);
-        } catch (Exception e) {
-            msj("Error", e.getMessage());
-        }
     }
 
     private void populateUnidadMedida() {
-        try {
+
             final Gson gson = new Gson();
-            RequestQueue queue = Volley.newRequestQueue(getActivity());
-
             ContentValues values = new ContentValues();
-            values.put("host_db",configuracion.getHost_db());
-            values.put("port_db",configuracion.getPort_db());
-            values.put("user_name",configuracion.getUser_name());
-            values.put("password",configuracion.getPassword());
-            values.put("db_name",configuracion.getDatabase());
-            values.put("schema",configuracion.getSchema());
+            values.put("api_key",Configuracion.API_KEY);
 
-            StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/unidad_medida/" +
+            StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/unidad_medida/" +
             values.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -512,13 +485,17 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error", error.getMessage());
+                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
+
+            request.setRetryPolicy(
+                new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
             queue.add(request);
-        } catch (Exception e) {
-            msj("Error", e.getMessage());
-        }
+
     }
 
     @Override
@@ -541,7 +518,7 @@ public class Articulos extends Fragment {
                     if (existeItem(cod_articulo)){
                         Toast.makeText(getActivity(), "El artículo ya está en la lista", Toast.LENGTH_SHORT).show();
                     }else{
-                        estaEnQupos(cod_articulo);
+                        addToList(cod_articulo,txtDescripcion.getText().toString(),venta);
                     }
                 }
                 break;
@@ -559,7 +536,7 @@ public class Articulos extends Fragment {
             db.insert(BaseAdapter.HABLADORES.TABLE_NAME, null, v);
             db.close();
         } catch (SQLiteException e) {
-            msj("Error", e.getMessage());
+            informeErrores.enviar("Error",e.getMessage());
         }
     }
 
@@ -578,50 +555,6 @@ public class Articulos extends Fragment {
         }
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void estaEnQupos(final String codigo) {
-
-                RequestQueue queue = Volley.newRequestQueue(getActivity());
-
-                ContentValues cv = new ContentValues();
-                cv.put("codigo",codigo);
-                cv.put("host_db",configuracion.getHost_db());
-                cv.put("port_db",configuracion.getPort_db());
-                cv.put("user_name",configuracion.getUser_name());
-                cv.put("password",configuracion.getPassword());
-                cv.put("db_name",configuracion.getDatabase());
-                cv.put("schema",configuracion.getSchema());
-
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
-                        "/habladores/" + cv.toString(), null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject articulo) {
-
-                            if (articulo.length() > 0) {
-                                try {
-                                    if (!articulo.getBoolean("en_cola")) {
-                                        addToList(cod_articulo, txtDescripcion.getText().toString(), Double.valueOf(txtVenta.getText().toString()));
-                                        Toast.makeText(getActivity(), "Agregando a la cola de habladores", Toast.LENGTH_LONG).show();
-                                    }else{
-                                        Toast.makeText(getActivity(),"El artículo está en proceso de impresión en QPOS...", Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (JSONException e) {
-                                    msj("Error",e.getMessage());
-                                }
-                            }
-
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                queue.add(request);
-
-    }
 
 
 
@@ -807,31 +740,26 @@ public class Articulos extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void aplicarCambios() {
-        try {
 
             ContentValues params = new ContentValues();
-            params.put("host_db", configuracion.getHost_db());
-            params.put("port_db", configuracion.getPort_db());
-            params.put("user_name", configuracion.getUser_name());
-            params.put("password", configuracion.getPassword());
-            params.put("db_name", configuracion.getDatabase());
-            params.put("schema", configuracion.getSchema());
+            params.put("api_key", Configuracion.API_KEY);
+
             params.put("codigo", cod_articulo);
             params.put("descripcion", txtDescripcion.getText().toString());
             params.put("cod_familia", familias.get(spFamilias.getSelectedItemPosition()).getCod());
             params.put("cod_marca", marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca());
-            params.put("costo", String.valueOf(costo));
             params.put("utilidad", String.valueOf(utilidad));
             params.put("cod_impuesto", impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo());
             params.put("impuesto", String.valueOf(impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto()));
             params.put("venta", String.valueOf(venta));
+            params.put("activo",activo.isChecked() ? "S" : "N");
             params.put("unidad_medida", unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida());
             params.put("factor_medida", txtFactorMedida.getText().toString());
             params.put("art_granel", (articulo_granel.isChecked() ? "S" : "N"));
             params.put("articulo_romana", (articulo_romana.isChecked() ? "S" : "N"));
 
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-            StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulos/" + params.toString(), new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.PUT, Configuracion.URL_APIBODEGA + "/articulo/actualizar" + params.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
 
@@ -840,17 +768,13 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    NetworkResponse statusCode = error.networkResponse;
-                    Toast.makeText(getActivity(), "Código error: " + statusCode + " \n " + error.getMessage(), Toast.LENGTH_LONG).show();
+                   informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
 
             request.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(request);
 
-        } catch (Exception e) {
-            msj("Error", e.getMessage());
-        }
     }
 
 
@@ -901,19 +825,43 @@ public class Articulos extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
-                            try {
-                                guardarArticulo(codigo, txtDescripcion.getText().toString(),
-                                        impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo(),
-                                        familias.get(spFamilias.getSelectedItemPosition()).getCod(),
-                                        marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca(),
-                                        unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida(),
-                                        txtFactorMedida.getText().toString(), (articulo_granel.isChecked() ? "S" : "N"),
-                                        (articulo_romana.isChecked() ? "S" : "N"), Double.valueOf(txtCosto.getText().toString()),
-                                        Double.valueOf(txtUtilidad.getText().toString()), Double.valueOf(txtVenta.getText().toString()),
-                                        impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+
+                                StringRequest requestGuardar = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/articulo/nuevo", new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
+                                    }}, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                    }
+                                }){
+                                    @Override
+                                    protected Map<String, String> getParams() {
+                                        SimpleDateFormat df = new SimpleDateFormat("Y-m-d");
+                                        Map<String, String> params = new HashMap<>();
+                                        params.put("cod_articulo",codigo) ;
+                                        params.put("cod_familia",familias.get(spFamilias.getSelectedItemPosition()).getCod()) ;
+                                        params.put("cod_marca",marcas.get(spMarcas.getSelectedItemPosition()).getCod_marca()) ;
+                                        params.put("descripcion",txtDescripcion.getText().toString()) ;
+                                        params.put("precio_default",String.valueOf((venta * 100) / (100 + impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto()))) ;
+                                        params.put("creado_por",user) ;
+                                        params.put("modificado_por", user) ;
+                                        params.put("porcentaje_utilidad",String.valueOf(utilidad)) ;
+                                        params.put("cod_impuesto",impuestos.get(spImpuestos.getSelectedItemPosition()).getCodigo()) ;
+                                        params.put("articulo_romana",articulo_romana.isChecked() ? "S" : "N") ;
+                                        params.put("art_granel",articulo_granel.isChecked() ? "S" : "N");
+                                        params.put("unidad_medida",unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida());
+                                        params.put("factor_medida",txtFactorMedida.getText().toString());
+                                        return params;
+                                    }
+                                };
+
+                            requestGuardar.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+                                RequestQueue queue = Volley.newRequestQueue(getActivity());
+                                queue.add(requestGuardar);
+
                             dialog.dismiss();
                         }
                     }
@@ -975,68 +923,7 @@ public class Articulos extends Fragment {
 
     }
 
-    private void guardarArticulo(final String codigo, final String descripcion,
-                                 final String cod_impuesto, final String cod_familia,
-                                 final String cod_marca, final String unidad_medida,
-                                 final String factor_medida, final String articulo_granel,
-                                 final String articulo_romana, final double costo,
-                                 final double utilidad, final double venta, final double impuesto) {
 
 
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/articulos/", new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                msj("Error", error.getMessage());
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> parametros = new HashMap<>();
-                parametros.put("host_db", configuracion.getHost_db());
-                parametros.put("port_db", configuracion.getPort_db());
-                parametros.put("user_name", configuracion.getUser_name());
-                parametros.put("password", configuracion.getPassword());
-                parametros.put("db_name", configuracion.getDatabase());
-                parametros.put("schema", configuracion.getSchema());
-                parametros.put("codigo", codigo);
-                parametros.put("descripcion", descripcion);
-                parametros.put("cod_impuesto", cod_impuesto);
-                parametros.put("cod_familia", cod_familia);
-                parametros.put("cod_marca", cod_marca);
-                parametros.put("unidad_medida", unidad_medida);
-                parametros.put("factor_medida", factor_medida);
-                parametros.put("art_granel", articulo_granel);
-                parametros.put("articulo_romana", articulo_romana);
-                parametros.put("costo", String.valueOf(costo));
-                parametros.put("utilidad", String.valueOf(utilidad));
-                parametros.put("venta", String.valueOf(venta));
-                parametros.put("impuesto", String.valueOf(impuesto));
-                parametros.put("user", user);
-                return parametros;
-            }
-        };
 
-        queue.add(request);
-
-    }
-
-    private void msj(String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(title).setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 }

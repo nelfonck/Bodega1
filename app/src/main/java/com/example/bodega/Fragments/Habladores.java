@@ -194,7 +194,7 @@ public class Habladores extends Fragment {
                         values.put("api_key", Configuracion.API_KEY);
 
                         StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
-                                "/hablador/descripcion/"+ values.toString(), new Response.Listener<String>() {
+                                "/hablador/articulo/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
