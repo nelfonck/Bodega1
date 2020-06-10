@@ -79,6 +79,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class Articulos extends Fragment {
@@ -583,7 +584,7 @@ public class Articulos extends Fragment {
         ContentValues values = new ContentValues();
         values.put("api_key",Configuracion.API_KEY);
         values.put("codigo",codigo);
-        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/articulo/" +
+        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/articulo/"  +
             values.toString(), new Response.Listener<String>() {
              @Override
              public void onResponse(String response) {
@@ -659,8 +660,11 @@ public class Articulos extends Fragment {
          }, new Response.ErrorListener() {
              @Override
              public void onErrorResponse(VolleyError error) {
+
                  if (progress.isShowing()) progress.dismiss();
-                 Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                 String msj = (error.getMessage() != null && !error.getMessage().isEmpty()) ? error.getMessage()
+                         : new String(error.networkResponse.data,StandardCharsets.UTF_8) ;
+                 informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),msj);
              }
          });
         RequestQueue queue = Volley.newRequestQueue(getActivity());
