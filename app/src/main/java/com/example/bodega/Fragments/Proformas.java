@@ -315,21 +315,13 @@ public class Proformas extends Fragment {
     private void filtrarCliente(final String cliente) throws UnsupportedEncodingException {
         final Gson gson = new Gson();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        final StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl()+"/clientes/"+
-                "?cliente="+ URLEncoder.encode(cliente,"UTF-8") +
-                "&host_db=" + configuracion.getHost_db() +
-                "&port_db=" + configuracion.getPort_db() +
-                "&user_name=" + configuracion.getUser_name() +
-                "&password=" + configuracion.getPassword() +
-                "&db_name=" + configuracion.getDatabase() +
-                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+        final StringRequest request = new StringRequest(Request.Method.GET, configuracion.URL_APIBODEGA+
+                "/proforma/cliente/"+cliente+"?api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-
                   clientes.clear();
 
                         clientes.addAll(Arrays.asList(gson.fromJson(response.toString(),Clientes[].class)));
-
 
                     adapterClientes.notifyDataSetChanged();
 
