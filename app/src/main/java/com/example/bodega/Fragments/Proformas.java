@@ -320,7 +320,7 @@ public class Proformas extends Fragment {
         final Gson gson = new Gson();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         final StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA+
-                "/proforma/cliente/"+cliente+"?api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
+                "/cliente/cliente/?cliente="+cliente+"&api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                   clientes.clear();
