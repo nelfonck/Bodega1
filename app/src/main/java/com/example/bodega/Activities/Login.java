@@ -33,6 +33,8 @@ import com.example.bodega.R;
 
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+
 public class Login extends AppCompatActivity {
     private Configuracion configuracion;
     private InformeErrores informeErrores;
@@ -111,15 +113,8 @@ public class Login extends AppCompatActivity {
 
     private void validar(final String user, String pass) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() + "/login/" +
-                "?host_db=" + configuracion.getHost_db() +
-                "&port_db=" + configuracion.getPort_db() +
-                "&user_name=" + configuracion.getUser_name() +
-                "&password=" + configuracion.getPassword() +
-                "&db_name=" + configuracion.getDatabase() +
-                "&schema=" + configuracion.getSchema() +
-                "&user=" + user +
-                "&pass=" + pass, null, new Response.Listener<JSONObject>() {
+        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                "/usuario/login/" + user + "/" + pass + "?api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (response.length() > 0) {
@@ -134,7 +129,9 @@ public class Login extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                informeErrores.enviar("error", error.getMessage());
+                String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
+                        error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                informeErrores.enviar("Error",msj);
             }
         });
         queue.add(objectRequest);

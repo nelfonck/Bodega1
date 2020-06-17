@@ -176,7 +176,7 @@ public class Home extends AppCompatActivity {
 
         setActionBar();
 
-        checkUpdates();
+        //checkUpdates();
 
     }
 

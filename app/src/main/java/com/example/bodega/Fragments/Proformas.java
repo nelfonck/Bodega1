@@ -37,6 +37,7 @@ import com.example.bodega.Adapters.ProformasAdapter;
 import com.example.bodega.Activities.DetalleProforma;
 import com.example.bodega.Models.Clientes;
 import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModProforma;
 import com.example.bodega.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -47,6 +48,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,6 +64,7 @@ public class Proformas extends Fragment {
     private AdapterClientes adapterClientes;
     private BaseAdapter baseAdapter ;
     private Configuracion configuracion ;
+    private InformeErrores informeErrores ;
 
     public Proformas() {
         // Required empty public constructor
@@ -83,6 +86,7 @@ public class Proformas extends Fragment {
 
         adapter = new ProformasAdapter(proformaList) ;
 
+        informeErrores = new InformeErrores(getActivity());
 
         getConfiguracion();
 
@@ -315,13 +319,13 @@ public class Proformas extends Fragment {
     private void filtrarCliente(final String cliente) throws UnsupportedEncodingException {
         final Gson gson = new Gson();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        final StringRequest request = new StringRequest(Request.Method.GET, configuracion.URL_APIBODEGA+
+        final StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA+
                 "/proforma/cliente/"+cliente+"?api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                   clientes.clear();
 
-                        clientes.addAll(Arrays.asList(gson.fromJson(response.toString(),Clientes[].class)));
+                        clientes.addAll(Arrays.asList(gson.fromJson(response,Clientes[].class)));
 
                     adapterClientes.notifyDataSetChanged();
 
@@ -329,7 +333,9 @@ public class Proformas extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(),error.getMessage(),Toast.LENGTH_LONG).show();
+                String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
+                        error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                informeErrores.enviar("Error",msj);
             }
         });
         queue.add(request);
