@@ -88,8 +88,6 @@ public class Proformas extends Fragment {
 
         informeErrores = new InformeErrores(getActivity());
 
-        getConfiguracion();
-
         rvProformas.setHasFixedSize(true);
         rvProformas.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -157,23 +155,6 @@ public class Proformas extends Fragment {
         }catch (SQLiteException e){
             msj("Error",e.getMessage());
         }
-    }
-
-    private void getConfiguracion() {
-
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
     }
 
 
@@ -374,14 +355,8 @@ public class Proformas extends Fragment {
 
     private void getCreditoDisponible(String cod_cliente,final int pos){
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() + "/clientes/" +
-                "?cod_cliente=" + cod_cliente +
-                "&host_db=" + configuracion.getHost_db() +
-                "&port_db=" + configuracion.getPort_db() +
-                "&user_name=" + configuracion.getUser_name() +
-                "&password=" + configuracion.getPassword() +
-                "&db_name=" + configuracion.getDatabase() +
-                "&schema=" + configuracion.getSchema(), null, new Response.Listener<JSONObject>() {
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                "/cliente/cliente/?cod_cliente=" + cod_cliente + "&api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (response.length()>0){

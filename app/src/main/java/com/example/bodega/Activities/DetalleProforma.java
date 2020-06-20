@@ -42,6 +42,7 @@ import com.example.bodega.Adapters.AdapterDetalleProforma;
 import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModDetalleProforma;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.R;
@@ -52,6 +53,7 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +77,7 @@ public class DetalleProforma extends AppCompatActivity {
     private double total = 0;
     private List<ModDetalleProforma> detalles;
     private AdapterDetalleProforma adapterDetalleProforma;
-    private Configuracion configuracion;
+    private InformeErrores informeErrores ;
     private boolean scanned_from_scan ;
 
     @Override
@@ -84,6 +86,8 @@ public class DetalleProforma extends AppCompatActivity {
         setContentView(R.layout.detalle_proforma);
 
         baseAdapter = new BaseAdapter(this);
+
+        informeErrores = new InformeErrores(this);
 
         if (getSupportActionBar()!=null)
         getSupportActionBar().setTitle("DETALLES PROFORMA");
@@ -104,8 +108,6 @@ public class DetalleProforma extends AppCompatActivity {
         ImageButton btnAdd = findViewById(R.id.btnAdd);
 
         txtCantidad.setSelectAllOnFocus(true);
-
-        getConfiguracion();
 
         assert extras != null;
         cliente = extras.getString("cliente");
@@ -182,7 +184,7 @@ public class DetalleProforma extends AppCompatActivity {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
                         if (validar(txtCodigo.getText().toString(), txtCantidad.getText().toString())) {
-                            findArticulo(txtCodigo.getText().toString(), Integer.valueOf(txtCantidad.getText().toString()), detalles, adapterDetalleProforma);
+                            findArticulo(txtCodigo.getText().toString(), Double.parseDouble(txtCantidad.getText().toString()), detalles, adapterDetalleProforma);
                             txtCodigo.setText("");
                             txtCantidad.setText("");
                             txtCodigo.requestFocus();
@@ -219,7 +221,7 @@ public class DetalleProforma extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (validar(txtCodigo.getText().toString(),txtCantidad.getText().toString())){
-                    findArticulo(txtCodigo.getText().toString(), Integer.valueOf(txtCantidad.getText().toString()), detalles, adapterDetalleProforma);
+                    findArticulo(txtCodigo.getText().toString(), Double.parseDouble(txtCantidad.getText().toString()), detalles, adapterDetalleProforma);
                     txtCodigo.setText("");
                     txtCantidad.setText("");
                     txtCodigo.requestFocus();
@@ -260,23 +262,6 @@ public class DetalleProforma extends AppCompatActivity {
 
         if (imm!=null)
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
-    }
-
-    private void getConfiguracion() {
-
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
     }
 
     private void cambiarCantidad(final int pos, final List<ModDetalleProforma> lista, final AdapterDetalleProforma adaptador) {
@@ -380,22 +365,18 @@ public class DetalleProforma extends AppCompatActivity {
 
             com.example.bodega.Models.ContentValues values  = new com.example.bodega.Models.ContentValues();
             values.put("codigo",codigo);
-            values.put("host_db",configuracion.getHost_db());
-            values.put("port_db",configuracion.getPort_db());
-            values.put("user_name",configuracion.getUser_name());
-            values.put("password",configuracion.getPassword());
-            values.put("db_name", configuracion.getDatabase());
-            values.put("schema",configuracion.getSchema());
+            values.put("api_key",Configuracion.API_KEY);
 
-            StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" + values.toString(), new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                    "/articulo/articulo/" + values.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
                         JSONObject articulo = new JSONObject(response);
                         if (articulo.length() > 0) {
                             if (articulo.getString("activo").equals("S")) {
-                                if (!enLaLista(detalles , adapter, articulo.getString("codigo"), cant)) {
-                                    String cod_articulo = articulo.getString("codigo");
+                                if (!enLaLista(detalles , adapter, articulo.getString("cod_articulo"), cant)) {
+                                    String cod_articulo = articulo.getString("cod_articulo");
                                     String descripcion = articulo.getString("descripcion");
                                     double venta = articulo.getDouble("venta");
                                     int iv = articulo.getInt("porc_impuesto");
@@ -419,7 +400,7 @@ public class DetalleProforma extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error", error.getMessage());
+                    informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data, StandardCharsets.UTF_8));
                 }
             });
 
@@ -596,7 +577,8 @@ public class DetalleProforma extends AppCompatActivity {
     private void enviarQpos(final List<ModDetalleProforma> detallesList) {
         try {
             RequestQueue queue = Volley.newRequestQueue(DetalleProforma.this);
-            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/proformas/", new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA +
+                    "/proforma/guardar", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(DetalleProforma.this);
@@ -616,7 +598,7 @@ public class DetalleProforma extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error", error.getMessage());
+                    informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data, StandardCharsets.UTF_8));
                 }
             }) {
                 @Override
@@ -624,20 +606,14 @@ public class DetalleProforma extends AppCompatActivity {
                     Gson gson = new Gson();
                     String detalles = gson.toJson(detallesList);
                     Map<String, String> params = new HashMap<>();
-                    params.put("host_db", configuracion.getHost_db());
-                    params.put("port_db", configuracion.getPort_db());
-                    params.put("user_name", configuracion.getUser_name());
-                    params.put("password", configuracion.getPassword());
-                    params.put("db_name", configuracion.getDatabase());
-                    params.put("schema", configuracion.getSchema());
+                    params.put("api_key",Configuracion.API_KEY);
                     params.put("cod_cliente", cod_cliente);
                     params.put("cliente", cliente);
                     params.put("total", String.valueOf(total));
-                    params.put("ocacional", "false");
                     params.put("monto_iv_colones", String.valueOf(montoImpuesto));
-                    params.put("total_exento", String.valueOf(subTotalExento));
-                    params.put("total_gravado", String.valueOf(subTotalGravado));
-                    params.put("detalles_proforma", detalles);
+                    params.put("sub_total_exento", String.valueOf(subTotalExento));
+                    params.put("sub_total_gravado", String.valueOf(subTotalGravado));
+                    params.put("detalle_proforma", detalles);
                     params.put("user",user);
                     return params;
                 }
@@ -735,14 +711,9 @@ public class DetalleProforma extends AppCompatActivity {
                         final Gson gson = new Gson();
                         com.example.bodega.Models.ContentValues values  = new com.example.bodega.Models.ContentValues();
                         values.put("descripcion",txtArticulo.getText().toString());
-                        values.put("host_db",configuracion.getHost_db());
-                        values.put("port_db",configuracion.getPort_db());
-                        values.put("user_name",configuracion.getUser_name());
-                        values.put("password",configuracion.getPassword());
-                        values.put("db_name", configuracion.getDatabase());
-                        values.put("schema",configuracion.getSchema());
 
-                        StringRequest  request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/"+ values.toString(), new Response.Listener<String>() {
+                        StringRequest  request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                                "/articulo/articulo/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
