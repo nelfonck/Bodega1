@@ -41,6 +41,7 @@ import com.android.volley.toolbox.Volley;
 
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModSalidas;
 import com.example.bodega.R;
@@ -61,6 +62,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +82,7 @@ public class Salidas extends Fragment {
     private RadioButton rbDia ;
     private RadioButton rbSemana ;
     private RadioButton rbMes ;
+    private InformeErrores informeErrores ;
 
     public Salidas() {
         // Required empty public constructor
@@ -96,6 +99,7 @@ public class Salidas extends Fragment {
 
         chartSalidas = view.findViewById(R.id.chartSalidas);
 
+        informeErrores = new InformeErrores(getActivity());
 
         txtfi = view.findViewById(R.id.txtfi);
         txtff = view.findViewById(R.id.txtff);
@@ -256,15 +260,10 @@ public class Salidas extends Fragment {
             final Gson gson = new Gson();
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/salidas/" +
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/rotacion/salida/" +
                     "?codigo=" + URLEncoder.encode(codigo,"utf-8") +
-                    "&host_db=" + configuracion.getHost_db() +
-                    "&port_db=" + configuracion.getPort_db() +
-                    "&user_name=" + configuracion.getUser_name() +
-                    "&password=" + configuracion.getPassword() +
-                    "&db_name=" + configuracion.getDatabase() +
-                    "&schema=" + configuracion.getSchema()+
-                    "&dias="+gson.toJson(intervalos), new Response.Listener<String>() {
+                    "&dias="+gson.toJson(intervalos) +
+                    "&api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -285,7 +284,9 @@ public class Salidas extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error",error.getMessage());
+                    String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
+                            error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    informeErrores.enviar("Error",msj);
                 }
             });
             stringRequest.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
