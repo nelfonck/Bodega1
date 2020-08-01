@@ -51,7 +51,6 @@
         android:layout_height="wrap_content"
         android:layout_toStartOf="@id/btnAdd"
         android:layout_above="@id/cvTotales"
-        android:inputType="number"
         android:singleLine="true"
         android:hint="Cant"
         android:layout_toLeftOf="@id/btnAdd" />

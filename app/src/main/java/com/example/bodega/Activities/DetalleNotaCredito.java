@@ -269,14 +269,9 @@ public class DetalleNotaCredito extends AppCompatActivity {
 
             ContentValues cv = new ContentValues();
             cv.put("codigo",codigo);
-            cv.put("host_db",configuracion.getHost_db());
-            cv.put("port_db",configuracion.getPort_db());
-            cv.put("user_name",configuracion.getUser_name());
-            cv.put("password",configuracion.getPassword());
-            cv.put("db_name",configuracion.getDatabase());
-            cv.put("schema",configuracion.getSchema());
+            cv.put("api_key",Configuracion.API_KEY);
 
-             StringRequest  request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" + cv.toString(), new Response.Listener<String>() {
+             StringRequest  request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/articulo" + cv.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -286,7 +281,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                                 if (!enLaLista(detalle , articulo.getString("codigo"), cant)) {
                                     String cod_articulo = articulo.getString("codigo");
                                     String descripcion = articulo.getString("descripcion");
-                                    double costo = articulo.getDouble("venta");
+                                    double costo = articulo.getDouble("costo");
                                     int iv = articulo.getInt("porc_impuesto");
                                     double monto_impuesto = (costo  *  iv) / 100 ;
                                     double totalIVI = (costo * cant) + (monto_impuesto * cant) ;
