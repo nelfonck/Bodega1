@@ -268,7 +268,10 @@ public class Habladores extends Fragment {
 
         if (result != null) {
             String scanResult = result.getContents();
-            doCall(scanResult);
+            if (scanResult != null){
+                doCall(scanResult);
+            }
+
         } else {
             Toast toast = Toast.makeText(getActivity(), "No scan data received!", Toast.LENGTH_SHORT);
             toast.show();
