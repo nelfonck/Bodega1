@@ -34,6 +34,7 @@ import com.example.bodega.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,8 +74,6 @@ public class RecepcionDocumentos extends Fragment {
         tvTotal = view.findViewById(R.id.tvTotal);
         imgEstado.getBackground().setAlpha(120);
         txtTotalFactura = view.findViewById(R.id.txtTotalFactura);
-
-        getConfiguracion();
 
 
         txtConsecutivo.setOnKeyListener(new View.OnKeyListener() {
@@ -138,9 +137,11 @@ public class RecepcionDocumentos extends Fragment {
         values.put("consecutivo", (consecutivo.length() >0) ? consecutivo : "");
         values.put("total", (totalFactura.length() >0) ? totalFactura : "");
         values.put("iud",(igualar_ultimos_digitos.isChecked() ? "true" :"false"));
+        values.put("api_key",Configuracion.API_KEY);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos/" +
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                "/recepcion/estado" +
            values.toString(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray documento) {
@@ -156,7 +157,7 @@ public class RecepcionDocumentos extends Fragment {
                                 imgEstado.setBackgroundResource(0);
                             }
                             txtConsecutivo.setText(documento.getJSONObject(0).getString("consecutivo_documento"));
-                            tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_comercial_vendedor"));
+                            tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_vendedor"));
                             tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
                             tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
                             tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
@@ -175,7 +176,8 @@ public class RecepcionDocumentos extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                msj("Error",error.getMessage());
+                String msg = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                msj("Error",msg);
             }
         });
         queue.add(stringRequest);
@@ -186,9 +188,11 @@ public class RecepcionDocumentos extends Fragment {
         values.put("consecutivo", consecutivo);
         values.put("iud",(igualar_ultimos_digitos.isChecked() ? "true" :"false"));
         values.put("id",String.valueOf(id));
+        values.put("api_key",Configuracion.API_KEY);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/recepcion_documentos" +
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                "/recepcion/estado" +
                 values.toString(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray documento) {
@@ -204,7 +208,7 @@ public class RecepcionDocumentos extends Fragment {
                                 imgEstado.setBackgroundResource(0);
                             }
                             txtConsecutivo.setText(documento.getJSONObject(0).getString("consecutivo_documento"));
-                            tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_comercial_vendedor"));
+                            tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_vendedor"));
                             tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
                             tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
                             tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
@@ -223,7 +227,8 @@ public class RecepcionDocumentos extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                msj("Error",error.getMessage());
+                String msg = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                msj("Error",msg);
             }
         });
         queue.add(stringRequest);
@@ -240,7 +245,7 @@ public class RecepcionDocumentos extends Fragment {
         for (int i = 0; i<= documentos.length()-1;i++){
             try {
                 listDocumentos.add(new ModDocumentos(documentos.getJSONObject(i).getString("consecutivo_documento"),
-                        documentos.getJSONObject(i).getString("nombre_comercial_vendedor"),
+                        documentos.getJSONObject(i).getString("nombre_vendedor"),
                         documentos.getJSONObject(i).getString("fecha_emision_documento"),
                         documentos.getJSONObject(i).getInt("id"),
                         documentos.getJSONObject(i).getString("cliente"),
@@ -275,16 +280,7 @@ public class RecepcionDocumentos extends Fragment {
 
     }
 
-    private void getConfiguracion() {
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host_d", ""));
-        configuracion.setPort(p.getString("port_d", ""));
-
-    }
 
     private void msj(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

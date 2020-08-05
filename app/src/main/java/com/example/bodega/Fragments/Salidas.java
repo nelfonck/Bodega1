@@ -160,7 +160,6 @@ public class Salidas extends Fragment {
             }
         });
 
-
         return view ;
     }
 
@@ -171,7 +170,9 @@ public class Salidas extends Fragment {
 
         if (result != null) {
             String scanResult = result.getContents();
-            traerContenido(scanResult,txtfi.getText().toString(),txtff.getText().toString());
+            if (scanResult!=null){
+                traerContenido(scanResult,txtfi.getText().toString(),txtff.getText().toString());
+            }
         } else {
             Toast toast = Toast.makeText(getActivity(), "No scan data received!", Toast.LENGTH_SHORT);
             toast.show();

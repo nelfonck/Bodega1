@@ -773,11 +773,13 @@ public class DetalleProforma extends AppCompatActivity {
 
         if (result != null) {
             String scanResult = result.getContents();
-            txtCodigo.setText(scanResult);
-            txtCantidad.setText("1");
-            txtCantidad.requestFocus();
-            scanned_from_scan = true ;
-            showKeyboard(DetalleProforma.this,txtCantidad);
+            if (scanResult!=null){
+                txtCodigo.setText(scanResult);
+                txtCantidad.setText("1");
+                txtCantidad.requestFocus();
+                scanned_from_scan = true ;
+                showKeyboard(DetalleProforma.this,txtCantidad);
+            }
         } else {
             Toast toast = Toast.makeText(this, "No scan data received!", Toast.LENGTH_SHORT);
             toast.show();

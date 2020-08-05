@@ -565,7 +565,10 @@ public class Articulos extends Fragment {
 
         if (result != null) {
             String scanResult = result.getContents();
-            obtArticulo(scanResult);
+            if (scanResult!=null){
+                obtArticulo(scanResult);
+            }
+
         } else {
             Toast toast = Toast.makeText(getActivity(), "No scan data received!", Toast.LENGTH_SHORT);
             toast.show();
@@ -857,6 +860,7 @@ public class Articulos extends Fragment {
                                         params.put("art_granel",articulo_granel.isChecked() ? "S" : "N");
                                         params.put("unidad_medida",unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida());
                                         params.put("factor_medida",txtFactorMedida.getText().toString());
+                                        params.put("api_key",Configuracion.API_KEY);
                                         return params;
                                     }
                                 };
