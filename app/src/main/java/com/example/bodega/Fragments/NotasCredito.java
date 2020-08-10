@@ -44,6 +44,7 @@ import com.google.gson.Gson;
 
 import org.json.JSONArray;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -288,17 +289,12 @@ public class NotasCredito extends Fragment {
             progressDialog.show();
 
             ContentValues values = new ContentValues();
-            values.put("host_db", configuracion.getHost_db());
-            values.put("port_db", configuracion.getPort_db());
-            values.put("user_name", configuracion.getUser_name());
-            values.put("password", configuracion.getPassword());
-            values.put("db_name", configuracion.getDatabase());
-            values.put("schema", configuracion.getSchema());
-            values.put("proveedor", proveedor);
+            values.put("api_key",Configuracion.API_KEY);
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            JsonArrayRequest arrProv = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/proveedores/" +
-                    values.toString(), null, new Response.Listener<JSONArray>() {
+            JsonArrayRequest arrProv = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA
+                    + "/proveedor/proveedores" + ((proveedor!=null) ? "/" + proveedor : "") +
+                    values.toString() , null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
                     Gson gson = new Gson();
@@ -310,7 +306,8 @@ public class NotasCredito extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error", error.getMessage());
+                    String msg = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    msj("Error", msg);
                 }
             });
             queue.add(arrProv);

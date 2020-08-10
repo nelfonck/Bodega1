@@ -48,7 +48,7 @@ public class AdapterDetalleNota extends RecyclerView.Adapter<AdapterDetalleNota.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int pos) {
-        DecimalFormat formatter = new DecimalFormat("#,###,###");
+        DecimalFormat formatter = new DecimalFormat("#,###,###.##");
         holder.tvCodigo.setText(("Cod. Art."+ detalle.get(pos).getCodigo()));
         holder.tvDescripcion.setText(detalle.get(pos).getDescripcion());
         holder.tvCantidad.setText(("Cant:" + detalle.get(pos).getCantidad()));

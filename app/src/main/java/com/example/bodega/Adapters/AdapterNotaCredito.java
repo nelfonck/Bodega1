@@ -46,7 +46,7 @@ public class AdapterNotaCredito extends RecyclerView.Adapter<AdapterNotaCredito.
         holder.tvRazonComercial.setText(notas.get(position).getRazon_comercial());
         holder.tvEstado.setText(notas.get(position).getEstado());
         holder.tvFecha.setText(notas.get(position).getFecha());
-        DecimalFormat formatter = new DecimalFormat("#,###,###");
+        DecimalFormat formatter = new DecimalFormat("#,###,###.##");
         holder.tvTotal.setText(("Total ¢ " + formatter.format(notas.get(position).getTotal())));
     }
 

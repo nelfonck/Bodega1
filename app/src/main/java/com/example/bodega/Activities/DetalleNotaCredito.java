@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -54,6 +55,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,7 +85,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
         total = 0 ;
         getConfiguracion();
         dbHelper = new BaseAdapter(this);
-        formatter = new DecimalFormat("#,###,###");
+        formatter = new DecimalFormat("#,###,###.##");
 
         TextView tvNumeroNota = findViewById(R.id.tvNumeroNota);
         TextView tvCodProveedor = findViewById(R.id.tvCodProveedor);
@@ -278,8 +280,8 @@ public class DetalleNotaCredito extends AppCompatActivity {
                         JSONObject articulo = new JSONObject(response);
                         if (articulo.length() > 0) {
                             if (articulo.getString("activo").equals("S")) {
-                                if (!enLaLista(detalle , articulo.getString("codigo"), cant)) {
-                                    String cod_articulo = articulo.getString("codigo");
+                                if (!enLaLista(detalle , articulo.getString("cod_articulo"), cant)) {
+                                    String cod_articulo = articulo.getString("cod_articulo");
                                     String descripcion = articulo.getString("descripcion");
                                     double costo = articulo.getDouble("costo");
                                     int iv = articulo.getInt("porc_impuesto");
@@ -371,7 +373,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (!txtCant.getText().toString().equals("")) {
-                            double cant = Float.valueOf(txtCant.getText().toString());
+                            double cant = Float.parseFloat(txtCant.getText().toString());
                             double costo = detalle.get(pos).getCosto() ;
                             double monto_impuesto = detalle.get(pos).getMonto_impuesto();
                             double totalIVI = (costo * cant) + (monto_impuesto * cant) ;
@@ -707,7 +709,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
     private void enviarQpos(){
         try {
 
-            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/notas_credito/", new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/nota/guardar", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     if (!response.equals("")){
@@ -721,7 +723,8 @@ public class DetalleNotaCredito extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Ha ocurrido un error",error.getMessage());
+                    String msg = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    msj("Ha ocurrido un error",msg);
                 }
             }){
                 @Override
@@ -729,17 +732,12 @@ public class DetalleNotaCredito extends AppCompatActivity {
                     Gson gson = new Gson();
                     String user = (getIntent().getExtras()!=null) ? getIntent().getExtras().getString("user") : "undefined" ;
                     Map<String, String> params = new HashMap<>();
-                    params.put("host_db",configuracion.getHost_db());
-                    params.put("port_db",configuracion.getPort_db());
-                    params.put("user_name",configuracion.getUser_name());
-                    params.put("password",configuracion.getPassword());
-                    params.put("db_name",configuracion.getDatabase());
-                    params.put("schema",configuracion.getSchema());
+                    params.put("api_key", Configuracion.API_KEY);
                     params.put("detalle", gson.toJson(detalle));
                     params.put("user",user);
                     params.put("cod_proveedor",cod_proveedor);
                     params.put("impuesto",String.valueOf(impuesto));
-                    params.put("total",String.valueOf(total));
+                    params.put("monto",String.valueOf(total));
                     return params;
                 }
             };
@@ -751,7 +749,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
             queue.add(request);
 
         }catch (Exception e){
-            msj("Errro", e.getMessage());
+            msj("Error", e.getMessage());
         }
     }
 
