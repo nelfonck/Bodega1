@@ -273,7 +273,7 @@ public class NotasCredito extends Fragment {
     private void lanzarDetalles(int id ,String cod_proveedor, String razsocial,String razon_comercial){
 
         Intent detallesNota = new Intent(getActivity(), DetalleNotaCredito.class);
-        detallesNota.putExtra("id_nota",id);
+        detallesNota.putExtra("id_nota",id);//
         detallesNota.putExtra("cod_proveedor",cod_proveedor);
         detallesNota.putExtra("razsocial",razsocial);
         detallesNota.putExtra("razon_comercial",razon_comercial);
