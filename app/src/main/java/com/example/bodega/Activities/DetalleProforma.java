@@ -711,6 +711,7 @@ public class DetalleProforma extends AppCompatActivity {
                         final Gson gson = new Gson();
                         com.example.bodega.Models.ContentValues values  = new com.example.bodega.Models.ContentValues();
                         values.put("descripcion",txtArticulo.getText().toString());
+                        values.put("api_key",Configuracion.API_KEY);
 
                         StringRequest  request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
                                 "/articulo/articulo/"+ values.toString(), new Response.Listener<String>() {
@@ -729,7 +730,7 @@ public class DetalleProforma extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(DetalleProforma.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                informeErrores.enviar("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
                             }
                         });
 
