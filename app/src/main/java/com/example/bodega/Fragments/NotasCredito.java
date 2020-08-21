@@ -293,7 +293,8 @@ public class NotasCredito extends Fragment {
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
             JsonArrayRequest arrProv = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA
-                    + "/proveedor/proveedores" + ((proveedor!=null) ? "/" + proveedor : "") +
+                    + "/proveedor/proveedores" +
+                    ((proveedor!=null) ? "/" + proveedor : "") +
                     values.toString() , null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {

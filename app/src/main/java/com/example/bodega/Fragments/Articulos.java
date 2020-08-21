@@ -102,6 +102,7 @@ public class Articulos extends Fragment {
     private EditText txtFactorMedida;
     private EditText txtCodigo;
     private TextView tvProveedor ;
+    private EditText txtDesc1, txtDesc2, txtDesc3 ;
     private CheckBox articulo_granel;
     private CheckBox articulo_romana;
     private Switch activo ;
@@ -174,6 +175,10 @@ public class Articulos extends Fragment {
 
         tvProveedor = view.findViewById(R.id.tvProveedor);
 
+        txtDesc1 = view.findViewById(R.id.txtDesc1);
+        txtDesc2 = view.findViewById(R.id.txtDesc2);
+        txtDesc3 = view.findViewById(R.id.txtDesc3);
+
         articulo_granel = view.findViewById(R.id.check_granel);
         articulo_romana = view.findViewById(R.id.check_romana);
 
@@ -182,7 +187,9 @@ public class Articulos extends Fragment {
         txtCosto.setSelectAllOnFocus(true);
         txtUtilidad.setSelectAllOnFocus(true);
         txtVenta.setSelectAllOnFocus(true);
-
+        txtDesc1.setSelectAllOnFocus(true);
+        txtDesc2.setSelectAllOnFocus(true);
+        txtDesc3.setSelectAllOnFocus(true);
 
         ImageButton btnScan = view.findViewById(R.id.btnScan);
 
@@ -618,7 +625,9 @@ public class Articulos extends Fragment {
                          txtCosto.setText(formatter.format(costo));
                          txtUtilidad.setText(formatter.format(utilidad));
                          txtVenta.setText(formatter.format(venta));
-
+                         txtDesc1.setText(String.valueOf(articulo.getInt("porc_tope_descuento_1")));
+                         txtDesc2.setText(String.valueOf(articulo.getInt("porc_tope_descuento_2")));
+                         txtDesc3.setText(String.valueOf(articulo.getInt("porc_tope_descuento_3")));
                          activo.setChecked(articulo.getString("activo").equals("S"));
 
                          if (!articulo.isNull("ultimo_proveedor"))
@@ -762,6 +771,9 @@ public class Articulos extends Fragment {
             params.put("activo",activo.isChecked() ? "S" : "N");
             params.put("unidad_medida", unidadMedidas.get(spUnidadMedida.getSelectedItemPosition()).getUnidad_medida());
             params.put("factor_medida", txtFactorMedida.getText().toString());
+            params.put("porc_tope_descuento_1",txtDesc1.getText().toString());
+            params.put("porc_tope_descuento_2",txtDesc2.getText().toString());
+            params.put("porc_tope_descuento_3",txtDesc3.getText().toString());
             params.put("art_granel", (articulo_granel.isChecked() ? "S" : "N"));
             params.put("articulo_romana", (articulo_romana.isChecked() ? "S" : "N"));
 
