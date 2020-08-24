@@ -11,16 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,6 +42,7 @@ import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
+import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModDetalleNota;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.R;
@@ -71,19 +70,21 @@ public class DetalleNotaCredito extends AppCompatActivity {
     private TextView tvTotal ;
     private double total, impuesto ;
     private boolean scanned_from_scan ;
-    private Configuracion configuracion;
     private BaseAdapter dbHelper ;
     private DecimalFormat formatter ;
     private EditText txtCodigo ;
     private EditText txtCantidad ;
+    private InformeErrores informeErrores ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle_nota_credito);
 
+        informeErrores = new InformeErrores(this);
+
         total = 0 ;
-        getConfiguracion();
+
         dbHelper = new BaseAdapter(this);
         formatter = new DecimalFormat("#,###,###.##");
 
@@ -141,7 +142,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
                         if (validar(txtCodigo.getText().toString(), txtCantidad.getText().toString())) {
-                            findArticulo(txtCodigo.getText().toString(), Float.valueOf(txtCantidad.getText().toString()));
+                            findArticulo(txtCodigo.getText().toString(), Float.parseFloat(txtCantidad.getText().toString()));
                             txtCodigo.setText("");
                             txtCantidad.setText("");
                             txtCodigo.requestFocus();
@@ -171,7 +172,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (validar(txtCodigo.getText().toString(), txtCantidad.getText().toString())) {
-                    findArticulo(txtCodigo.getText().toString(), Float.valueOf(txtCantidad.getText().toString()));
+                    findArticulo(txtCodigo.getText().toString(), Float.parseFloat(txtCantidad.getText().toString()));
                     txtCodigo.setText("");
                     txtCantidad.setText("");
                     txtCodigo.requestFocus();
@@ -401,8 +402,8 @@ public class DetalleNotaCredito extends AppCompatActivity {
     }
 
     private void buscarDescripcion() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = View.inflate(DetalleNotaCredito.this,R.layout.dialog_filtro_descripcion,null);
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_filtro_descripcion, null);
         builder.setView(view);
         final EditText txtArticulo = view.findViewById(R.id.txtFiltroDescripcion);
         RecyclerView recyclerView = view.findViewById(R.id.rvResultadoFiltroDescripcion);
@@ -421,26 +422,22 @@ public class DetalleNotaCredito extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-        final AlertDialog dialog = builder.create();
+
+        final android.app.AlertDialog dialog = builder.create();
         dialog.show();
 
         txtArticulo.setOnKeyListener(new View.OnKeyListener() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
-                if (event.getAction() == KeyEvent.ACTION_DOWN){
-                        final Gson gson = new Gson();
-                    ContentValues values  = new ContentValues();
-                    values.put("descripcion",txtArticulo.getText().toString());
-                    values.put("host_db",configuracion.getHost_db());
-                    values.put("port_db",configuracion.getPort_db());
-                    values.put("user_name",configuracion.getUser_name());
-                    values.put("password",configuracion.getPassword());
-                    values.put("db_name", configuracion.getDatabase());
-                    values.put("schema",configuracion.getSchema());
+                    if (event.getAction() == KeyEvent.ACTION_DOWN){
+                        ContentValues values = new ContentValues() ;
+                        values.put("api_key",Configuracion.API_KEY);
+                        values.put("descripcion",txtArticulo.getText().toString());
 
-                        StringRequest  request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulos/" + values.toString(), new Response.Listener<String>() {
+                        final Gson gson = new Gson();
+                        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                                "/articulo/articulo" + values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
@@ -456,15 +453,21 @@ public class DetalleNotaCredito extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(DetalleNotaCredito.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                informeErrores.enviar("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
                             }
                         });
 
+                        request.setRetryPolicy(
+                                new DefaultRetryPolicy(50000,
+                                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
                         RequestQueue queue = Volley.newRequestQueue(DetalleNotaCredito.this);
                         queue.add(request);
-                        return true;
 
-                }
+
+                        return true;
+                    }
                 return false;
             }
         });
@@ -473,9 +476,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
             @Override
             public void OnItemClick(int pos) {
                 txtCodigo.setText(articulos.get(pos).getCodigo());
-                //txtCantidad.setText("1");
                 txtCantidad.requestFocus();
-                showKeyboard(DetalleNotaCredito.this,txtCantidad);
                 dialog.dismiss();
             }
         });
@@ -623,22 +624,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
         return total ;
     }
 
-    private void getConfiguracion() {
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
-    }
 
     public void scanNow() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(this);
@@ -709,7 +695,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
     private void enviarQpos(){
         try {
 
-            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/nota/guardar", new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/nota/guardar", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     if (!response.equals("")){

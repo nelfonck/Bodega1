@@ -235,6 +235,13 @@ public class Articulos extends Fragment {
                 return false;
             }
         });
+        txtCosto.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                costo = (!txtCosto.getText().toString().equals("") ? Double.valueOf(txtCosto.getText().toString()) : 0);
+                txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
+            }
+        });
 
         txtUtilidad.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -249,6 +256,17 @@ public class Articulos extends Fragment {
             }
         });
 
+        txtUtilidad.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                    utilidad = (!txtUtilidad.getText().toString().equals("") ? Double.valueOf(txtUtilidad.getText().toString()) : 0);
+                    txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
+                    spImpuestos.requestFocus();
+                }
+            }
+        });
+
         txtVenta.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -258,6 +276,16 @@ public class Articulos extends Fragment {
                     return true;
                 }
                 return false;
+            }
+        });
+
+        txtVenta.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                    venta = (!txtVenta.getText().toString().equals("") ? Double.valueOf(txtVenta.getText().toString()) : 0);
+                    txtUtilidad.setText(formatter.format(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
+                }
             }
         });
 
@@ -527,6 +555,7 @@ public class Articulos extends Fragment {
                         Toast.makeText(getActivity(), "El artículo ya está en la lista", Toast.LENGTH_SHORT).show();
                     }else{
                         addToList(cod_articulo,txtDescripcion.getText().toString(),venta);
+                        Toast.makeText(getActivity(), "El artículo ha sido agregado a la lista de habladores", Toast.LENGTH_SHORT).show();
                     }
                 }
                 break;
@@ -562,8 +591,6 @@ public class Articulos extends Fragment {
             return false;
         }
     }
-
-
 
 
     @Override
