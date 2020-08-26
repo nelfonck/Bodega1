@@ -115,6 +115,7 @@ public class Articulos extends Fragment {
     private boolean block;
     private String cod_proveedor, razsocial ;
     private InformeErrores informeErrores ;
+    Configuracion configuracion ;
 
     public Articulos() {
 
@@ -127,6 +128,11 @@ public class Articulos extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_articulos, container, false);
+
+        configuracion = new Configuracion( );
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port","port"));
 
         final DecimalFormat formatter = new DecimalFormat("#");
         formatter.setMaximumFractionDigits(2);
@@ -366,7 +372,7 @@ public class Articulos extends Fragment {
                         values.put("descripcion",txtArticulo.getText().toString());
 
                         final Gson gson = new Gson();
-                        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
                                  "/articulo/articulo" + values.toString(), new Response.Listener<String>() {
                              @Override
                              public void onResponse(String response) {
@@ -417,7 +423,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/familia/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/familia/" +
                     values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -449,7 +455,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/impuesto/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/impuesto/" +
                     values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -481,7 +487,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/marca/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/marca/" +
                  values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -510,7 +516,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/unidad_medida/" +
+            StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/unidad_medida/" +
             values.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -621,7 +627,7 @@ public class Articulos extends Fragment {
         ContentValues values = new ContentValues();
         values.put("api_key",Configuracion.API_KEY);
         values.put("codigo",codigo);
-        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/articulo/"  +
+        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulo/articulo/"  +
             values.toString(), new Response.Listener<String>() {
              @Override
              public void onResponse(String response) {
@@ -805,7 +811,7 @@ public class Articulos extends Fragment {
             params.put("articulo_romana", (articulo_romana.isChecked() ? "S" : "N"));
 
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-            StringRequest request = new StringRequest(Request.Method.PUT, Configuracion.URL_APIBODEGA + "/articulo/actualizar" + params.toString(), new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulo/actualizar" + params.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
 
@@ -872,7 +878,7 @@ public class Articulos extends Fragment {
                     public void onClick(View v) {
                         if (validarTextos(txtDescripcion, txtCosto, txtUtilidad, txtVenta, txtFactorMedida)) {
 
-                                StringRequest requestGuardar = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/articulo/nuevo", new Response.Listener<String>() {
+                                StringRequest requestGuardar = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/articulo/nuevo", new Response.Listener<String>() {
                                     @Override
                                     public void onResponse(String response) {
                                         Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();

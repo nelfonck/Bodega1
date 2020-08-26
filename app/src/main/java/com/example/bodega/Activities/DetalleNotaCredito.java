@@ -11,12 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -75,14 +77,20 @@ public class DetalleNotaCredito extends AppCompatActivity {
     private EditText txtCodigo ;
     private EditText txtCantidad ;
     private InformeErrores informeErrores ;
+    private Configuracion configuracion ;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle_nota_credito);
 
-        informeErrores = new InformeErrores(this);
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port","port"));
 
+        informeErrores = new InformeErrores(this);
         total = 0 ;
 
         dbHelper = new BaseAdapter(this);
@@ -274,7 +282,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
             cv.put("codigo",codigo);
             cv.put("api_key",Configuracion.API_KEY);
 
-             StringRequest  request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/articulo/articulo" + cv.toString(), new Response.Listener<String>() {
+             StringRequest  request = new StringRequest(Request.Method.GET, configuracion.getUrl()+ "/articulo/articulo" + cv.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -436,7 +444,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                         values.put("descripcion",txtArticulo.getText().toString());
 
                         final Gson gson = new Gson();
-                        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
                                 "/articulo/articulo" + values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -695,7 +703,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
     private void enviarQpos(){
         try {
 
-            StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/nota/guardar", new Response.Listener<String>() {
+            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/nota/guardar", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     if (!response.equals("")){

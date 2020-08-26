@@ -41,6 +41,7 @@ import com.android.volley.toolbox.Volley;
 
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
+import com.example.bodega.Models.ContentValues;
 import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModSalidas;
@@ -59,8 +60,6 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -95,7 +94,10 @@ public class Salidas extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_salidas, container, false);
 
-        getConfiguracion();
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port","port"));
 
         chartSalidas = view.findViewById(R.id.chartSalidas);
 
@@ -219,22 +221,6 @@ public class Salidas extends Fragment {
 
     }
 
-    private void getConfiguracion() {
-
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void traerContenido(String codigo, String fi, String ff){
@@ -261,7 +247,7 @@ public class Salidas extends Fragment {
             final Gson gson = new Gson();
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/rotacion/salida/" +
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/rotacion/salida/" +
                     "?codigo=" + URLEncoder.encode(codigo,"utf-8") +
                     "&dias="+gson.toJson(intervalos) +
                     "&api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
@@ -447,15 +433,13 @@ public class Salidas extends Fragment {
                     final Gson gson = new Gson();
                     RequestQueue queue = Volley.newRequestQueue(getActivity());
                     StringRequest request = null;
-                    try {
+
+                        ContentValues values = new ContentValues();
+                        values.put("descripcion",txtArticulo.getText().toString());
+                        values.put("api_key", Configuracion.API_KEY);
+
                         request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                                "/articulos/?descripcion=" + URLEncoder.encode(txtArticulo.getText().toString(),"utf-8") +
-                                "&host_db=" + configuracion.getHost_db() +
-                                "&port_db=" + configuracion.getPort_db() +
-                                "&user_name=" + configuracion.getUser_name() +
-                                "&password=" + configuracion.getPassword() +
-                                "&db_name=" + configuracion.getDatabase() +
-                                "&schema=" + configuracion.getSchema(), new Response.Listener<String>() {
+                                "/articulo/articulo" + values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
@@ -470,12 +454,11 @@ public class Salidas extends Fragment {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                                String msg = new String(error.networkResponse.data,StandardCharsets.UTF_8);
+                                msj("Error",msg);
                             }
                         });
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+
 
                     queue.add(request);
                     return true;

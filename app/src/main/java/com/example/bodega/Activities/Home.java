@@ -75,8 +75,6 @@ public class Home extends AppCompatActivity {
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.naview);
 
-
-
         int readStorage = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
         int writeStorage = ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int camera = ActivityCompat.checkSelfPermission(this,Manifest.permission.CAMERA);
@@ -88,7 +86,10 @@ public class Home extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,PERMISOS,REQUEST_CODE);
         }
 
-        getConfiguracion();
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port",""));
 
         TextView tvUser = nav.getHeaderView(0).findViewById(R.id.tvUser);
         user = (getIntent().getExtras()!=null) ? getIntent().getExtras().getString("user") : "undefined" ;
@@ -182,24 +183,7 @@ public class Home extends AppCompatActivity {
 
 
 
-    private void getConfiguracion() {
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-        configuracion.setHost_update(p.getString("host_update",""));
-        configuracion.setPort_update(p.getString("port_update",""));
-
-    }
 
     private void setActionBar(){
         if (getSupportActionBar()!=null){
@@ -225,7 +209,7 @@ public class Home extends AppCompatActivity {
         //super.onBackPressed();
         moveTaskToBack(true);
     }
-
+ /*
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void checkUpdates(){
 
@@ -239,9 +223,9 @@ public class Home extends AppCompatActivity {
             cv.put("version",String.valueOf(version));
             cv.put("version_name",version_name);
 
-            final String url = configuracion.getUrlUpdates()  + cv.toString() ;
+            //final String url = configuracion.getUrlUpdates()  + cv.toString() ;
 
-            StringRequest objectRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            StringRequest objectRequest = new StringRequest(Request.Method.GET, configuracion.getUrl(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(final String response) {
                     try {
@@ -398,7 +382,7 @@ public class Home extends AppCompatActivity {
 
 
         }
-
+*/
     @SuppressWarnings("SameParameterValue")
     private void msj(String title, String msj){
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);

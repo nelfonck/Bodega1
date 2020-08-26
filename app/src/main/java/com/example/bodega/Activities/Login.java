@@ -43,11 +43,16 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port","port"));
+
         final EditText txtUser = findViewById(R.id.txtUser);
         final EditText txtPass = findViewById(R.id.txtPass);
         Button btnEntrar = findViewById(R.id.btnEntrar);
         Button btnCancelar = findViewById(R.id.btnCancelar);
-        getConfiguracion();
+
 
         informeErrores = new InformeErrores(Login.this);
 
@@ -113,7 +118,7 @@ public class Login extends AppCompatActivity {
 
     private void validar(final String user, String pass) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl()+
                 "/usuario/login/" + user + "/" + pass + "?api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -137,26 +142,7 @@ public class Login extends AppCompatActivity {
         queue.add(objectRequest);
     }
 
-    private void getConfiguracion() {
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(Login.this);
-
-        if (!p.contains("host")) {
-            abrirConfiguracion();
-        }
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
-    }
 
     @SuppressWarnings("SameParameterValue")
     private void msj(String title, String message) {

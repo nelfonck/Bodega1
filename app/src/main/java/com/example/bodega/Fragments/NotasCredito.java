@@ -54,12 +54,13 @@ import java.util.Locale;
 
 
 public class NotasCredito extends Fragment {
-    private Configuracion configuracion ;
+
     private ProgressDialog progressDialog ;
     private BaseAdapter dbHelper ;
     private AdapterNotaCredito adapter ;
     private List<ModNotaCredito> notas ;
     private String user ;
+    private Configuracion configuracion ;
 
     public NotasCredito() {
         // Required empty public constructor
@@ -70,11 +71,15 @@ public class NotasCredito extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_notas_credito, container, false);
+
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port","port"));
+
         FloatingActionButton fabNuevo = v.findViewById(R.id.fabNuevaNota);
 
         user = getArguments().getString("user") ;
-
-        getConfiguracion();
 
         fabNuevo.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -292,7 +297,7 @@ public class NotasCredito extends Fragment {
             values.put("api_key",Configuracion.API_KEY);
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            JsonArrayRequest arrProv = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA
+            JsonArrayRequest arrProv = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl()
                     + "/proveedor/proveedores" +
                     ((proveedor!=null) ? "/" + proveedor : "") +
                     values.toString() , null, new Response.Listener<JSONArray>() {
@@ -319,22 +324,7 @@ public class NotasCredito extends Fragment {
 
     }
 
-    private void getConfiguracion() {
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        configuracion = new Configuracion();
-
-        configuracion.setHost(p.getString("host", ""));
-        configuracion.setPort(p.getString("port", ""));
-        configuracion.setHost_db(p.getString("host_db", ""));
-        configuracion.setPort_db(p.getString("port_db", ""));
-        configuracion.setUser_name(p.getString("user_name", ""));
-        configuracion.setPassword(p.getString("password", ""));
-        configuracion.setDatabase(p.getString("db_name", ""));
-        configuracion.setSchema(p.getString("schema", ""));
-
-    }
 
     @Override
     public void onResume() {

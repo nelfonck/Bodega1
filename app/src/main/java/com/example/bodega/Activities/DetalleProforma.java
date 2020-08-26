@@ -79,11 +79,17 @@ public class DetalleProforma extends AppCompatActivity {
     private AdapterDetalleProforma adapterDetalleProforma;
     private InformeErrores informeErrores ;
     private boolean scanned_from_scan ;
+    private Configuracion configuracion ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detalle_proforma);
+
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port",""));
 
         baseAdapter = new BaseAdapter(this);
 
@@ -302,7 +308,7 @@ public class DetalleProforma extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (!txtCant.getText().toString().equals("")) {
-                            double newCant = Float.valueOf(txtCant.getText().toString());
+                            double newCant = Float.parseFloat(txtCant.getText().toString());
                             double newTotal = newCant * lista.get(pos).getPrecio();
                             lista.get(pos).setCantidad(newCant);
                             lista.get(pos).setTotal(newTotal);
@@ -367,7 +373,7 @@ public class DetalleProforma extends AppCompatActivity {
             values.put("codigo",codigo);
             values.put("api_key",Configuracion.API_KEY);
 
-            StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+            StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
                     "/articulo/articulo/" + values.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -577,7 +583,7 @@ public class DetalleProforma extends AppCompatActivity {
     private void enviarQpos(final List<ModDetalleProforma> detallesList) {
         try {
             RequestQueue queue = Volley.newRequestQueue(DetalleProforma.this);
-            StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA +
+            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() +
                     "/proforma/guardar", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -713,7 +719,7 @@ public class DetalleProforma extends AppCompatActivity {
                         values.put("descripcion",txtArticulo.getText().toString());
                         values.put("api_key",Configuracion.API_KEY);
 
-                        StringRequest  request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                        StringRequest  request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
                                 "/articulo/articulo/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {

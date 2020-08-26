@@ -76,6 +76,11 @@ public class Proformas extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_proformas, container, false);
 
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port","port"));
+
         RecyclerView rvProformas = v.findViewById(R.id.rvProformas);
 
         FloatingActionButton fabNueva = v.findViewById(R.id.fabNuevaProforma);
@@ -300,7 +305,7 @@ public class Proformas extends Fragment {
     private void filtrarCliente(final String cliente) throws UnsupportedEncodingException {
         final Gson gson = new Gson();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        final StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA+
+        final StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl()+
                 "/cliente/cliente/?cliente="+cliente+"&api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -355,7 +360,7 @@ public class Proformas extends Fragment {
 
     private void getCreditoDisponible(String cod_cliente,final int pos){
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
                 "/cliente/cliente/?cod_cliente=" + cod_cliente + "&api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {

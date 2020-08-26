@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class RecepcionDocumentos extends Fragment {
 
-    private Configuracion configuracion; ;
+    private Configuracion configuracion;
     private EditText txtConsecutivo ;
     private TextView tvNombreComercialVendedor ;
     private TextView tvFechaEmision ;
@@ -52,7 +52,6 @@ public class RecepcionDocumentos extends Fragment {
     private EditText txtTotalFactura ;
     private ImageView imgEstado ;
     private CheckBox igualar_ultimos_digitos ;
-    private ImageButton imgClear ;
 
     public RecepcionDocumentos() {
         // Required empty public constructor
@@ -64,10 +63,15 @@ public class RecepcionDocumentos extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recepcion_documentos, container, false);
 
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        configuracion.setHost(sp.getString("host_d",""));
+        configuracion.setPort(sp.getString("port_d",""));
+
         imgEstado = view.findViewById(R.id.imgEstado);
         txtConsecutivo = view.findViewById(R.id.txtConsecutivo);
         igualar_ultimos_digitos = view.findViewById(R.id.igualar_ultimos_digitos);
-        imgClear = view.findViewById(R.id.imgClear);
+        ImageButton imgClear = view.findViewById(R.id.imgClear);
         tvNombreComercialVendedor = view.findViewById(R.id.tvNombreComercialVendedor);
         tvFechaEmision = view.findViewById(R.id.tvFechaEmision);
         tvCliente = view.findViewById(R.id.tvCliente);
@@ -140,7 +144,7 @@ public class RecepcionDocumentos extends Fragment {
         values.put("api_key",Configuracion.API_KEY);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrlDoc() +
                 "/recepcion/estado" +
            values.toString(),null, new Response.Listener<JSONArray>() {
             @Override
@@ -158,9 +162,9 @@ public class RecepcionDocumentos extends Fragment {
                             }
                             txtConsecutivo.setText(documento.getJSONObject(0).getString("consecutivo_documento"));
                             tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_vendedor"));
-                            tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
-                            tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
-                            tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
+                            tvFechaEmision.setText(("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento")));
+                            tvCliente.setText(("Cliente: "+documento.getJSONObject(0).getString("cliente") ));
+                            tvTotal.setText(("Total ¢ "+ documento.getJSONObject(0).getString("total")));
 
                         }else if (documento.length()>1){
                             mostrarResultados(documento);
@@ -191,7 +195,7 @@ public class RecepcionDocumentos extends Fragment {
         values.put("api_key",Configuracion.API_KEY);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrlDoc() +
                 "/recepcion/estado" +
                 values.toString(),null, new Response.Listener<JSONArray>() {
             @Override
@@ -209,9 +213,9 @@ public class RecepcionDocumentos extends Fragment {
                             }
                             txtConsecutivo.setText(documento.getJSONObject(0).getString("consecutivo_documento"));
                             tvNombreComercialVendedor.setText(documento.getJSONObject(0).getString("nombre_vendedor"));
-                            tvFechaEmision.setText("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento"));
-                            tvCliente.setText("Cliente: "+documento.getJSONObject(0).getString("cliente") );
-                            tvTotal.setText("Total ¢ "+ documento.getJSONObject(0).getString("total"));
+                            tvFechaEmision.setText(("Fecha de emisión: "+documento.getJSONObject(0).getString("fecha_emision_documento")));
+                            tvCliente.setText(("Cliente: "+documento.getJSONObject(0).getString("cliente")) );
+                            tvTotal.setText(("Total ¢ "+ documento.getJSONObject(0).getString("total")));
 
                         }else if (documento.length()>1){
                             mostrarResultados(documento);

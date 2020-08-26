@@ -6,11 +6,13 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,7 +67,7 @@ public class Habladores extends Fragment {
     private EditText txtCodigo;
     private BaseAdapter baseAdapter;
     InformeErrores informeErrores ;
-
+    Configuracion configuracion ;
 
     public Habladores() {
         // Required empty public constructor
@@ -84,6 +86,11 @@ public class Habladores extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_habladores, container, false);
+
+        configuracion = new Configuracion();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        configuracion.setHost(sp.getString("host",""));
+        configuracion.setPort(sp.getString("port","port"));
 
         ImageButton btnScan = view.findViewById(R.id.btnScan);
         ImageButton btnBuscarDescripcion = view.findViewById(R.id.btnBuscarDescripcion);
@@ -193,7 +200,7 @@ public class Habladores extends Fragment {
                         values.put("descripcion",txtArticulo.getText().toString());
                         values.put("api_key", Configuracion.API_KEY);
 
-                        StringRequest request = new StringRequest(Request.Method.GET, Configuracion.URL_APIBODEGA +
+                        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
                                 "/hablador/articulo/"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -347,7 +354,7 @@ public class Habladores extends Fragment {
                 values.put("codigo",codigo);
                 values.put("api_key", Configuracion.API_KEY);
 
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, Configuracion.URL_APIBODEGA + "/hablador/articulo/"+values.toString(),
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() + "/hablador/articulo/"+values.toString(),
                         null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject articulo) {
@@ -390,7 +397,7 @@ public class Habladores extends Fragment {
             if (lista.isEmpty())
                 Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
             else {
-                StringRequest request = new StringRequest(Request.Method.POST, Configuracion.URL_APIBODEGA + "/hablador/guardar", new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/hablador/guardar", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                             Toast.makeText(getActivity(),response, Toast.LENGTH_SHORT).show();
