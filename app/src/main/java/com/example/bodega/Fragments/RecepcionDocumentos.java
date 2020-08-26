@@ -65,8 +65,8 @@ public class RecepcionDocumentos extends Fragment {
 
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        configuracion.setHost(sp.getString("host_d",""));
-        configuracion.setPort(sp.getString("port_d",""));
+        configuracion.setHost_doc(sp.getString("host_d",""));
+        configuracion.setPort_doc(sp.getString("port_d",""));
 
         imgEstado = view.findViewById(R.id.imgEstado);
         txtConsecutivo = view.findViewById(R.id.txtConsecutivo);

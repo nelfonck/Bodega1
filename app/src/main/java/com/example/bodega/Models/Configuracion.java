@@ -6,7 +6,7 @@ public class Configuracion {
     private String host_doc ;
     private String port_doc ;
 
-    public static final String WEBAPI = "/apibodega/public" ;
+    public static final String WEBAPI = "apibodega/public" ;
     public static final String API_KEY = "$2y$10$ww4b.izY6lDO/.YgQGu4VeIeN5f8YlIgjNDXsZZmDsHBfJCdiyKXC";
 
     public Configuracion() {

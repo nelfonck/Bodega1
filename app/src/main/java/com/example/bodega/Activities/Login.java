@@ -46,7 +46,7 @@ public class Login extends AppCompatActivity {
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         configuracion.setHost(sp.getString("host",""));
-        configuracion.setPort(sp.getString("port","port"));
+        configuracion.setPort(sp.getString("port",""));
 
         final EditText txtUser = findViewById(R.id.txtUser);
         final EditText txtPass = findViewById(R.id.txtPass);
@@ -119,7 +119,7 @@ public class Login extends AppCompatActivity {
     private void validar(final String user, String pass) {
         RequestQueue queue = Volley.newRequestQueue(this);
         final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl()+
-                "/usuario/login/" + user + "/" + pass + "?api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
+                "/usuario/login/"+user+"/"+pass+"?api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (response.length() > 0) {
