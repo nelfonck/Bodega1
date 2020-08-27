@@ -236,18 +236,13 @@ public class Articulos extends Fragment {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
                     costo = (!txtCosto.getText().toString().equals("") ? Double.valueOf(txtCosto.getText().toString()) : 0);
                     txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
-                    return true;
+                    return true ;
                 }
+
                 return false;
             }
         });
-        txtCosto.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                costo = (!txtCosto.getText().toString().equals("") ? Double.valueOf(txtCosto.getText().toString()) : 0);
-                txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
-            }
-        });
+
 
         txtUtilidad.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -262,16 +257,6 @@ public class Articulos extends Fragment {
             }
         });
 
-        txtUtilidad.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    utilidad = (!txtUtilidad.getText().toString().equals("") ? Double.valueOf(txtUtilidad.getText().toString()) : 0);
-                    txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
-                    spImpuestos.requestFocus();
-                }
-            }
-        });
 
         txtVenta.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -285,15 +270,7 @@ public class Articulos extends Fragment {
             }
         });
 
-        txtVenta.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    venta = (!txtVenta.getText().toString().equals("") ? Double.valueOf(txtVenta.getText().toString()) : 0);
-                    txtUtilidad.setText(formatter.format(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
-                }
-            }
-        });
+
 
         spImpuestos.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -928,7 +905,7 @@ public class Articulos extends Fragment {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
                     costo = !txtCosto.getText().toString().equals("") ? Float.valueOf(txtCosto.getText().toString()) : 0;
                     txtVenta.setText(String.valueOf(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
-                    //txtUtilidad.requestFocus();
+                    txtUtilidad.requestFocus();
                     return true;
                 }
                 return false;
