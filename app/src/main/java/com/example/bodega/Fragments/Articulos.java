@@ -234,7 +234,7 @@ public class Articulos extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
-                    costo = (!txtCosto.getText().toString().equals("") ? Double.valueOf(txtCosto.getText().toString()) : 0);
+                    costo = (!txtCosto.getText().toString().equals("") ? Double.parseDouble(txtCosto.getText().toString()) : 0);
                     txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
                     return true ;
                 }
@@ -248,7 +248,7 @@ public class Articulos extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
-                    utilidad = (!txtUtilidad.getText().toString().equals("") ? Double.valueOf(txtUtilidad.getText().toString()) : 0);
+                    utilidad = (!txtUtilidad.getText().toString().equals("") ? Double.parseDouble(txtUtilidad.getText().toString()) : 0);
                     txtVenta.setText(formatter.format(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
                     spImpuestos.requestFocus();
                     return true;
@@ -262,8 +262,9 @@ public class Articulos extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
-                    venta = (!txtVenta.getText().toString().equals("") ? Double.valueOf(txtVenta.getText().toString()) : 0);
-                    txtUtilidad.setText(formatter.format(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
+                    venta = (!txtVenta.getText().toString().equals("") ? Double.parseDouble(txtVenta.getText().toString()) : 0);
+                    utilidad = setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo) ;
+                    txtUtilidad.setText(formatter.format(utilidad));
                     return true;
                 }
                 return false;

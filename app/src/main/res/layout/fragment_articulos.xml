@@ -86,7 +86,6 @@
                         android:id="@+id/txtCosto"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
                         android:singleLine="true" />
                 </LinearLayout>
 
@@ -107,7 +106,6 @@
                         android:id="@+id/txtUtilidad"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
                         android:singleLine="true" />
                 </LinearLayout>
             </LinearLayout>
@@ -165,7 +163,6 @@
                         android:id="@+id/txtVenta"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
                         android:singleLine="true" />
                 </LinearLayout>
             </LinearLayout>
