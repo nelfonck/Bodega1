@@ -44,7 +44,6 @@ import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
-import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModDetalleNota;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.R;
@@ -76,7 +75,6 @@ public class DetalleNotaCredito extends AppCompatActivity {
     private DecimalFormat formatter ;
     private EditText txtCodigo ;
     private EditText txtCantidad ;
-    private InformeErrores informeErrores ;
     private Configuracion configuracion ;
 
 
@@ -88,9 +86,8 @@ public class DetalleNotaCredito extends AppCompatActivity {
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         configuracion.setHost(sp.getString("host",""));
-        configuracion.setPort(sp.getString("port","port"));
+        configuracion.setPort(sp.getString("port",""));
 
-        informeErrores = new InformeErrores(this);
         total = 0 ;
 
         dbHelper = new BaseAdapter(this);
@@ -461,7 +458,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                informeErrores.enviar("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                                msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                             }
                         });
 

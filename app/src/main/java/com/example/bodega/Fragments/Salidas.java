@@ -42,7 +42,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
-import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModSalidas;
 import com.example.bodega.R;
@@ -81,7 +80,6 @@ public class Salidas extends Fragment {
     private RadioButton rbDia ;
     private RadioButton rbSemana ;
     private RadioButton rbMes ;
-    private InformeErrores informeErrores ;
 
     public Salidas() {
         // Required empty public constructor
@@ -101,7 +99,6 @@ public class Salidas extends Fragment {
 
         chartSalidas = view.findViewById(R.id.chartSalidas);
 
-        informeErrores = new InformeErrores(getActivity());
 
         txtfi = view.findViewById(R.id.txtfi);
         txtff = view.findViewById(R.id.txtff);
@@ -271,9 +268,7 @@ public class Salidas extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
-                            error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                    informeErrores.enviar("Error",msj);
+                  msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
             stringRequest.setRetryPolicy(new DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));

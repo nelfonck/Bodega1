@@ -42,7 +42,6 @@ import com.example.bodega.Adapters.AdapterDetalleProforma;
 import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
-import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModDetalleProforma;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.R;
@@ -77,7 +76,6 @@ public class DetalleProforma extends AppCompatActivity {
     private double total = 0;
     private List<ModDetalleProforma> detalles;
     private AdapterDetalleProforma adapterDetalleProforma;
-    private InformeErrores informeErrores ;
     private boolean scanned_from_scan ;
     private Configuracion configuracion ;
 
@@ -92,8 +90,6 @@ public class DetalleProforma extends AppCompatActivity {
         configuracion.setPort(sp.getString("port",""));
 
         baseAdapter = new BaseAdapter(this);
-
-        informeErrores = new InformeErrores(this);
 
         if (getSupportActionBar()!=null)
         getSupportActionBar().setTitle("DETALLES PROFORMA");
@@ -406,7 +402,7 @@ public class DetalleProforma extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
 
@@ -604,7 +600,7 @@ public class DetalleProforma extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             }) {
                 @Override
@@ -736,7 +732,7 @@ public class DetalleProforma extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                informeErrores.enviar("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                               msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                             }
                         });
 

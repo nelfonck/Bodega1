@@ -1,6 +1,7 @@
 package com.example.bodega.Fragments;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -10,7 +11,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -37,22 +37,18 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
-import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFamilia;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModImpuesto;
@@ -69,17 +65,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
 public class Articulos extends Fragment {
@@ -113,8 +105,8 @@ public class Articulos extends Fragment {
     private String user;
     private ProgressDialog progress;
     private boolean block;
-    private String cod_proveedor, razsocial ;
-    private InformeErrores informeErrores ;
+    private String razsocial ;
+
     Configuracion configuracion ;
 
     public Articulos() {
@@ -137,7 +129,6 @@ public class Articulos extends Fragment {
         final DecimalFormat formatter = new DecimalFormat("#");
         formatter.setMaximumFractionDigits(2);
 
-        informeErrores = new InformeErrores(getActivity());
 
         user = getArguments().getString("user");
 
@@ -274,6 +265,7 @@ public class Articulos extends Fragment {
 
 
         spImpuestos.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 block = false;
@@ -295,7 +287,7 @@ public class Articulos extends Fragment {
             }
         });
 
-        txtCodigo.requestFocus();
+        //txtCodigo.requestFocus();
 
         return view;
     }
@@ -367,7 +359,7 @@ public class Articulos extends Fragment {
                          }, new Response.ErrorListener() {
                              @Override
                              public void onErrorResponse(VolleyError error) {
-                                 informeErrores.enviar("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                                 msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                              }
                          });
 
@@ -414,7 +406,7 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
 
@@ -446,7 +438,7 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
 
@@ -476,7 +468,7 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
 
@@ -505,7 +497,7 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
 
@@ -557,7 +549,7 @@ public class Articulos extends Fragment {
             db.insert(BaseAdapter.HABLADORES.TABLE_NAME, null, v);
             db.close();
         } catch (SQLiteException e) {
-            informeErrores.enviar("Error",e.getMessage());
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -643,7 +635,7 @@ public class Articulos extends Fragment {
 
                          if (!articulo.isNull("ultimo_proveedor"))
                          {
-                             cod_proveedor = articulo.getJSONObject("ultimo_proveedor").getString("cod_proveedor");
+
                              razsocial = articulo.getJSONObject("ultimo_proveedor").getString("razsocial");
                              tvProveedor.setText(razsocial);
                          }
@@ -685,9 +677,7 @@ public class Articulos extends Fragment {
              public void onErrorResponse(VolleyError error) {
 
                  if (progress.isShowing()) progress.dismiss();
-                 String msj = (error.getMessage() != null && !error.getMessage().isEmpty()) ? error.getMessage()
-                         : new String(error.networkResponse.data,StandardCharsets.UTF_8) ;
-                 informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),msj);
+                 msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
              }
          });
         RequestQueue queue = Volley.newRequestQueue(getActivity());
@@ -798,7 +788,7 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                   informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                   msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                 }
             });
 
@@ -827,6 +817,8 @@ public class Articulos extends Fragment {
         final EditText txtFactorMedida = view.findViewById(R.id.txtFactorMedida);
         final CheckBox articulo_granel = view.findViewById(R.id.check_granel);
         final CheckBox articulo_romana = view.findViewById(R.id.check_romana);
+        final DecimalFormat formatter = new DecimalFormat("#");
+        formatter.setMaximumFractionDigits(2);
 
         txtFactorMedida.setText("1");
 
@@ -863,12 +855,12 @@ public class Articulos extends Fragment {
                                     }}, new Response.ErrorListener() {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
-                                        informeErrores.enviar("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                                     }
                                 }){
                                     @Override
                                     protected Map<String, String> getParams() {
-                                        SimpleDateFormat df = new SimpleDateFormat("Y-m-d");
+
                                         Map<String, String> params = new HashMap<>();
                                         params.put("cod_articulo",codigo) ;
                                         params.put("cod_familia",familias.get(spFamilias.getSelectedItemPosition()).getCod()) ;
@@ -904,9 +896,8 @@ public class Articulos extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
-                    costo = !txtCosto.getText().toString().equals("") ? Float.valueOf(txtCosto.getText().toString()) : 0;
+                    costo = !txtCosto.getText().toString().equals("") ? Float.parseFloat(txtCosto.getText().toString()) : 0;
                     txtVenta.setText(String.valueOf(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
-                    txtUtilidad.requestFocus();
                     return true;
                 }
                 return false;
@@ -917,7 +908,7 @@ public class Articulos extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
-                    utilidad = !txtUtilidad.getText().toString().equals("") ? Float.valueOf(txtUtilidad.getText().toString()) : 0;
+                    utilidad = !txtUtilidad.getText().toString().equals("") ? Float.parseFloat(txtUtilidad.getText().toString()) : 0;
                     txtVenta.setText(String.valueOf(setVenta(costo, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), utilidad)));
                     spImpuestos.requestFocus();
                     return true;
@@ -930,8 +921,9 @@ public class Articulos extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP) {
-                    venta = !txtVenta.getText().toString().equals("") ? Float.valueOf(txtVenta.getText().toString()) : 0;
-                    txtUtilidad.setText(String.valueOf(setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo)));
+                    venta = !txtVenta.getText().toString().equals("") ? Float.parseFloat(txtVenta.getText().toString()) : 0;
+                    utilidad = setUtilidad(venta, impuestos.get(spImpuestos.getSelectedItemPosition()).getImpuesto(), costo) ;
+                    txtUtilidad.setText(formatter.format(utilidad));
                     return true;
                 }
                 return false;
@@ -941,7 +933,7 @@ public class Articulos extends Fragment {
         spImpuestos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                utilidad = !txtUtilidad.getText().toString().equals("") ? Float.valueOf(txtUtilidad.getText().toString()) : 0;
+                utilidad = !txtUtilidad.getText().toString().equals("") ? Float.parseFloat(txtUtilidad.getText().toString()) : 0;
                 txtVenta.setText(String.valueOf(setVenta(costo, impuestos.get(position).getImpuesto(), utilidad)));
             }
 
@@ -952,6 +944,21 @@ public class Articulos extends Fragment {
         });
         dialog.show();
 
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void msj(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title).setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 

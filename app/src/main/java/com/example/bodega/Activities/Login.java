@@ -26,9 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 import com.example.bodega.Models.Configuracion;
-import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.R;
 
 import org.json.JSONObject;
@@ -37,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Login extends AppCompatActivity {
     private Configuracion configuracion;
-    private InformeErrores informeErrores;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,9 +50,6 @@ public class Login extends AppCompatActivity {
         final EditText txtPass = findViewById(R.id.txtPass);
         Button btnEntrar = findViewById(R.id.btnEntrar);
         Button btnCancelar = findViewById(R.id.btnCancelar);
-
-
-        informeErrores = new InformeErrores(Login.this);
 
         txtUser.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -136,7 +131,7 @@ public class Login extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
                         error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                informeErrores.enviar("Error",msj);
+                        msj("Error",msj);
             }
         });
         queue.add(objectRequest);

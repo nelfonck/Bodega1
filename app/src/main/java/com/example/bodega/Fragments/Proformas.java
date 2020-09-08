@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -37,7 +38,6 @@ import com.example.bodega.Adapters.ProformasAdapter;
 import com.example.bodega.Activities.DetalleProforma;
 import com.example.bodega.Models.Clientes;
 import com.example.bodega.Models.Configuracion;
-import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModProforma;
 import com.example.bodega.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -45,9 +45,6 @@ import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,7 +61,7 @@ public class Proformas extends Fragment {
     private AdapterClientes adapterClientes;
     private BaseAdapter baseAdapter ;
     private Configuracion configuracion ;
-    private InformeErrores informeErrores ;
+
 
     public Proformas() {
         // Required empty public constructor
@@ -91,8 +88,6 @@ public class Proformas extends Fragment {
 
         adapter = new ProformasAdapter(proformaList) ;
 
-        informeErrores = new InformeErrores(getActivity());
-
         rvProformas.setHasFixedSize(true);
         rvProformas.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -101,11 +96,7 @@ public class Proformas extends Fragment {
         fabNueva.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
                     nuevaProforma(baseAdapter);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
             }
         });
 
@@ -163,7 +154,7 @@ public class Proformas extends Fragment {
     }
 
 
-    private void nuevaProforma(final BaseAdapter baseAdapter) throws UnsupportedEncodingException {
+    private void nuevaProforma(final BaseAdapter baseAdapter){
         AlertDialog.Builder builder =  new AlertDialog.Builder(getActivity());
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_nueva_proforma,null);
         builder.setView(v);
@@ -188,11 +179,9 @@ public class Proformas extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER){
                     if (event.getAction() == KeyEvent.ACTION_DOWN){
-                        try {
+
                             filtrarCliente(txtFiltroCliente.getText().toString());
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+
                         return true ;
                     }
                 }
@@ -227,7 +216,7 @@ public class Proformas extends Fragment {
         btnClienteOcacional.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!txtClienteOcacional.getText().equals("")){
+                if (!txtClienteOcacional.getText().toString().equals("")){
                     String cod_cliente = "";
                     String cliente = txtClienteOcacional.getText().toString();
 
@@ -293,6 +282,7 @@ public class Proformas extends Fragment {
             if (c.moveToFirst()){
                 return c.getInt(0);
             }else {
+
                 return -1;
             }
 
@@ -302,7 +292,7 @@ public class Proformas extends Fragment {
         return -1 ;
     }
 
-    private void filtrarCliente(final String cliente) throws UnsupportedEncodingException {
+    private void filtrarCliente(final String cliente) {
         final Gson gson = new Gson();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         final StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl()+
@@ -319,11 +309,14 @@ public class Proformas extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
-                        error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                informeErrores.enviar("Error",msj);
+        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
             }
         });
+        //Un minuto de timeout porque puede devolver varios registros y puede demorar
+        request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         queue.add(request);
     }
 

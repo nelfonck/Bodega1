@@ -42,7 +42,6 @@ import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Adapters.HabladoresAdapter;
 import com.example.bodega.Models.Configuracion;
-import com.example.bodega.Models.InformeErrores;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModHablador;
 import com.example.bodega.R;
@@ -66,7 +65,6 @@ public class Habladores extends Fragment {
     private HabladoresAdapter adapter;
     private EditText txtCodigo;
     private BaseAdapter baseAdapter;
-    InformeErrores informeErrores ;
     Configuracion configuracion ;
 
     public Habladores() {
@@ -90,7 +88,7 @@ public class Habladores extends Fragment {
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         configuracion.setHost(sp.getString("host",""));
-        configuracion.setPort(sp.getString("port","port"));
+        configuracion.setPort(sp.getString("port",""));
 
         ImageButton btnScan = view.findViewById(R.id.btnScan);
         ImageButton btnBuscarDescripcion = view.findViewById(R.id.btnBuscarDescripcion);
@@ -98,9 +96,6 @@ public class Habladores extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         txtCodigo = view.findViewById(R.id.txtCodigo);
         lista = new ArrayList<>();
-
-        informeErrores = new InformeErrores(getActivity());
-
 
         user = getArguments().getString("user");
 
@@ -215,7 +210,7 @@ public class Habladores extends Fragment {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                             }
                         });
 
@@ -342,7 +337,7 @@ public class Habladores extends Fragment {
             db.close();
 
         } catch (Exception e) {
-            informeErrores.enviar("Ha ocurrido un error",e.getMessage());
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -371,7 +366,7 @@ public class Habladores extends Fragment {
                                  Toast.makeText(getActivity(), "El artículo no éxiste : "+ codigo, Toast.LENGTH_SHORT).show();
                              }
                         } catch (JSONException e) {
-                            informeErrores.enviar("Error",e.getMessage());
+                            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -380,7 +375,7 @@ public class Habladores extends Fragment {
                         if (error.networkResponse.statusCode == 409)
                             Toast.makeText(getActivity(),new String(error.networkResponse.data, StandardCharsets.UTF_8),Toast.LENGTH_SHORT).show();
                         else
-                            informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                     }
                 });
 
@@ -409,9 +404,7 @@ public class Habladores extends Fragment {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(final VolleyError error) {
-
-                        informeErrores.enviar(String.valueOf(error.networkResponse.statusCode),new String(error.networkResponse.data,StandardCharsets.UTF_8));
-
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
                     }
                 }) {
                     @Override
@@ -460,7 +453,7 @@ public class Habladores extends Fragment {
             db.insert(BaseAdapter.HABLADORES.TABLE_NAME, null, v);
             db.close();
         } catch (SQLiteException e) {
-            informeErrores.enviar("Ha ocurrido un error",e.getMessage());
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -470,8 +463,24 @@ public class Habladores extends Fragment {
             db.execSQL("DELETE FROM " + BaseAdapter.HABLADORES.TABLE_NAME + " WHERE " + BaseAdapter.HABLADORES.CODIGO + "=" + codigo);
             db.close();
         } catch (SQLiteException e) {
-            informeErrores.enviar("Ha ocurrido un error",e.getMessage());
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
+    private void msj(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title).setMessage(message).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 }
+
+

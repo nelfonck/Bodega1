@@ -29,6 +29,11 @@
             android:id="@+id/notas_credito"
             android:icon="@drawable/notas"
             android:title="@string/n_tas_de_cr_dito" />
+
+        <item
+            android:id="@+id/orden_compra"
+            android:icon="@drawable/orden_compra"
+            android:title="@string/orden_de_compra" />
     </group>
 
     <item android:title="Preferencias">

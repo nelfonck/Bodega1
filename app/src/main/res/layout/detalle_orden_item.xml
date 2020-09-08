@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="1dp">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/tvCodigo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Code" />
+
+    <TextView
+        android:id="@+id/tvDescripcion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvCodigo"
+        android:text="Descripcion" />
+
+    <TextView
+        android:id="@+id/tvCosto"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvDescripcion"
+        android:text="Costo"/>
+
+    <TextView
+        android:id="@+id/tvPorcImpuesto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Porcentaje impuesto"
+        android:layout_toEndOf="@id/tvCosto"
+        android:layout_below="@id/tvDescripcion"
+        android:layout_marginLeft="50dp"/>
+
+    <TextView
+        android:id="@+id/tvCantidad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvDescripcion"
+        android:layout_alignParentEnd="true"
+        android:text="Cantidad" />
+
+
+<TextView
+    android:id="@+id/tvTotalImpuesto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="150dp"
+    android:layout_below="@id/tvCosto"
+    android:text="total impuesto"/>
+
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvCosto"
+        android:layout_alignParentEnd="true"
+        android:text="Total"/>
+
+</RelativeLayout>
+
+</androidx.cardview.widget.CardView>

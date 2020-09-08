@@ -34,7 +34,7 @@ public class AdapterNotaCredito extends RecyclerView.Adapter<AdapterNotaCredito.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.nota_credito_item,null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.nota_credito_item,parent,false);
         return new ViewHolder(view,onClickListener,onLongClickListener);
     }
 

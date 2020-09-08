@@ -36,6 +36,7 @@ import com.example.bodega.Adapters.InputStreamVolleyRequest;
 import com.example.bodega.Fragments.Articulos;
 import com.example.bodega.Fragments.Habladores;
 import com.example.bodega.Fragments.NotasCredito;
+import com.example.bodega.Fragments.OrdenCompra;
 import com.example.bodega.Fragments.Preferencias;
 import com.example.bodega.Fragments.Proformas;
 import com.example.bodega.Fragments.RecepcionDocumentos;
@@ -154,14 +155,24 @@ public class Home extends AppCompatActivity {
                     case R.id.notas_credito:
                         fr = new NotasCredito();
                         fragmentTransaction = true ;
-                        Bundle b = new Bundle();
-                        b.putString("user",user);
-                        fr.setArguments(b);
+                        Bundle bnc = new Bundle();
+                        bnc.putString("user",user);
+                        fr.setArguments(bnc);
                         titulo = "Nótas de crédito";
+                        break;
+
+                    case R.id.orden_compra :
+                        fr = new OrdenCompra();
+                        fragmentTransaction = true ;
+                        Bundle boc = new Bundle();
+                        boc.putString("user",user);
+                        fr.setArguments(boc);
+                        titulo = "Orden de compra";
                         break;
                     case R.id.salir :
                         finish();
                         break;
+
                 }
 
                 if (fragmentTransaction){
