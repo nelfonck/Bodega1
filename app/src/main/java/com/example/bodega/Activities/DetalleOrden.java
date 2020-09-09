@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.media.Image;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -32,6 +34,8 @@ import com.example.bodega.R;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -44,6 +48,8 @@ public class DetalleOrden extends AppCompatActivity {
     private List<ModDetalleOrden> detalle ;
     private AdapterDetalleOrden adapter ;
     private Configuracion configuracion ;
+    private  JSONObject objArticulo  = null;
+    private TextView tvDescripcion ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +58,9 @@ public class DetalleOrden extends AppCompatActivity {
         TextView tvCodProveedor = findViewById(R.id.tvCodProveedor);
         TextView tvRazonSocial = findViewById(R.id.tvRazonSocial);
         TextView tvRazonComercial = findViewById(R.id.tvRazonComercial);
-        EditText txtCodigo = findViewById(R.id.txtCodigo);
+        final EditText txtCodigo = findViewById(R.id.txtCodigo);
         EditText txtCant = findViewById(R.id.txtCantidad);
+        tvDescripcion = findViewById(R.id.tvDescripcion);
         ImageButton btnBuscarDescripcion = findViewById(R.id.btnBuscarDescripcion);
         ImageButton btnScan = findViewById(R.id.btnScan);
         ImageButton btnAdd = findViewById(R.id.btnAdd);
@@ -64,7 +71,7 @@ public class DetalleOrden extends AppCompatActivity {
         configuracion.setHost(sp.getString("host",""));
         configuracion.setPort(sp.getString("port",""));
 
-        Bundle extras = getIntent().getExtras();
+        final Bundle extras = getIntent().getExtras();
         if (extras != null) {
             user = extras.getString("user","");
             id = extras.getInt("id");
@@ -83,6 +90,52 @@ public class DetalleOrden extends AppCompatActivity {
 
         cargarDetalle();
 
+        txtCodigo.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                    if (event.getAction() == KeyEvent.ACTION_DOWN){
+                        assert extras != null;
+                        obtArticulo(txtCodigo.getText().toString(),extras.getString("cod_proveedor"));
+                    }
+                return false;
+            }
+        });
+
+    }
+
+    private void obtArticulo(String codigo, String cod_proveedor){
+        ContentValues values = new ContentValues();
+        values.put("api_key",Configuracion.API_KEY);
+
+        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                "/pedido/articulo/" + codigo + "/" + cod_proveedor + values.toString(), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    if (jsonObject.length() > 0){
+                        objArticulo = jsonObject ;
+                        tvDescripcion.setText(objArticulo.getString("descripcion"));
+                    }else{
+                        Toast.makeText(DetalleOrden.this, "Artículo no encontrado", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    msj("Error", e.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                msj("Error", new String(error.networkResponse.data,StandardCharsets.UTF_8));
+            }
+        });
+        request.setRetryPolicy(
+                new DefaultRetryPolicy(50000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
     }
 
     private void cargarDetalle(){

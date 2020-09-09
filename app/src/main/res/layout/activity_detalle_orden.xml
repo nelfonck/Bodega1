@@ -128,9 +128,16 @@
             android:background="@color/colorPrimary">
 
             <TextView
+                android:id="@+id/tvDescripcion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descripcion"
+                android:textColor="#fff"/>
+            <TextView
                 android:id="@+id/tvFechaUltimaCompra"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/tvDescripcion"
                 android:text="Fecha ultima compra"
                 android:textColor="#fff"/>
 
@@ -154,7 +161,7 @@
                 android:id="@+id/tvTotalOrden"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tvSalidas"
+                android:layout_below="@id/tvFechaUltimaCompra"
                 android:layout_alignParentEnd="true"
                 android:textColor="#fff"
                 android:textStyle="bold"
