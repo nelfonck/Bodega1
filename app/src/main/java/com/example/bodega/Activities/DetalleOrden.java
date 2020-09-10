@@ -50,6 +50,8 @@ public class DetalleOrden extends AppCompatActivity {
     private Configuracion configuracion ;
     private  JSONObject objArticulo  = null;
     private TextView tvDescripcion ;
+    private TextView tvFechaUltimaCompra ;
+    private TextView tvPedido , tvSalidas ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +60,9 @@ public class DetalleOrden extends AppCompatActivity {
         TextView tvCodProveedor = findViewById(R.id.tvCodProveedor);
         TextView tvRazonSocial = findViewById(R.id.tvRazonSocial);
         TextView tvRazonComercial = findViewById(R.id.tvRazonComercial);
+        tvFechaUltimaCompra = findViewById(R.id.tvFechaUltimaCompra);
+        tvPedido = findViewById(R.id.tvPedido);
+        tvSalidas = findViewById(R.id.tvSalidas);
         final EditText txtCodigo = findViewById(R.id.txtCodigo);
         EditText txtCant = findViewById(R.id.txtCantidad);
         tvDescripcion = findViewById(R.id.tvDescripcion);
@@ -97,6 +102,7 @@ public class DetalleOrden extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN){
                         assert extras != null;
                         obtArticulo(txtCodigo.getText().toString(),extras.getString("cod_proveedor"));
+
                     }
                 return false;
             }
@@ -117,7 +123,15 @@ public class DetalleOrden extends AppCompatActivity {
                     if (jsonObject.length() > 0){
                         objArticulo = jsonObject ;
                         tvDescripcion.setText(objArticulo.getString("descripcion"));
+                        tvFechaUltimaCompra.setText(("Pedido por última vez: " + objArticulo.getJSONObject("movimiento").getString("fecha_ultimo_pedido")));
+                        tvPedido.setText(("Se pidieron: " + objArticulo.getJSONObject("movimiento").getString("pedido")));
+                        tvSalidas.setText(("Salidas: " + objArticulo.getJSONObject("movimiento").getString("vendido")));
                     }else{
+                        tvDescripcion.setText("");
+                        tvFechaUltimaCompra.setText("");
+                        tvPedido.setText("");
+                        tvSalidas.setText("");
+                        objArticulo = null ;
                         Toast.makeText(DetalleOrden.this, "Artículo no encontrado", Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {

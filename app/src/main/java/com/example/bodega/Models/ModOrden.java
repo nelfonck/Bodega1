@@ -7,14 +7,16 @@ public class ModOrden {
     private String razon_comercial ;
     private String fecha_creacion ;
     private String estado ;
+    private float total ;
 
-    public ModOrden(int id, String cod_proveedor, String razon_social, String razon_comercial, String fecha_creacion, String estado) {
+    public ModOrden(int id, String cod_proveedor, String razon_social, String razon_comercial, String fecha_creacion, String estado, float total) {
         this.id = id ;
         this.cod_proveedor = cod_proveedor;
         this.razon_social = razon_social;
         this.razon_comercial = razon_comercial;
         this.fecha_creacion = fecha_creacion;
         this.estado = estado;
+        this.total = total ;
     }
 
     public String getCod_proveedor() {
@@ -63,5 +65,13 @@ public class ModOrden {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setTotal(float total) {
+        this.total = total;
+    }
+
+    public float getTotal() {
+        return total;
     }
 }
