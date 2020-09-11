@@ -112,32 +112,35 @@ public class Login extends AppCompatActivity {
 
 
     private void validar(final String user, String pass) {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl()+
-                "/usuario/login/"+user+"/"+pass+"?api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                if (response.length() > 0) {
-                    Intent home = new Intent(Login.this, Home.class);
-                    home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    home.putExtra("user", user);
-                    startActivity(home);
-                } else {
-                    Toast.makeText(Login.this, "Usuario o clave incorrecta", Toast.LENGTH_SHORT).show();
+        if (user.equals("") || pass.equals("")){
+            Toast.makeText(this, "El usuario y la contraseña no pueden estar vacíos..", Toast.LENGTH_SHORT).show();
+        }else{
+            RequestQueue queue = Volley.newRequestQueue(this);
+            final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl()+
+                    "/usuario/login/"+user+"/"+pass+"?api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    if (response.length() > 0) {
+                        Intent home = new Intent(Login.this, Home.class);
+                        home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        home.putExtra("user", user);
+                        startActivity(home);
+                    } else {
+                        Toast.makeText(Login.this, "Usuario o clave incorrecta", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
-                        error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                        msj("Error",msj);
-            }
-        });
-        queue.add(objectRequest);
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
+                            error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    msj("Error",msj);
+                }
+            });
+            queue.add(objectRequest);
+        }
+
     }
-
-
 
     @SuppressWarnings("SameParameterValue")
     private void msj(String title, String message) {

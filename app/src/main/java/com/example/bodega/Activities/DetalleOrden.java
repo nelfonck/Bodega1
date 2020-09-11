@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,6 +33,7 @@ import com.example.bodega.Models.ContentValues;
 import com.example.bodega.Models.ModDetalleOrden;
 import com.example.bodega.R;
 import com.google.gson.Gson;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +42,9 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DetalleOrden extends AppCompatActivity {
     private static String user ;
@@ -52,6 +56,9 @@ public class DetalleOrden extends AppCompatActivity {
     private TextView tvDescripcion ;
     private TextView tvFechaUltimaCompra ;
     private TextView tvPedido , tvSalidas ;
+    private String descripcion = "" ;
+    private double costo=0, impuesto=0, total_impuesto=0, total=0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +71,7 @@ public class DetalleOrden extends AppCompatActivity {
         tvPedido = findViewById(R.id.tvPedido);
         tvSalidas = findViewById(R.id.tvSalidas);
         final EditText txtCodigo = findViewById(R.id.txtCodigo);
-        EditText txtCant = findViewById(R.id.txtCantidad);
+        final EditText txtCant = findViewById(R.id.txtCantidad);
         tvDescripcion = findViewById(R.id.tvDescripcion);
         ImageButton btnBuscarDescripcion = findViewById(R.id.btnBuscarDescripcion);
         ImageButton btnScan = findViewById(R.id.btnScan);
@@ -102,13 +109,142 @@ public class DetalleOrden extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN){
                         assert extras != null;
                         obtArticulo(txtCodigo.getText().toString(),extras.getString("cod_proveedor"));
-
+                        txtCant.requestFocus();
                     }
                 return false;
             }
         });
 
+        txtCant.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                    if (event.getAction() == KeyEvent.ACTION_DOWN){
+                        if (validarTextos(txtCodigo,txtCant)){
+                            if (objArticulo!=null){
+                                insertarLinea(txtCodigo.getText().toString(), Float.parseFloat(txtCant.getText().toString()));
+                            }else{
+                                Toast.makeText(DetalleOrden.this, "Debe filtrar el artículo", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                return false;
+            }
+        });
     }
+
+    private void insertarLinea(final String codigo, final double cant){
+        boolean existe = false ;
+        int pos = -1 ;
+      for (int i=0; i <= detalle.size()-1; i++)
+      {
+            if (detalle.get(i).getCodigo().equals(codigo)){
+                existe = true;
+                pos = i ;
+                break;
+            }
+      }
+      if (!existe){
+          try {
+              descripcion = objArticulo.getString("descripcion") ;
+              costo = objArticulo.getDouble("costo");
+              impuesto = objArticulo.getJSONObject("impuesto").getDouble("porcentaje");
+              total_impuesto = (objArticulo.getDouble("costo") * impuesto) / 100 ;
+              total = objArticulo.getDouble("costo") * cant ;
+          } catch (JSONException e) {
+              msj("Error",e.getMessage());
+          }
+          //insertar nueva linea
+          StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() +
+                  "/pedido/insertar_linea_detalle", new Response.Listener<String>() {
+              @Override
+              public void onResponse(String response) {
+                 try {
+
+                      JSONObject objResonse = new JSONObject(response);
+                      detalle.add(new ModDetalleOrden(
+                                    id,objResonse.getInt("id"),
+                              detalle.size()+1,
+                                    codigo,
+                                    descripcion,
+                                    cant,
+                                    costo,
+                                    impuesto,
+                                    total_impuesto,
+                                    total
+                              ));
+                      adapter.notifyDataSetChanged();
+                  } catch (JSONException e) {
+                      msj("Error",e.getMessage());
+                  }
+              }
+          }, new Response.ErrorListener() {
+              @Override
+              public void onErrorResponse(VolleyError error) {
+                  msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8) );
+              }
+          }){
+              @Override
+              protected Map<String, String> getParams() throws AuthFailureError {
+                  Map<String,String> params = new HashMap<>();
+                  params.put("api_key",Configuracion.API_KEY);
+                  params.put("id_pedido",String.valueOf(id));
+                  params.put("linea", String.valueOf((detalle.size()+1)));
+                  params.put("codigo",codigo);
+                  params.put("cantidad", String.valueOf(cant));
+                  params.put("descripcion", descripcion);
+                  params.put("costo", String.valueOf(costo));
+                  params.put("impuesto", String.valueOf(impuesto));
+                  params.put("total_impuesto",String.valueOf(total_impuesto));
+                  params.put("total", String.valueOf(total));
+
+                  return params ;
+              }
+          };
+          request.setRetryPolicy(
+                  new DefaultRetryPolicy(50000,
+                          DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                          DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+          RequestQueue queue = Volley.newRequestQueue(this);
+          queue.add(request);
+      }else{
+          //cambiar cantidad linea
+          ContentValues values = new ContentValues() ;
+          values.put("api_key",Configuracion.API_KEY);
+          StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() +
+                  "/pedido/actualizar_cantidad/" + id + "/" + codigo + "/"  + (cant + detalle.get(pos).getCantidad()) +values.toString(), new Response.Listener<String>() {
+              @Override
+              public void onResponse(String response) {
+                  try {
+                      JSONObject objResponse = new JSONObject(response);
+                      for (int i = 0; i<= detalle.size()-1;i++){
+                          if (detalle.get(i).getCodigo().equals(codigo)){
+                              detalle.get(i).setCantidad(objResponse.getDouble("cantidad"));
+                              detalle.get(i).setTotal_impuesto(objResponse.getDouble("total_impuesto"));
+                              detalle.get(i).setTotal(objResponse.getDouble("total"));
+                              adapter.notifyDataSetChanged();
+                          }
+                      }
+                  } catch (JSONException e) {
+                      msj("Error",e.getMessage());
+                  }
+              }
+          }, new Response.ErrorListener() {
+              @Override
+              public void onErrorResponse(VolleyError error) {
+                  msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8) );
+              }
+          });
+          request.setRetryPolicy(
+                  new DefaultRetryPolicy(50000,
+                          DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                          DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+          RequestQueue queue = Volley.newRequestQueue(this);
+          queue.add(request);
+      }
+    }
+
+
 
     private void obtArticulo(String codigo, String cod_proveedor){
         ContentValues values = new ContentValues();

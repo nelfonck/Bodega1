@@ -6,13 +6,13 @@ public class ModDetalleOrden {
     private int linea ;
     private String codigo ;
     private String descripcion ;
-    private int cantidad ;
-    private float costo ;
-    private float porc_impuesto ;
-    private float total_impuesto;
-    private float total ;
+    private double cantidad ;
+    private double costo ;
+    private double impuesto ;
+    private double total_impuesto;
+    private double total ;
 
-    public ModDetalleOrden(int id, int id_pedido, int linea, String codigo, String descripcion, int cantidad, float costo, float porc_impuesto, float total_impuesto, float total) {
+    public ModDetalleOrden(int id, int id_pedido, int linea, String codigo, String descripcion, double cantidad, double costo, double impuesto, double total_impuesto, double total) {
         this.id = id;
         this.id_pedido = id_pedido;
         this.linea = linea;
@@ -20,16 +20,16 @@ public class ModDetalleOrden {
         this.descripcion = descripcion;
         this.cantidad = cantidad;
         this.costo = costo ;
-        this.porc_impuesto = porc_impuesto ;
+        this.impuesto = impuesto ;
         this.total_impuesto = total_impuesto ;
         this.total  = total ;
     }
 
-    public int getCantidad() {
+    public double getCantidad() {
         return cantidad;
     }
 
-    public void setCantidad(int cantidad) {
+    public void setCantidad(double cantidad) {
         this.cantidad = cantidad;
     }
 
@@ -41,19 +41,27 @@ public class ModDetalleOrden {
         return codigo;
     }
 
-    public float getCosto() {
+    public double getCosto() {
         return costo;
     }
 
-    public float getPorc_impuesto() {
-        return porc_impuesto;
+    public double getPorc_impuesto() {
+        return impuesto;
     }
 
-    public float getTotal_impuesto() {
+    public double getTotal_impuesto() {
         return total_impuesto;
     }
 
-    public float getTotal() {
+    public double getTotal() {
         return total;
+    }
+
+    public void setTotal_impuesto(double total_impuesto) {
+        this.total_impuesto = total_impuesto;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
     }
 }
