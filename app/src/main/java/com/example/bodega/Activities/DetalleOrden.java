@@ -131,6 +131,35 @@ public class DetalleOrden extends AppCompatActivity {
                 return false;
             }
         });
+
+        adapter.SetOnEliminarLinea(new AdapterDetalleOrden.OnEliminarLinea() {
+            @Override
+            public void eliminarLinea(final int pos) {
+                if (confirmMsj("Advertencia", "Seguro(a) de eliminar esta linea?")){
+                    ContentValues values = new ContentValues();
+                    values.put("api_key",Configuracion.API_KEY);
+                    StringRequest request = new StringRequest(Request.Method.DELETE, configuracion.getUrl() +
+                            "/pedido/eliminar_linea_detalle/" + id + "/" + detalle.get(pos).getCodigo() + values.toString(), new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            detalle.remove(pos);
+                            adapter.notifyDataSetChanged();
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }
+                    });
+                    request.setRetryPolicy(
+                            new DefaultRetryPolicy(50000,
+                                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                    RequestQueue queue = Volley.newRequestQueue(DetalleOrden.this);
+                    queue.add(request);
+                }
+            }
+        });
     }
 
     private void insertarLinea(final String codigo, final double cant){
@@ -329,6 +358,28 @@ public class DetalleOrden extends AppCompatActivity {
             Toast.makeText(this, "Debes estar logeado para continuar", Toast.LENGTH_SHORT).show();
         }
         return true ;
+    }
+
+    private boolean confirmMsj(String title, String msj){
+        final boolean[] confirmado = {false};
+        AlertDialog.Builder builder = new AlertDialog.Builder(DetalleOrden.this);
+        builder.setTitle(title).setMessage(msj);
+        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                confirmado[0] = true ;
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Nó", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        return confirmado[0];
     }
 
     @SuppressWarnings("SameParameterValue")
