@@ -189,7 +189,16 @@ public class OrdenCompra extends Fragment {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                msj("Error", new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                try{
+                                    if (error.networkResponse!=null){
+                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                    }else{
+                                        msj("Error",error.getMessage());
+                                    }
+
+                                }catch (Exception e){
+                                    msj("Error",e.getMessage());
+                                }
                             }
                         }){
                             @Override
@@ -244,8 +253,16 @@ public class OrdenCompra extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    String msg = new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                    msj("Error", msg);
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
                 }
             });
             queue.add(arrProv);
@@ -275,7 +292,16 @@ public class OrdenCompra extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (progressDialog.isShowing()) progressDialog.dismiss();
-                msj("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
             }
         });
 

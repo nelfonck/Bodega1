@@ -210,7 +210,16 @@ public class Habladores extends Fragment {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                try{
+                                    if (error.networkResponse!=null){
+                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                    }else{
+                                        msj("Error",error.getMessage());
+                                    }
+
+                                }catch (Exception e){
+                                    msj("Error",e.getMessage());
+                                }
                             }
                         });
 
@@ -372,10 +381,16 @@ public class Habladores extends Fragment {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        if (error.networkResponse.statusCode == 409)
-                            Toast.makeText(getActivity(),new String(error.networkResponse.data, StandardCharsets.UTF_8),Toast.LENGTH_SHORT).show();
-                        else
-                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        try{
+                            if (error.networkResponse!=null){
+                                msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                            }else{
+                                msj("Error",error.getMessage());
+                            }
+
+                        }catch (Exception e){
+                            msj("Error",e.getMessage());
+                        }
                     }
                 });
 
@@ -404,7 +419,16 @@ public class Habladores extends Fragment {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(final VolleyError error) {
-                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        try{
+                            if (error.networkResponse!=null){
+                                msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                            }else{
+                                msj("Error",error.getMessage());
+                            }
+
+                        }catch (Exception e){
+                            msj("Error",e.getMessage());
+                        }
                     }
                 }) {
                     @Override

@@ -132,9 +132,16 @@ public class Login extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    String msj = (error.getMessage() != null && error.getMessage().isEmpty()) ?
-                            error.getMessage() : new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                    msj("Error",msj);
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
                 }
             });
             queue.add(objectRequest);

@@ -312,8 +312,16 @@ public class NotasCredito extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    String msg = new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                    msj("Error", msg);
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
                 }
             });
             queue.add(arrProv);

@@ -76,7 +76,7 @@ public class Proformas extends Fragment {
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         configuracion.setHost(sp.getString("host",""));
-        configuracion.setPort(sp.getString("port","port"));
+        configuracion.setPort(sp.getString("port",""));
 
         RecyclerView rvProformas = v.findViewById(R.id.rvProformas);
 
@@ -309,7 +309,16 @@ public class Proformas extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
             }
         });
         //Un minuto de timeout porque puede devolver varios registros y puede demorar
@@ -371,7 +380,16 @@ public class Proformas extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                msj("Error",error.getMessage());
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
             }
         });
         queue.add(jsonObjectRequest);

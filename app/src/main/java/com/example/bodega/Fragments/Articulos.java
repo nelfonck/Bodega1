@@ -74,6 +74,8 @@ import java.util.List;
 import java.util.Map;
 
 
+
+
 public class Articulos extends Fragment {
 
     private List<ModFamilia> familias;
@@ -125,6 +127,7 @@ public class Articulos extends Fragment {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         configuracion.setHost(sp.getString("host",""));
         configuracion.setPort(sp.getString("port","port"));
+
 
         final DecimalFormat formatter = new DecimalFormat("#");
         formatter.setMaximumFractionDigits(2);
@@ -359,7 +362,16 @@ public class Articulos extends Fragment {
                          }, new Response.ErrorListener() {
                              @Override
                              public void onErrorResponse(VolleyError error) {
-                                 msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                 try{
+                                     if (error.networkResponse!=null){
+                                         msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                     }else{
+                                         msj("Error",error.getMessage());
+                                     }
+
+                                 }catch (Exception e){
+                                     msj("Error",e.getMessage());
+                                 }
                              }
                          });
 
@@ -406,7 +418,17 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                   try{
+                       if (error.networkResponse!=null){
+                           msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                       }else{
+                           msj("Error",error.getMessage());
+                       }
+
+                   }catch (Exception e){
+                       msj("Error",e.getMessage());
+                   }
+
                 }
             });
 
@@ -417,6 +439,8 @@ public class Articulos extends Fragment {
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
             queue.add(jsonArrayRequest);
+
+
     }
 
     private void populateImpuestos(final ArrayAdapter<ModImpuesto> adapterImpuestos) {
@@ -438,7 +462,16 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
                 }
             });
 
@@ -468,7 +501,16 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
                 }
             });
 
@@ -497,7 +539,16 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
                 }
             });
 
@@ -677,7 +728,16 @@ public class Articulos extends Fragment {
              public void onErrorResponse(VolleyError error) {
 
                  if (progress.isShowing()) progress.dismiss();
-                 msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                 try{
+                     if (error.networkResponse!=null){
+                         msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                     }else{
+                         msj("Error",error.getMessage());
+                     }
+
+                 }catch (Exception e){
+                     msj("Error",e.getMessage());
+                 }
              }
          });
         RequestQueue queue = Volley.newRequestQueue(getActivity());
@@ -788,7 +848,16 @@ public class Articulos extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                   msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
                 }
             });
 
@@ -855,7 +924,16 @@ public class Articulos extends Fragment {
                                     }}, new Response.ErrorListener() {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
-                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                        try{
+                                            if (error.networkResponse!=null){
+                                                msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                            }else{
+                                                msj("Error",error.getMessage());
+                                            }
+
+                                        }catch (Exception e){
+                                            msj("Error",e.getMessage());
+                                        }
                                     }
                                 }){
                                     @Override
@@ -960,8 +1038,5 @@ public class Articulos extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-
-
 
 }

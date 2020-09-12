@@ -148,7 +148,16 @@ public class DetalleOrden extends AppCompatActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                            try{
+                                if (error.networkResponse!=null){
+                                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                }else{
+                                    msj("Error",error.getMessage());
+                                }
+
+                            }catch (Exception e){
+                                msj("Error",e.getMessage());
+                            }
                         }
                     });
                     request.setRetryPolicy(
@@ -210,7 +219,16 @@ public class DetalleOrden extends AppCompatActivity {
           }, new Response.ErrorListener() {
               @Override
               public void onErrorResponse(VolleyError error) {
-                  msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8) );
+                  try{
+                      if (error.networkResponse!=null){
+                          msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                      }else{
+                          msj("Error",error.getMessage());
+                      }
+
+                  }catch (Exception e){
+                      msj("Error",e.getMessage());
+                  }
               }
           }){
               @Override
@@ -261,7 +279,16 @@ public class DetalleOrden extends AppCompatActivity {
           }, new Response.ErrorListener() {
               @Override
               public void onErrorResponse(VolleyError error) {
-                  msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8) );
+                  try{
+                      if (error.networkResponse!=null){
+                          msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                      }else{
+                          msj("Error",error.getMessage());
+                      }
+
+                  }catch (Exception e){
+                      msj("Error",e.getMessage());
+                  }
               }
           });
           request.setRetryPolicy(
@@ -306,7 +333,16 @@ public class DetalleOrden extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                msj("Error", new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
             }
         });
         request.setRetryPolicy(
@@ -337,7 +373,16 @@ public class DetalleOrden extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                msj("Error",new String(error.networkResponse.data, StandardCharsets.UTF_8));
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
             }
         });
 
