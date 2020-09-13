@@ -1,12 +1,15 @@
 package com.example.bodega.Activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.Image;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -58,7 +61,7 @@ public class DetalleOrden extends AppCompatActivity {
     private TextView tvPedido , tvSalidas ;
     private String descripcion = "" ;
     private double costo=0, impuesto=0, total_impuesto=0, total=0;
-
+    private EditText txtCodigo, txtCant ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +73,8 @@ public class DetalleOrden extends AppCompatActivity {
         tvFechaUltimaCompra = findViewById(R.id.tvFechaUltimaCompra);
         tvPedido = findViewById(R.id.tvPedido);
         tvSalidas = findViewById(R.id.tvSalidas);
-        final EditText txtCodigo = findViewById(R.id.txtCodigo);
-        final EditText txtCant = findViewById(R.id.txtCantidad);
+        txtCodigo = findViewById(R.id.txtCodigo);
+        txtCant = findViewById(R.id.txtCantidad);
         tvDescripcion = findViewById(R.id.tvDescripcion);
         ImageButton btnBuscarDescripcion = findViewById(R.id.btnBuscarDescripcion);
         ImageButton btnScan = findViewById(R.id.btnScan);
@@ -135,41 +138,161 @@ public class DetalleOrden extends AppCompatActivity {
         adapter.SetOnEliminarLinea(new AdapterDetalleOrden.OnEliminarLinea() {
             @Override
             public void eliminarLinea(final int pos) {
-                if (confirmMsj("Advertencia", "Seguro(a) de eliminar esta linea?")){
-                    ContentValues values = new ContentValues();
-                    values.put("api_key",Configuracion.API_KEY);
-                    StringRequest request = new StringRequest(Request.Method.DELETE, configuracion.getUrl() +
-                            "/pedido/eliminar_linea_detalle/" + id + "/" + detalle.get(pos).getCodigo() + values.toString(), new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            detalle.remove(pos);
-                            adapter.notifyDataSetChanged();
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            try{
-                                if (error.networkResponse!=null){
-                                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetalleOrden.this);
+                builder.setTitle("Advertencia").setMessage("Seguro(a) de eliminar esta linea?");
+                builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ContentValues values = new ContentValues();
+                        values.put("api_key",Configuracion.API_KEY);
+                        StringRequest request = new StringRequest(Request.Method.DELETE, configuracion.getUrl() +
+                                "/pedido/eliminar_linea_detalle/" + id + "/" + detalle.get(pos).getCodigo() + values.toString(), new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                detalle.remove(pos);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                try{
+                                    if (error.networkResponse!=null){
+                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                    }else{
+                                        msj("Error",error.getMessage());
+                                    }
+
+                                }catch (Exception e){
+                                    msj("Error",e.getMessage());
+                                }
+                            }
+                        });
+                        request.setRetryPolicy(
+                                new DefaultRetryPolicy(50000,
+                                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                        RequestQueue queue = Volley.newRequestQueue(DetalleOrden.this);
+                        queue.add(request);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("Nó", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                }
+
+        });
+        adapter.SetOnCambiarCantidad(new AdapterDetalleOrden.OnCambiarCantidad() {
+            @Override
+            public void cambiarCantiad(final int pos) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetalleOrden.this);
+                View view = LayoutInflater.from(DetalleOrden.this).inflate(R.layout.dialog_editar_linea_proforma,null);
+                builder.setView(view);
+                final EditText txtCant = view.findViewById(R.id.txtCant);
+                ImageButton btnClear = view.findViewById(R.id.btnClearCant);
+                txtCant.setText(String.valueOf(detalle.get(pos).getCantidad()));
+                txtCant.setSelectAllOnFocus(true);
+                txtCant.requestFocus();
+                showKeyboard(DetalleOrden.this,txtCant);
+                btnClear.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        txtCant.setText("");
+                        txtCant.requestFocus();
+                    }
+                });
+
+                builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setPositiveButton("Aplicar", null);
+                AlertDialog dialog = builder.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(final DialogInterface dialog) {
+                        Button btnCambiar = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                        btnCambiar.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (txtCant.getText().toString().equals("")){
+                                    Toast.makeText(DetalleOrden.this, "La cantidad no puede estar vacía", Toast.LENGTH_SHORT).show();
                                 }else{
-                                    msj("Error",error.getMessage());
+                                    ContentValues values = new ContentValues();
+                                    values.put("api_key",Configuracion.API_KEY);
+                                    StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() +
+                                            "/pedido/actualizar_cantidad/" + id + "/" + detalle.get(pos).getCodigo() + "/" + txtCant.getText().toString() + values.toString(), new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            try {
+                                                JSONObject objRes = new JSONObject(response);
+                                                detalle.get(pos).setCantidad(objRes.getDouble("cantidad"));
+                                                detalle.get(pos).setTotal_impuesto(objRes.getDouble("total_impuesto"));
+                                                detalle.get(pos).setTotal(objRes.getDouble("total"));
+                                                adapter.notifyDataSetChanged();
+                                            } catch (JSONException e) {
+                                                msj("Error",e.getMessage());
+                                            }
+
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            try{
+                                                if (error.networkResponse!=null){
+                                                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                                }else{
+                                                    msj("Error",error.getMessage());
+                                                }
+
+                                            }catch (Exception e){
+                                                msj("Error",e.getMessage());
+                                            }
+                                        }
+                                    });
+                                    request.setRetryPolicy(
+                                            new DefaultRetryPolicy(50000,
+                                                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                    RequestQueue queue = Volley.newRequestQueue(DetalleOrden.this);
+                                    queue.add(request);
+                                    dialog.dismiss();
                                 }
 
-                            }catch (Exception e){
-                                msj("Error",e.getMessage());
                             }
-                        }
-                    });
-                    request.setRetryPolicy(
-                            new DefaultRetryPolicy(50000,
-                                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                    RequestQueue queue = Volley.newRequestQueue(DetalleOrden.this);
-                    queue.add(request);
-                }
+                        });
+                    }
+                });
+                dialog.show();
             }
         });
     }
+
+    public void showKeyboard(Context activityContext, final EditText editText){
+
+        final InputMethodManager imm = (InputMethodManager)
+                activityContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        if (!editText.hasFocus()) {
+            editText.requestFocus();
+        }
+
+        editText.post(new Runnable() {
+            @Override
+            public void run() {
+                if (imm!=null)
+                    imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
+            }
+        });
+    }
+
 
     private void insertarLinea(final String codigo, final double cant){
         boolean existe = false ;
@@ -212,6 +335,14 @@ public class DetalleOrden extends AppCompatActivity {
                                     total
                               ));
                       adapter.notifyDataSetChanged();
+                      objArticulo = null ;
+                      tvFechaUltimaCompra.setText("");
+                      tvDescripcion.setText("");
+                      tvPedido.setText("");
+                      tvSalidas.setText("");
+                      txtCodigo.setText("");
+                      txtCant.setText("");
+                      txtCodigo.requestFocus();
                   } catch (JSONException e) {
                       msj("Error",e.getMessage());
                   }
@@ -270,6 +401,15 @@ public class DetalleOrden extends AppCompatActivity {
                               detalle.get(i).setTotal_impuesto(objResponse.getDouble("total_impuesto"));
                               detalle.get(i).setTotal(objResponse.getDouble("total"));
                               adapter.notifyDataSetChanged();
+
+                              objArticulo = null ;
+                              tvFechaUltimaCompra.setText("");
+                              tvDescripcion.setText("");
+                              tvPedido.setText("");
+                              tvSalidas.setText("");
+                              txtCodigo.setText("");
+                              txtCant.setText("");
+                              txtCodigo.requestFocus();
                           }
                       }
                   } catch (JSONException e) {
@@ -405,27 +545,7 @@ public class DetalleOrden extends AppCompatActivity {
         return true ;
     }
 
-    private boolean confirmMsj(String title, String msj){
-        final boolean[] confirmado = {false};
-        AlertDialog.Builder builder = new AlertDialog.Builder(DetalleOrden.this);
-        builder.setTitle(title).setMessage(msj);
-        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                confirmado[0] = true ;
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("Nó", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        return confirmado[0];
-    }
+
 
     @SuppressWarnings("SameParameterValue")
     private void msj(String title, String msj) {
