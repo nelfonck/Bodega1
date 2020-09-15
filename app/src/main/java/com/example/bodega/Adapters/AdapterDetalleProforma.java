@@ -42,7 +42,7 @@ public class AdapterDetalleProforma extends RecyclerView.Adapter<AdapterDetalleP
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.tvArticulo.setText(detalles.get(position).getDescripcion());
-        DecimalFormat formatter = new DecimalFormat("#,###,###");
+        DecimalFormat formatter = new DecimalFormat("#,###,###.##");
         String yourFormattedString = formatter.format(detalles.get(position).getPrecio());
         holder.tvPrecio.setText(("¢" + yourFormattedString));
         holder.tvIv.setText(("Iv: " + detalles.get(position).getIv()));

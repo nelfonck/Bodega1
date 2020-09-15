@@ -45,13 +45,6 @@
                 android:layout_below="@id/tvCodProveedor"
                 android:textColor="#fff"/>
 
-            <TextView
-                android:id="@+id/tvRazonComercial"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvRazonSocial"
-                android:textColor="#fff"/>
-
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 
@@ -150,15 +143,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tvFechaUltimaCompra"
-                android:textColor="#fff"
-                android:layout_marginLeft="150dp"/>
+                android:layout_toEndOf="@id/tvPedido"
+                android:layout_marginStart="10dp"
+                android:textColor="#fff" />
+
+            <TextView
+                android:id="@+id/tvSubTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvDescripcion"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
+                android:textColor="#fff" />
+
+            <TextView
+                android:id="@+id/tvTotalImpuesto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvSubTotal"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
+                android:textColor="#fff" />
 
             <TextView
                 android:id="@+id/tvTotalOrden"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tvFechaUltimaCompra"
+                android:layout_below="@id/tvTotalImpuesto"
                 android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
                 android:textColor="#fff"
                 android:textStyle="bold"/>
 

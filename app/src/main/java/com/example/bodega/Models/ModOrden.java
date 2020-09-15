@@ -7,16 +7,21 @@ public class ModOrden {
     private String razon_comercial ;
     private String fecha_creacion ;
     private String estado ;
-    private float total ;
+    private double sub_total ;
+    private double total_impuesto ;
+    private double total_iva ;
 
-    public ModOrden(int id, String cod_proveedor, String razon_social, String razon_comercial, String fecha_creacion, String estado, float total) {
+
+    public ModOrden(int id, String cod_proveedor, String razon_social, String razon_comercial, String fecha_creacion, String estado, double sub_total, double total_impuesto, double total_iva) {
         this.id = id ;
         this.cod_proveedor = cod_proveedor;
         this.razon_social = razon_social;
         this.razon_comercial = razon_comercial;
         this.fecha_creacion = fecha_creacion;
         this.estado = estado;
-        this.total = total ;
+        this.sub_total = sub_total ;
+        this.total_impuesto = total_impuesto;
+        this.total_iva = total_iva;
     }
 
     public String getCod_proveedor() {
@@ -67,11 +72,27 @@ public class ModOrden {
         this.id = id;
     }
 
-    public void setTotal(float total) {
-        this.total = total;
+    public void setSubtotal(double subtotal) {
+        this.sub_total = subtotal;
     }
 
-    public float getTotal() {
-        return total;
+    public double getSubtotal() {
+        return sub_total;
+    }
+
+    public double getTotal_impuesto() {
+        return total_impuesto;
+    }
+
+    public void setTotal_impuesto(double total_impuesto) {
+        this.total_impuesto = total_impuesto;
+    }
+
+    public double getTotal_iva() {
+        return total_iva;
+    }
+
+    public void setTotal_iva(double total_iva) {
+        this.total_iva = total_iva;
     }
 }

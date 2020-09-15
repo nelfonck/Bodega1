@@ -42,12 +42,11 @@ public class AdapterDetalleOrden extends RecyclerView.Adapter<AdapterDetalleOrde
     public void onBindViewHolder(@NonNull ViewHorlder holder, int position) {
         DecimalFormat formatter = new DecimalFormat("#,###,###.##");
         holder.tvDescripcion.setText(detalle.get(position).getDescripcion());
-        holder.tvCodigo.setText(("código: " + detalle.get(position).getCodigo()));
         holder.tvCantidad.setText(("Cant:" +detalle.get(position).getCantidad()));
         holder.tvCosto.setText(("Costo: " + formatter.format(detalle.get(position).getCosto())));
-        holder.tvImpuesto.setText(("Imp: " + detalle.get(position).getPorc_impuesto()));
-        holder.tvTotalImpuesto.setText(("Total imp: " + formatter.format(detalle.get(position).getTotal_impuesto())));
-        holder.tvTotal.setText(("total: " + formatter.format(detalle.get(position).getTotal())));
+        holder.tvImpuesto.setText(("Imp: ₡" + detalle.get(position).getPorc_impuesto()));
+        holder.tvTotalImpuesto.setText(("Total imp: ₡" + formatter.format(detalle.get(position).getTotal_impuesto())));
+        holder.tvTotal.setText(("total iva: ₡" + formatter.format(detalle.get(position).getTotal())));
     }
 
     @Override
@@ -56,14 +55,14 @@ public class AdapterDetalleOrden extends RecyclerView.Adapter<AdapterDetalleOrde
     }
 
     public class ViewHorlder extends RecyclerView.ViewHolder {
-        TextView tvCodigo, tvDescripcion, tvCantidad, tvCosto, tvImpuesto,tvTotalImpuesto, tvTotal;
+        TextView  tvDescripcion, tvCantidad, tvCosto, tvImpuesto,tvTotalImpuesto, tvTotal;
         OnCambiarCantidad onCambiarCantidad ;
         OnEliminarLinea onEliminarLinea ;
         public ViewHorlder(@NonNull View itemView, final OnCambiarCantidad onCambiarCantidad, final OnEliminarLinea onEliminarLinea) {
             super(itemView);
             this.onCambiarCantidad = onCambiarCantidad ;
             this.onEliminarLinea = onEliminarLinea ;
-            tvCodigo = itemView.findViewById(R.id.tvCodigo);
+
             tvDescripcion = itemView.findViewById(R.id.tvDescripcion);
             tvCantidad = itemView.findViewById(R.id.tvCambiarCantidad);
             tvCosto = itemView.findViewById(R.id.tvCosto);

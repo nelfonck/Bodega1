@@ -44,8 +44,10 @@ public class AdapterOrdenes extends RecyclerView.Adapter<AdapterOrdenes.ViewHold
         holder.tvRazonSocial.setText(ordenes.get(position).getRazon_social());
         holder.tvRazonComercial.setText(ordenes.get(position).getRazon_comercial());
         holder.tvFecha.setText(ordenes.get(position).getFecha_creacion());
-        DecimalFormat formatter = new DecimalFormat("#,###,###");
-        holder.tvTotalIva.setText(("Total iva: " + formatter.format(ordenes.get(position).getTotal())));
+        DecimalFormat formatter = new DecimalFormat("#,###,###.##");
+        holder.tvSubTotal.setText(("Sub total: ₡" + formatter.format(ordenes.get(position).getSubtotal())));
+        holder.tvTotalImpuesto.setText(("Impuesto: ₡" + formatter.format(ordenes.get(position).getTotal_impuesto())));
+        holder.tvTotalIva.setText(("Total iva: ₡" + formatter.format(ordenes.get(position).getTotal_iva())));
     }
 
     @Override
@@ -54,7 +56,7 @@ public class AdapterOrdenes extends RecyclerView.Adapter<AdapterOrdenes.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvCodProveedor , tvRazonSocial, tvRazonComercial, tvFecha, tvTotalIva ;
+        TextView tvCodProveedor , tvRazonSocial, tvRazonComercial, tvFecha, tvSubTotal, tvTotalImpuesto, tvTotalIva ;
         OnEliminarOrden onEliminarOrden ;
         OnAbrirOrden onAbrirOrden ;
         public ViewHolder(@NonNull View itemView, final OnEliminarOrden onEliminarOrden, final OnAbrirOrden onAbrirOrden) {
@@ -65,6 +67,8 @@ public class AdapterOrdenes extends RecyclerView.Adapter<AdapterOrdenes.ViewHold
             tvRazonSocial = itemView.findViewById(R.id.tvRazonSocial);
             tvRazonComercial = itemView.findViewById(R.id.tvRazonComercial);
             tvFecha = itemView.findViewById(R.id.tvFecha);
+            tvSubTotal = itemView.findViewById(R.id.tvSubtotal);
+            tvTotalImpuesto = itemView.findViewById(R.id.tvTotalImpuesto);
             tvTotalIva = itemView.findViewById(R.id.tvTotalIva);
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

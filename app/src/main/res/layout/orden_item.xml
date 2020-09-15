@@ -41,13 +41,30 @@
                 android:text="Fecha"/>
 
             <TextView
+                android:id="@+id/tvSubtotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvRazonComercial"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:text="SubTotal"/>
+
+            <TextView
+                android:id="@+id/tvTotalImpuesto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvSubtotal"
+                android:layout_alignParentEnd="true"
+                android:text="Total Impuesto"/>
+
+            <TextView
                 android:id="@+id/tvTotalIva"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/tvTotalImpuesto"
                 android:layout_alignParentEnd="true"
-                android:layout_below="@id/tvRazonComercial"
                 android:textStyle="bold"
-                android:text="Total iva"/>
+                android:text="Total"/>
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>

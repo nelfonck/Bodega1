@@ -226,6 +226,13 @@ public class OrdenCompra extends Fragment {
         return v;
     }
 
+    @Override
+    public void onResume() {
+        ordenes.clear();
+        getOrders();
+        super.onResume();
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void loadProveedores(final ProveedorAdapter proveedorAdapter, final List<ModProveedor>proveedorList, final String proveedor){
         try{

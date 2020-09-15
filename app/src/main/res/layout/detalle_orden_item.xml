@@ -11,16 +11,9 @@
     android:padding="5dp">
 
     <TextView
-        android:id="@+id/tvCodigo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Code" />
-
-    <TextView
         android:id="@+id/tvDescripcion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvCodigo"
         android:text="Descripcion" />
 
     <TextView
@@ -52,7 +45,8 @@
     android:id="@+id/tvTotalImpuesto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="150dp"
+    android:layout_toStartOf="@+id/tvTotal"
+    android:layout_marginEnd="50dp"
     android:layout_below="@id/tvCosto"
     android:text="total impuesto"/>
 

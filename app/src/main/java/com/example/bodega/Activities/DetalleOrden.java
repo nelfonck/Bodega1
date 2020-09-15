@@ -3,7 +3,6 @@ package com.example.bodega.Activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.media.Image;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -43,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,10 +58,12 @@ public class DetalleOrden extends AppCompatActivity {
     private  JSONObject objArticulo  = null;
     private TextView tvDescripcion ;
     private TextView tvFechaUltimaCompra ;
-    private TextView tvPedido , tvSalidas ;
+    private TextView tvPedido , tvSalidas, tvTotalImpuesto, tvTotalOrden , tvSubTotal;
     private String descripcion = "" ;
     private double costo=0, impuesto=0, total_impuesto=0, total=0;
     private EditText txtCodigo, txtCant ;
+    private Totales totales ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,17 +71,23 @@ public class DetalleOrden extends AppCompatActivity {
         TextView tvNumeroOrden = findViewById(R.id.tvNumeroOrden);
         TextView tvCodProveedor = findViewById(R.id.tvCodProveedor);
         TextView tvRazonSocial = findViewById(R.id.tvRazonSocial);
-        TextView tvRazonComercial = findViewById(R.id.tvRazonComercial);
+
         tvFechaUltimaCompra = findViewById(R.id.tvFechaUltimaCompra);
         tvPedido = findViewById(R.id.tvPedido);
         tvSalidas = findViewById(R.id.tvSalidas);
         txtCodigo = findViewById(R.id.txtCodigo);
         txtCant = findViewById(R.id.txtCantidad);
         tvDescripcion = findViewById(R.id.tvDescripcion);
+        tvTotalImpuesto = findViewById(R.id.tvTotalImpuesto);
+        tvTotalOrden = findViewById(R.id.tvTotalOrden);
+        tvSubTotal = findViewById(R.id.tvSubTotal);
+
         ImageButton btnBuscarDescripcion = findViewById(R.id.btnBuscarDescripcion);
         ImageButton btnScan = findViewById(R.id.btnScan);
         ImageButton btnAdd = findViewById(R.id.btnAdd);
         RecyclerView rvDetalleOrden = findViewById(R.id.rvDetalleOrden);
+
+        totales = new Totales(0,0);
 
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
@@ -93,7 +101,7 @@ public class DetalleOrden extends AppCompatActivity {
             tvNumeroOrden.setText(("Orden # " + id));
             tvCodProveedor.setText(("Cod. proveedor: " + extras.getString("cod_proveedor")));
             tvRazonSocial.setText(extras.getString("razon_social"));
-            tvRazonComercial.setText(extras.getString("razon_comercial"));
+            //tvRazonComercial.setText(extras.getString("razon_comercial"));
         }
 
         detalle = new ArrayList<>();
@@ -112,7 +120,7 @@ public class DetalleOrden extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN){
                         assert extras != null;
                         obtArticulo(txtCodigo.getText().toString(),extras.getString("cod_proveedor"));
-                        txtCant.requestFocus();
+
                     }
                 return false;
             }
@@ -151,6 +159,7 @@ public class DetalleOrden extends AppCompatActivity {
                             public void onResponse(String response) {
                                 detalle.remove(pos);
                                 adapter.notifyDataSetChanged();
+                                setTotales();
                             }
                         }, new Response.ErrorListener() {
                             @Override
@@ -237,6 +246,7 @@ public class DetalleOrden extends AppCompatActivity {
                                                 detalle.get(pos).setTotal_impuesto(objRes.getDouble("total_impuesto"));
                                                 detalle.get(pos).setTotal(objRes.getDouble("total"));
                                                 adapter.notifyDataSetChanged();
+                                                setTotales();
                                             } catch (JSONException e) {
                                                 msj("Error",e.getMessage());
                                             }
@@ -335,6 +345,9 @@ public class DetalleOrden extends AppCompatActivity {
                                     total
                               ));
                       adapter.notifyDataSetChanged();
+
+                      setTotales();
+
                       objArticulo = null ;
                       tvFechaUltimaCompra.setText("");
                       tvDescripcion.setText("");
@@ -402,6 +415,8 @@ public class DetalleOrden extends AppCompatActivity {
                               detalle.get(i).setTotal(objResponse.getDouble("total"));
                               adapter.notifyDataSetChanged();
 
+                              setTotales();
+
                               objArticulo = null ;
                               tvFechaUltimaCompra.setText("");
                               tvDescripcion.setText("");
@@ -455,14 +470,17 @@ public class DetalleOrden extends AppCompatActivity {
                     if (jsonObject.length() > 0){
                         objArticulo = jsonObject ;
                         tvDescripcion.setText(objArticulo.getString("descripcion"));
-                        tvFechaUltimaCompra.setText(("Pedido por última vez: " + objArticulo.getJSONObject("movimiento").getString("fecha_ultimo_pedido")));
+                        tvFechaUltimaCompra.setText(("Fecha: " + objArticulo.getJSONObject("movimiento").getString("fecha_ultimo_pedido")));
                         tvPedido.setText(("Se pidieron: " + objArticulo.getJSONObject("movimiento").getString("pedido")));
                         tvSalidas.setText(("Salidas: " + objArticulo.getJSONObject("movimiento").getString("vendido")));
+                        txtCant.requestFocus();
                     }else{
                         tvDescripcion.setText("");
                         tvFechaUltimaCompra.setText("");
                         tvPedido.setText("");
                         tvSalidas.setText("");
+                        txtCodigo.setText("");
+                        txtCodigo.requestFocus();
                         objArticulo = null ;
                         Toast.makeText(DetalleOrden.this, "Artículo no encontrado", Toast.LENGTH_SHORT).show();
                     }
@@ -505,6 +523,8 @@ public class DetalleOrden extends AppCompatActivity {
                     detalle.clear();
                     detalle.addAll(Arrays.asList(gson.fromJson(response,ModDetalleOrden[].class)));
                     adapter.notifyDataSetChanged();
+
+                    setTotales();
                 }catch (Exception e){
                     msj("Error",e.getMessage());
                 }
@@ -545,7 +565,57 @@ public class DetalleOrden extends AppCompatActivity {
         return true ;
     }
 
+    private void setTotales(){
+        double total_impuesto = 0, total = 0 ;
+        DecimalFormat formatter = new DecimalFormat("#,###,###.##");
+        for (int x=0; x<=detalle.size()-1;x++)
+        {
+            total_impuesto+= detalle.get(x).getTotal_impuesto() ;
+            total+= detalle.get(x).getTotal();
+        }
 
+        totales.setTotal_impuesto(total_impuesto);
+        totales.setTotal(total);
+        tvSubTotal.setText(("Sub tot: ₡" + formatter.format(totales.getTotal())));
+        tvTotalImpuesto.setText(("Total imp: ₡" + formatter.format(totales.getTotal_impuesto())));
+        tvTotalOrden.setText(("Total: ₡" + formatter.format(totales.getTotal() + totales.getTotal_impuesto())));
+
+        setTotalesDb(totales.getTotal(),totales.getTotal_impuesto(),(totales.getTotal() + totales.getTotal_impuesto()));
+    }
+
+    private void setTotalesDb(double subtotal, double impuesto, double total){
+        ContentValues values = new ContentValues();
+        values.put("api_key",Configuracion.API_KEY);
+        StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() +
+                "/pedido/settotal/" + id + "/" + subtotal + "/" + impuesto + "/" + total   + values.toString(), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                //msj("Response", response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
+            }
+        });
+
+        request.setRetryPolicy(
+                new DefaultRetryPolicy(50000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
+    }
 
     @SuppressWarnings("SameParameterValue")
     private void msj(String title, String msj) {
@@ -560,5 +630,31 @@ public class DetalleOrden extends AppCompatActivity {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    class Totales{
+        double total_impuesto ;
+        double total ;
+
+        public Totales(double total_impuesto, double total) {
+            this.total_impuesto = total_impuesto;
+            this.total = total;
+        }
+
+        public double getTotal_impuesto() {
+            return total_impuesto;
+        }
+
+        public void setTotal_impuesto(double total_impuesto) {
+            this.total_impuesto = total_impuesto;
+        }
+
+        public double getTotal() {
+            return total;
+        }
+
+        public void setTotal(double total) {
+            this.total = total;
+        }
     }
 }
