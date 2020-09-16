@@ -58,7 +58,7 @@ public class DetalleOrden extends AppCompatActivity {
     private  JSONObject objArticulo  = null;
     private TextView tvDescripcion ;
     private TextView tvFechaUltimaCompra ;
-    private TextView tvPedido , tvSalidas, tvTotalImpuesto, tvTotalOrden , tvSubTotal;
+    private TextView tvPedido , tvSalidas, tvTotalImpuesto, tvTotalOrden , tvTotalExento, tvTotalGravado;
     private String descripcion = "" ;
     private double costo=0, impuesto=0, total_impuesto=0, total=0;
     private EditText txtCodigo, txtCant ;
@@ -80,14 +80,15 @@ public class DetalleOrden extends AppCompatActivity {
         tvDescripcion = findViewById(R.id.tvDescripcion);
         tvTotalImpuesto = findViewById(R.id.tvTotalImpuesto);
         tvTotalOrden = findViewById(R.id.tvTotalOrden);
-        tvSubTotal = findViewById(R.id.tvSubTotal);
+        tvTotalExento = findViewById(R.id.tvTotalExento);
+        tvTotalGravado = findViewById(R.id.tvTotalGravado);
 
         ImageButton btnBuscarDescripcion = findViewById(R.id.btnBuscarDescripcion);
         ImageButton btnScan = findViewById(R.id.btnScan);
         ImageButton btnAdd = findViewById(R.id.btnAdd);
         RecyclerView rvDetalleOrden = findViewById(R.id.rvDetalleOrden);
 
-        totales = new Totales(0,0);
+        totales = new Totales(0,0,0,0);
 
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
@@ -566,28 +567,35 @@ public class DetalleOrden extends AppCompatActivity {
     }
 
     private void setTotales(){
-        double total_impuesto = 0, total = 0 ;
+        double total_exento =0, total_gravado =0, total_impuesto = 0, total = 0 ;
         DecimalFormat formatter = new DecimalFormat("#,###,###.##");
         for (int x=0; x<=detalle.size()-1;x++)
         {
-            total_impuesto+= detalle.get(x).getTotal_impuesto() ;
+            if (detalle.get(x).getPorc_impuesto()>0){
+                total_gravado+= detalle.get(x).getCosto();
+                total_impuesto+= detalle.get(x).getTotal_impuesto() ;
+            }else{
+                total_exento+= detalle.get(x).getCosto();
+            }
+
             total+= detalle.get(x).getTotal();
         }
-
+        totales.setTotal_exento(total_exento);
+        totales.setTotal_gravado(total_gravado);
         totales.setTotal_impuesto(total_impuesto);
-        totales.setTotal(total);
-        tvSubTotal.setText(("Sub tot: ₡" + formatter.format(totales.getTotal())));
-        tvTotalImpuesto.setText(("Total imp: ₡" + formatter.format(totales.getTotal_impuesto())));
-        tvTotalOrden.setText(("Total: ₡" + formatter.format(totales.getTotal() + totales.getTotal_impuesto())));
-
-        setTotalesDb(totales.getTotal(),totales.getTotal_impuesto(),(totales.getTotal() + totales.getTotal_impuesto()));
+        totales.setTotal(total + total_impuesto);
+        tvTotalExento.setText(("Total exento: ₡" + formatter.format(totales.getTotal_exento())));
+        tvTotalGravado.setText(("Total gravado: ₡" + formatter.format(totales.getTotal_gravado())));
+        tvTotalImpuesto.setText(("Impuesto: ₡" + formatter.format(totales.getTotal_impuesto())));
+        tvTotalOrden.setText(("Total iva ₡" + formatter.format(totales.getTotal())));
+        setTotalesDb(totales.getTotal_exento(), totales.getTotal_gravado(),totales.getTotal_impuesto(),totales.getTotal());
     }
 
-    private void setTotalesDb(double subtotal, double impuesto, double total){
+    private void setTotalesDb(double total_exento, double total_gravado, double impuesto, double total){
         ContentValues values = new ContentValues();
         values.put("api_key",Configuracion.API_KEY);
         StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() +
-                "/pedido/settotal/" + id + "/" + subtotal + "/" + impuesto + "/" + total   + values.toString(), new Response.Listener<String>() {
+                "/pedido/settotal/" + id + "/" + total_exento + "/" + total_gravado + "/" + impuesto + "/" + total   + values.toString(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 //msj("Response", response);
@@ -633,12 +641,32 @@ public class DetalleOrden extends AppCompatActivity {
     }
 
     class Totales{
+        double total_exento ;
+        double total_gravado ;
         double total_impuesto ;
         double total ;
 
-        public Totales(double total_impuesto, double total) {
+        public Totales(double total_exento, double total_gravado , double total_impuesto, double total) {
+            this.total_exento = total_exento ;
+            this.total_gravado = total_gravado ;
             this.total_impuesto = total_impuesto;
             this.total = total;
+        }
+
+        public double getTotal_exento() {
+            return total_exento;
+        }
+
+        public void setTotal_exento(double total_exento) {
+            this.total_exento = total_exento;
+        }
+
+        public double getTotal_gravado() {
+            return total_gravado;
+        }
+
+        public void setTotal_gravado(double total_gravado) {
+            this.total_gravado = total_gravado;
         }
 
         public double getTotal_impuesto() {

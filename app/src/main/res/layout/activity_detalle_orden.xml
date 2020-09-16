@@ -107,6 +107,8 @@
         android:hint="Codigo"
         android:layout_toRightOf="@id/btnScan"
         android:layout_toLeftOf="@id/txtCantidad" />
+
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cvHistorico"
         android:layout_width="match_parent"
@@ -148,7 +150,7 @@
                 android:textColor="#fff" />
 
             <TextView
-                android:id="@+id/tvSubTotal"
+                android:id="@+id/tvTotalExento"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tvDescripcion"
@@ -157,10 +159,19 @@
                 android:textColor="#fff" />
 
             <TextView
+                android:id="@+id/tvTotalGravado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvTotalExento"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
+                android:textColor="#fff" />
+
+            <TextView
                 android:id="@+id/tvTotalImpuesto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tvSubTotal"
+                android:layout_below="@id/tvTotalGravado"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="5dp"
                 android:textColor="#fff" />

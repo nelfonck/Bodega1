@@ -41,19 +41,28 @@
                 android:text="Fecha"/>
 
             <TextView
-                android:id="@+id/tvSubtotal"
+                android:id="@+id/tvTotalExento"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tvRazonComercial"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="5dp"
-                android:text="SubTotal"/>
+                android:text="Exento"/>
+
+            <TextView
+                android:id="@+id/tvTotalGravado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvTotalExento"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="2dp"
+                android:text="Gravado"/>
 
             <TextView
                 android:id="@+id/tvTotalImpuesto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tvSubtotal"
+                android:layout_below="@id/tvTotalGravado"
                 android:layout_alignParentEnd="true"
                 android:text="Total Impuesto"/>
 

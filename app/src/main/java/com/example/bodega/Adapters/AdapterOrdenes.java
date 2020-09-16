@@ -45,7 +45,8 @@ public class AdapterOrdenes extends RecyclerView.Adapter<AdapterOrdenes.ViewHold
         holder.tvRazonComercial.setText(ordenes.get(position).getRazon_comercial());
         holder.tvFecha.setText(ordenes.get(position).getFecha_creacion());
         DecimalFormat formatter = new DecimalFormat("#,###,###.##");
-        holder.tvSubTotal.setText(("Sub total: ₡" + formatter.format(ordenes.get(position).getSubtotal())));
+        holder.tvTotalExento.setText(("Total exento: ₡" + formatter.format(ordenes.get(position).getTotal_exento())));
+        holder.tvTotalGravado.setText(("Total gravado: ₡" + formatter.format(ordenes.get(position).getTotal_gravado())));
         holder.tvTotalImpuesto.setText(("Impuesto: ₡" + formatter.format(ordenes.get(position).getTotal_impuesto())));
         holder.tvTotalIva.setText(("Total iva: ₡" + formatter.format(ordenes.get(position).getTotal_iva())));
     }
@@ -56,7 +57,8 @@ public class AdapterOrdenes extends RecyclerView.Adapter<AdapterOrdenes.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvCodProveedor , tvRazonSocial, tvRazonComercial, tvFecha, tvSubTotal, tvTotalImpuesto, tvTotalIva ;
+        TextView tvCodProveedor , tvRazonSocial, tvRazonComercial, tvFecha,
+                tvTotalExento, tvTotalGravado, tvTotalImpuesto, tvTotalIva ;
         OnEliminarOrden onEliminarOrden ;
         OnAbrirOrden onAbrirOrden ;
         public ViewHolder(@NonNull View itemView, final OnEliminarOrden onEliminarOrden, final OnAbrirOrden onAbrirOrden) {
@@ -67,7 +69,8 @@ public class AdapterOrdenes extends RecyclerView.Adapter<AdapterOrdenes.ViewHold
             tvRazonSocial = itemView.findViewById(R.id.tvRazonSocial);
             tvRazonComercial = itemView.findViewById(R.id.tvRazonComercial);
             tvFecha = itemView.findViewById(R.id.tvFecha);
-            tvSubTotal = itemView.findViewById(R.id.tvSubtotal);
+            tvTotalExento = itemView.findViewById(R.id.tvTotalExento);
+            tvTotalGravado = itemView.findViewById(R.id.tvTotalGravado);
             tvTotalImpuesto = itemView.findViewById(R.id.tvTotalImpuesto);
             tvTotalIva = itemView.findViewById(R.id.tvTotalIva);
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
