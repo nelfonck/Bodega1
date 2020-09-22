@@ -46,7 +46,7 @@ public class AdapterDetalleOrden extends RecyclerView.Adapter<AdapterDetalleOrde
         holder.tvCosto.setText(("Costo: " + formatter.format(detalle.get(position).getCosto())));
         holder.tvImpuesto.setText(("Imp: ₡" + detalle.get(position).getPorc_impuesto()));
         holder.tvTotalImpuesto.setText(("Total imp: ₡" + formatter.format(detalle.get(position).getTotal_impuesto())));
-        holder.tvTotal.setText(("total iva: ₡" + formatter.format(detalle.get(position).getTotal())));
+        holder.tvTotal.setText(("total: ₡" + formatter.format(detalle.get(position).getTotal())));
     }
 
     @Override

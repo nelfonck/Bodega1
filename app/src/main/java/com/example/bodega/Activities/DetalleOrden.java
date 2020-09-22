@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -15,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -284,6 +288,135 @@ public class DetalleOrden extends AppCompatActivity {
                 dialog.show();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.enviarQpos:
+                enviarQpos();
+                break;
+            case R.id.clearAll:
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetalleOrden.this);
+                builder.setTitle("Warning").setMessage("Se eliminará toda la lista \n desea continuar?");
+                builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        limpiarLista();
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+        return false;
+    }
+
+    public void enviarQpos(){
+        StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() +
+                "/pedido/enviar_qupos/" + id + "/" + user + "?api_key=" + Configuracion.API_KEY, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject objResponse = new JSONObject(response);
+                    if (objResponse.getBoolean("guardado")){
+                        limpiarLista();
+                    }
+                } catch (JSONException e) {
+                    msj("Error", e.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
+            }
+        });
+
+        request.setRetryPolicy(
+                new DefaultRetryPolicy(50000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
+    }
+
+    public void limpiarLista(){
+        detalle.clear();
+        adapter.notifyDataSetChanged();
+        objArticulo = null ;
+        tvFechaUltimaCompra.setText("");
+        tvDescripcion.setText("");
+        tvPedido.setText("");
+        tvSalidas.setText("");
+        txtCodigo.setText("");
+        txtCant.setText("");
+        txtCodigo.requestFocus();
+
+        setTotales();
+
+        eliminarDetalle();
+    }
+
+    public void eliminarDetalle(){
+        StringRequest request = new StringRequest(Request.Method.DELETE, configuracion.getUrl() +
+                "/pedido/eliminar_detalle/" + id + "?api_key=" + Configuracion.API_KEY, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
+            }
+        });
+        request.setRetryPolicy(
+                new DefaultRetryPolicy(50000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
     }
 
     public void showKeyboard(Context activityContext, final EditText editText){
