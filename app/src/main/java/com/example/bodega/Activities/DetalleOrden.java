@@ -2,6 +2,7 @@ package com.example.bodega.Activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,12 +36,16 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adapters.AdapterDetalleOrden;
+import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ContentValues;
 import com.example.bodega.Models.ModDetalleOrden;
+import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.R;
 import com.google.gson.Gson;
 import com.google.gson.internal.$Gson$Preconditions;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,6 +73,8 @@ public class DetalleOrden extends AppCompatActivity {
     private double costo=0, impuesto=0, total_impuesto=0, total=0;
     private EditText txtCodigo, txtCant ;
     private Totales totales ;
+    private  Bundle extras ;
+    private boolean scanned_from_scan ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +107,7 @@ public class DetalleOrden extends AppCompatActivity {
         configuracion.setHost(sp.getString("host",""));
         configuracion.setPort(sp.getString("port",""));
 
-        final Bundle extras = getIntent().getExtras();
+        extras = getIntent().getExtras();
         if (extras != null) {
             user = extras.getString("user","");
             id = extras.getInt("id");
@@ -117,6 +125,20 @@ public class DetalleOrden extends AppCompatActivity {
         rvDetalleOrden.setAdapter(adapter);
 
         cargarDetalle();
+
+        btnBuscarDescripcion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buscarDescripcion();
+            }
+        });
+
+        btnScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scanNow();
+            }
+        });
 
         txtCodigo.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -139,6 +161,11 @@ public class DetalleOrden extends AppCompatActivity {
                         if (validarTextos(txtCodigo,txtCant)){
                             if (objArticulo!=null){
                                 insertarLinea(txtCodigo.getText().toString(), Float.parseFloat(txtCant.getText().toString()));
+                                if (scanned_from_scan){
+                                    hideKeyboard(DetalleOrden.this,txtCodigo);
+                                }else{
+                                    showKeyboard(DetalleOrden.this,txtCodigo);
+                                }
                             }else{
                                 Toast.makeText(DetalleOrden.this, "Debe filtrar el artículo", Toast.LENGTH_SHORT).show();
                             }
@@ -334,6 +361,26 @@ public class DetalleOrden extends AppCompatActivity {
         return false;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
+        if (result != null) {
+            String scanResult = result.getContents();
+            if (scanResult!=null){
+                txtCodigo.setText(scanResult);
+                txtCant.setText("1");
+                txtCant.requestFocus();
+                scanned_from_scan = true ;
+                showKeyboard(DetalleOrden.this,txtCant);
+            }
+        } else {
+            Toast toast = Toast.makeText(this, "No scan data received!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     public void enviarQpos(){
         StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() +
                 "/pedido/enviar_qupos/" + id + "/" + user + "?api_key=" + Configuracion.API_KEY, new Response.Listener<String>() {
@@ -370,6 +417,96 @@ public class DetalleOrden extends AppCompatActivity {
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(request);
+    }
+
+    private void buscarDescripcion() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_filtro_descripcion, null);
+        builder.setView(view);
+        final EditText txtArticulo = view.findViewById(R.id.txtFiltroDescripcion);
+        RecyclerView recyclerView = view.findViewById(R.id.rvResultadoFiltroDescripcion);
+
+        final List<ModFiltroArticulo> articulos = new ArrayList<>();
+        final FiltroArticuloAdapter adapter = new FiltroArticuloAdapter(articulos);
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+
+
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        final android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        txtArticulo.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                    if (event.getAction() == KeyEvent.ACTION_DOWN){
+                        ContentValues values = new ContentValues() ;
+                        values.put("api_key",Configuracion.API_KEY);
+                        values.put("descripcion",txtArticulo.getText().toString());
+
+                        final Gson gson = new Gson();
+                        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                                "/articulo/articulo" + values.toString(), new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    articulos.clear();
+                                    articulos.addAll(Arrays.asList(gson.fromJson(response, ModFiltroArticulo[].class)));
+                                    adapter.notifyDataSetChanged();
+                                } catch (Exception e) {
+                                    Toast.makeText(DetalleOrden.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
+                            }
+
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                try{
+                                    if (error.networkResponse!=null){
+                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                    }else{
+                                        msj("Error",error.getMessage());
+                                    }
+
+                                }catch (Exception e){
+                                    msj("Error",e.getMessage());
+                                }
+                            }
+                        });
+
+                        request.setRetryPolicy(
+                                new DefaultRetryPolicy(50000,
+                                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+                        RequestQueue queue = Volley.newRequestQueue(DetalleOrden.this);
+                        queue.add(request);
+
+
+                        return true;
+                    }
+                return false;
+            }
+        });
+
+        adapter.SetOnItemClickListener(new FiltroArticuloAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(int pos) {
+                txtCodigo.setText(articulos.get(pos).getCodigo());
+                obtArticulo(txtCodigo.getText().toString(),extras.getString("cod_proveedor"));
+                dialog.dismiss();
+            }
+        });
     }
 
     public void limpiarLista(){
@@ -435,6 +572,13 @@ public class DetalleOrden extends AppCompatActivity {
                     imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
             }
         });
+    }
+
+    protected void hideKeyboard(Context activityContext,EditText editText) {
+        InputMethodManager imm = (InputMethodManager)
+                activityContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm!=null)
+            imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 
 
@@ -757,6 +901,17 @@ public class DetalleOrden extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(request);
     }
+
+    public void scanNow() {
+        IntentIntegrator intentIntegrator = new IntentIntegrator(this);
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.EAN_13,IntentIntegrator.EAN_8,IntentIntegrator.UPC_A,IntentIntegrator.UPC_E);
+        intentIntegrator.setPrompt("Scan barcode");
+        intentIntegrator.setCameraId(0);
+        intentIntegrator.setBeepEnabled(true);
+        intentIntegrator.setBarcodeImageEnabled(true);
+        intentIntegrator.initiateScan();
+    }
+
 
     @SuppressWarnings("SameParameterValue")
     private void msj(String title, String msj) {
