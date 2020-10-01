@@ -102,13 +102,42 @@ public class OrdenCompra extends Fragment {
 
         adapter.SetOnEliminarOrden(new AdapterOrdenes.OnEliminarOrden() {
             @Override
-            public void eliminarOrden(int pos) {
+            public void eliminarOrden(final int pos) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("Advertencia").setMessage("Seguro(a) que desea elimiar esta orden?");
                 builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        StringRequest request = new StringRequest(Request.Method.DELETE, configuracion.getUrl() +
+                                "/pedido/eliminar_pedido/" + ordenes.get(pos).getId() + "?api_key=" + Configuracion.API_KEY, new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                               ordenes.remove(pos);
+                               adapter.notifyDataSetChanged();
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                try{
+                                    if (error.networkResponse!=null){
+                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                    }else{
+                                        msj("Error",error.getMessage());
+                                    }
+
+                                }catch (Exception e){
+                                    msj("Error",e.getMessage());
+                                }
+                            }
+                        });
+                        request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+                        RequestQueue queue = Volley.newRequestQueue(Objects.requireNonNull(getActivity()));
+                        queue.add(request);
                         dialog.dismiss();
+
                     }
                 }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override

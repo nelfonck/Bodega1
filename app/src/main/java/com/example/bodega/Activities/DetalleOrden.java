@@ -58,6 +58,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class DetalleOrden extends AppCompatActivity {
     private static String user ;
@@ -390,6 +391,8 @@ public class DetalleOrden extends AppCompatActivity {
                     JSONObject objResponse = new JSONObject(response);
                     if (objResponse.getBoolean("guardado")){
                         limpiarLista();
+                        eliminarPedido();
+                        finish();
                     }
                 } catch (JSONException e) {
                     msj("Error", e.getMessage());
@@ -524,6 +527,37 @@ public class DetalleOrden extends AppCompatActivity {
         setTotales();
 
         eliminarDetalle();
+
+    }
+
+    public void eliminarPedido(){
+        StringRequest request = new StringRequest(Request.Method.DELETE, configuracion.getUrl() +
+                "/pedido/eliminar_pedido/" + id+ "?api_key=" + Configuracion.API_KEY, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try{
+                    if (error.networkResponse!=null){
+                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                    }else{
+                        msj("Error",error.getMessage());
+                    }
+
+                }catch (Exception e){
+                    msj("Error",e.getMessage());
+                }
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
     }
 
     public void eliminarDetalle(){
