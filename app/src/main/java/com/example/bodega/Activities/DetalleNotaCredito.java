@@ -727,6 +727,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
                         Toast.makeText(DetalleNotaCredito.this,"La nota ha sido enviada a Qpos",Toast.LENGTH_SHORT).show();
                         limpiarLista();
                         eliminarNotaDb();
+                        finish();
                     }
                 }
             }, new Response.ErrorListener() {
