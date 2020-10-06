@@ -721,14 +721,18 @@ public class DetalleNotaCredito extends AppCompatActivity {
             StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/nota/guardar", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    if (!response.equals("")){
-                        msj("Error",response);
-                    }else{
-                        Toast.makeText(DetalleNotaCredito.this,"La nota ha sido enviada a Qpos",Toast.LENGTH_SHORT).show();
-                        limpiarLista();
-                        eliminarNotaDb();
-                        finish();
+                    try {
+                        JSONObject object = new JSONObject(response);
+                        if (object.getBoolean("guardada")){
+                            Toast.makeText(DetalleNotaCredito.this,"La nota ha sido enviada a Qpos",Toast.LENGTH_SHORT).show();
+                            limpiarLista();
+                            eliminarNotaDb();
+                            finish();
+                        }
+                    } catch (JSONException e) {
+                       msj("Error", e.getMessage());
                     }
+
                 }
             }, new Response.ErrorListener() {
                 @Override
