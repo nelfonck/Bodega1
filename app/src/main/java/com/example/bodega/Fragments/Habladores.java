@@ -196,7 +196,7 @@ public class Habladores extends Fragment {
                         values.put("api_key", Configuracion.API_KEY);
 
                         StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                                "/hablador/articulo/"+ values.toString(), new Response.Listener<String>() {
+                                "/hablador/articulo"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {
@@ -354,11 +354,14 @@ public class Habladores extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void doCall(final String codigo) {
 
+
+
                 com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
                 values.put("codigo",codigo);
                 values.put("api_key", Configuracion.API_KEY);
 
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() + "/hablador/articulo/"+values.toString(),
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() + "/hablador/articulo"+values.toString() +
+                        "&api_key=" + Configuracion.API_KEY,
                         null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject articulo) {
@@ -400,6 +403,8 @@ public class Habladores extends Fragment {
 
                 RequestQueue queue = Volley.newRequestQueue(getActivity());
                 queue.add(request);
+
+
     }
 
     public void enviar(final List<ModHablador> lista) {

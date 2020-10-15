@@ -405,7 +405,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/familia/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/familia" +
                     values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -449,7 +449,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/impuesto/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/impuesto" +
                     values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -490,7 +490,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/marca/" +
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl() + "/marca" +
                  values.toString(), null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -528,7 +528,7 @@ public class Articulos extends Fragment {
             ContentValues values = new ContentValues();
             values.put("api_key",Configuracion.API_KEY);
 
-            StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/unidad_medida/" +
+            StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/unidad_medida" +
             values.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -648,7 +648,8 @@ public class Articulos extends Fragment {
         ContentValues values = new ContentValues();
         values.put("api_key",Configuracion.API_KEY);
         values.put("codigo",codigo);
-        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulo/articulo/"  +
+
+        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/articulo/articulo"  +
             values.toString(), new Response.Listener<String>() {
              @Override
              public void onResponse(String response) {
