@@ -95,7 +95,7 @@ public class Salidas extends Fragment {
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         configuracion.setHost(sp.getString("host",""));
-        configuracion.setPort(sp.getString("port","port"));
+        configuracion.setPort(sp.getString("port",""));
 
         chartSalidas = view.findViewById(R.id.chartSalidas);
 
@@ -244,7 +244,7 @@ public class Salidas extends Fragment {
             final Gson gson = new Gson();
 
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/rotacion/salida/" +
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, configuracion.getUrl() + "/rotacion/salida" +
                     "?codigo=" + URLEncoder.encode(codigo,"utf-8") +
                     "&dias="+gson.toJson(intervalos) +
                     "&api_key="+Configuracion.API_KEY, new Response.Listener<String>() {

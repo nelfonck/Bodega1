@@ -75,7 +75,7 @@ public class NotasCredito extends Fragment {
         configuracion = new Configuracion();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         configuracion.setHost(sp.getString("host",""));
-        configuracion.setPort(sp.getString("port","port"));
+        configuracion.setPort(sp.getString("port",""));
 
         FloatingActionButton fabNuevo = v.findViewById(R.id.fabNuevaNota);
 
@@ -299,7 +299,7 @@ public class NotasCredito extends Fragment {
             RequestQueue queue = Volley.newRequestQueue(getActivity());
             JsonArrayRequest arrProv = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl()
                     + "/proveedor/proveedores" +
-                    ((proveedor!=null) ? "/" + proveedor : "") +
+                    ((!proveedor.equals("")) ? "/" + proveedor : "") +
                     values.toString() , null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -325,6 +325,7 @@ public class NotasCredito extends Fragment {
                 }
             });
             queue.add(arrProv);
+
         }catch (Exception e){
             msj("Error",e.getMessage());
             if (progressDialog.isShowing()) progressDialog.dismiss();

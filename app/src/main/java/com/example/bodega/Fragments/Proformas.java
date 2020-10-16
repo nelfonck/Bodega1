@@ -296,7 +296,7 @@ public class Proformas extends Fragment {
         final Gson gson = new Gson();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         final StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl()+
-                "/cliente/cliente/?cliente="+cliente+"&api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
+                "/cliente/cliente?cliente="+cliente+"&api_key="+Configuracion.API_KEY, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                   clientes.clear();
@@ -363,7 +363,7 @@ public class Proformas extends Fragment {
     private void getCreditoDisponible(String cod_cliente,final int pos){
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, configuracion.getUrl() +
-                "/cliente/cliente/?cod_cliente=" + cod_cliente + "&api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
+                "/cliente/cliente?cod_cliente=" + cod_cliente + "&api_key=" + Configuracion.API_KEY, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (response.length()>0){

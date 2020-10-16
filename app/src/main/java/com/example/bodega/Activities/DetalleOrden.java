@@ -148,7 +148,7 @@ public class DetalleOrden extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN){
                         assert extras != null;
                         obtArticulo(txtCodigo.getText().toString(),extras.getString("cod_proveedor"));
-
+                        showKeyboard(DetalleOrden.this,txtCant);
                     }
                 return false;
             }
@@ -162,17 +162,27 @@ public class DetalleOrden extends AppCompatActivity {
                         if (validarTextos(txtCodigo,txtCant)){
                             if (objArticulo!=null){
                                 insertarLinea(txtCodigo.getText().toString(), Float.parseFloat(txtCant.getText().toString()));
-                                if (scanned_from_scan){
-                                    hideKeyboard(DetalleOrden.this,txtCodigo);
-                                }else{
-                                    showKeyboard(DetalleOrden.this,txtCodigo);
-                                }
+                                hideKeyboard(DetalleOrden.this,txtCodigo);
                             }else{
                                 Toast.makeText(DetalleOrden.this, "Debe filtrar el artículo", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
                 return false;
+            }
+        });
+
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (validarTextos(txtCodigo,txtCant)){
+                    if (objArticulo!=null){
+                        insertarLinea(txtCodigo.getText().toString(), Float.parseFloat(txtCant.getText().toString()));
+                        hideKeyboard(DetalleOrden.this,txtCodigo);
+                    }else{
+                        Toast.makeText(DetalleOrden.this, "Debe filtrar el artículo", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         });
 
@@ -827,7 +837,7 @@ public class DetalleOrden extends AppCompatActivity {
         ContentValues values = new ContentValues();
         values.put("api_key", Configuracion.API_KEY);
         StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                "/pedido/detalle/" + id + "/" + values.toString(), new Response.Listener<String>() {
+                "/pedido/detalle/" + id +  values.toString(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try{

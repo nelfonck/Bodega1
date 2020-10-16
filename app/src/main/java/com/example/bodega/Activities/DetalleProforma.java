@@ -170,7 +170,7 @@ public class DetalleProforma extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
 
                         txtCantidad.requestFocus();
-                        scanned_from_scan = false ;
+
                         showKeyboard(DetalleProforma.this,txtCantidad);
                         return true;
                     }
@@ -190,11 +190,9 @@ public class DetalleProforma extends AppCompatActivity {
                             txtCodigo.setText("");
                             txtCantidad.setText("");
                             txtCodigo.requestFocus();
-                            if (scanned_from_scan){
-                                hideKeyboard(DetalleProforma.this,txtCodigo);
-                            }else{
-                                showKeyboard(DetalleProforma.this,txtCodigo);
-                            }
+
+                            hideKeyboard(DetalleProforma.this,txtCodigo);
+
                         } else {
                             Toast.makeText(DetalleProforma.this, "El código y la cantidad no pueden estar vaciós", Toast.LENGTH_SHORT).show();
                         }
@@ -370,7 +368,7 @@ public class DetalleProforma extends AppCompatActivity {
             values.put("api_key",Configuracion.API_KEY);
 
             StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                    "/articulo/articulo/" + values.toString(), new Response.Listener<String>() {
+                    "/articulo/articulo" + values.toString(), new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -734,7 +732,7 @@ public class DetalleProforma extends AppCompatActivity {
                         values.put("api_key",Configuracion.API_KEY);
 
                         StringRequest  request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
-                                "/articulo/articulo/"+ values.toString(), new Response.Listener<String>() {
+                                "/articulo/articulo"+ values.toString(), new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 try {

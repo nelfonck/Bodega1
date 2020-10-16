@@ -276,7 +276,7 @@ public class OrdenCompra extends Fragment {
             RequestQueue queue = Volley.newRequestQueue(getActivity());
             JsonArrayRequest arrProv = new JsonArrayRequest(Request.Method.GET, configuracion.getUrl()
                     + "/proveedor/proveedores" +
-                    ((proveedor!=null) ? "/" + proveedor : "") +
+                    ((!proveedor.equals("")) ? "/" + proveedor : "") +
                     values.toString() , null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {

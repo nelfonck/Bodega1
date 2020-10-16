@@ -148,14 +148,11 @@ public class DetalleNotaCredito extends AppCompatActivity {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
                         if (validar(txtCodigo.getText().toString(), txtCantidad.getText().toString())) {
                             findArticulo(txtCodigo.getText().toString(), Float.parseFloat(txtCantidad.getText().toString()));
+                            hideKeyboard(DetalleNotaCredito.this,txtCodigo);
                             txtCodigo.setText("");
                             txtCantidad.setText("");
                             txtCodigo.requestFocus();
-                            if (scanned_from_scan){
-                                hideKeyboard(DetalleNotaCredito.this,txtCodigo);
-                            }else{
-                                showKeyboard(DetalleNotaCredito.this,txtCodigo);
-                            }
+
                         } else {
                             Toast.makeText(DetalleNotaCredito.this, "El código y la cantidad no pueden estar vaciós", Toast.LENGTH_SHORT).show();
                         }
