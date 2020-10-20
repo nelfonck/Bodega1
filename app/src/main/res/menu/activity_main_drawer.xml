@@ -34,6 +34,11 @@
             android:id="@+id/orden_compra"
             android:icon="@drawable/orden_compra"
             android:title="@string/orden_de_compra" />
+
+        <item
+            android:id="@+id/bloque_articulos"
+            android:icon="@drawable/ic_baseline_view_day_24"
+            android:title="@string/asignar_familia_a_bloque" />
     </group>
 
     <item android:title="Preferencias">

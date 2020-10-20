@@ -75,7 +75,6 @@ public class Habladores extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
         baseAdapter = new BaseAdapter(getActivity());
 
     }

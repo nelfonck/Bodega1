@@ -7,13 +7,20 @@ import android.provider.BaseColumns;
 
 public class BaseAdapter extends SQLiteOpenHelper {
     private static final String DB_NAME ="DB" ;
-    private static final int VERSION = 12;
+    private static final int VERSION = 13;
 
     public static abstract class HABLADORES implements BaseColumns{
         public static final String TABLE_NAME = "HABLADORES";
         public static final String CODIGO = "CODIGO" ;
         public static final String DESCRIPCION = "DESCRIPCION" ;
         public static final String PRECIO = "PRECIO" ;
+    }
+
+    public static abstract class BLOQUE_ARTICULOS implements BaseColumns{
+        public static final String TABLE_NAME = "BLOQUE_ARTICULOS" ;
+        public static final String ID = "_ID" ;
+        public static final String COD_ARTICULO = "COD_ARTICULO" ;
+        public static final String ARTICULO = "ARTICULO" ;
     }
 
     public static abstract class PROFORMA implements BaseColumns {
@@ -123,6 +130,13 @@ public class BaseAdapter extends SQLiteOpenHelper {
                     DETALLE_NOTAS_CREDITO.COD_IMPUESTO + " TEXT (20) NOT NULL ," +
                     "FOREIGN KEY("+DETALLE_NOTAS_CREDITO.REF+") REFERENCES "+NOTAS_CREDITO.TABLE_NAME+"("+NOTAS_CREDITO.ID+"))";
 
+    private static final String SENTENCIA_BLOQUE_ARTICULOS  =
+            "CREATE TABLE " + BLOQUE_ARTICULOS.TABLE_NAME
+                + "(" +
+                    BLOQUE_ARTICULOS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BLOQUE_ARTICULOS.COD_ARTICULO + " TEXT (30) NOT NULL," +
+                    BLOQUE_ARTICULOS.ARTICULO + " TEXT (100) NOT NULL)" ;
+
     public BaseAdapter(Context context) {
         super(context, DB_NAME, null, VERSION);
     }
@@ -134,6 +148,7 @@ public class BaseAdapter extends SQLiteOpenHelper {
         db.execSQL(SENTENCIA_DETALLE_PROFORMA);
         db.execSQL(SENTENCIA_NOTAS_CREDITO);
         db.execSQL(SENTENCIA_DETALLE_NOTAS_CREDITO);
+        db.execSQL(SENTENCIA_BLOQUE_ARTICULOS);
 
     }
 
@@ -145,6 +160,7 @@ public class BaseAdapter extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + DETALLE_PROFORMA.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + NOTAS_CREDITO.TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + DETALLE_NOTAS_CREDITO.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + BLOQUE_ARTICULOS.TABLE_NAME);
             onCreate(db);
         }
     }

@@ -32,8 +32,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.InputStreamVolleyRequest;
 import com.example.bodega.Fragments.Articulos;
+import com.example.bodega.Fragments.BloqueArticulos;
 import com.example.bodega.Fragments.Habladores;
 import com.example.bodega.Fragments.NotasCredito;
 import com.example.bodega.Fragments.OrdenCompra;
@@ -168,6 +170,15 @@ public class Home extends AppCompatActivity {
                         boc.putString("user",user);
                         fr.setArguments(boc);
                         titulo = "Orden de compra";
+                        break;
+
+                    case R.id.bloque_articulos:
+                        fr = new BloqueArticulos();
+                        fragmentTransaction =true ;
+                        Bundle bba = new Bundle();
+                        bba.putString("user",user);
+                        fr.setArguments(bba);
+                        titulo = "Asignar familia a bloque de artículos";
                         break;
                     case R.id.salir :
                         finish();
