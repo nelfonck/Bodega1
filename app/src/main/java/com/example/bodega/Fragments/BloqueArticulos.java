@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -40,10 +41,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.bodega.Adapters.AdapterBloqueArticulos;
+import com.example.bodega.Adapters.AdapterFamilias;
 import com.example.bodega.Adapters.BaseAdapter;
 import com.example.bodega.Adapters.FiltroArticuloAdapter;
 import com.example.bodega.Models.Configuracion;
 import com.example.bodega.Models.ModBloqueArticulos;
+import com.example.bodega.Models.ModFamilia;
 import com.example.bodega.Models.ModFiltroArticulo;
 import com.example.bodega.Models.ModHablador;
 import com.example.bodega.R;
@@ -69,6 +72,7 @@ public class BloqueArticulos extends Fragment {
     private RecyclerView recyclerView;
     private EditText txtCodigo;
     private String user ;
+    private String cod_familia = "", familia = "" ;
 
     public BloqueArticulos() {
         // Required empty public constructor
@@ -135,6 +139,7 @@ public class BloqueArticulos extends Fragment {
 
         ImageButton btnScan = view.findViewById(R.id.btnScan);
         ImageButton btnBuscarDescripcion = view.findViewById(R.id.btnBuscarDescripcion);
+        Button btnFAmilia = view.findViewById(R.id.btnFamilia);
 
         lista = new ArrayList<>();
         user = getArguments().getString("user");
@@ -179,6 +184,13 @@ public class BloqueArticulos extends Fragment {
                     }
                     }
                 return false;
+            }
+        });
+
+        btnFAmilia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buscarFamilia();
             }
         });
 
@@ -316,6 +328,86 @@ public class BloqueArticulos extends Fragment {
         } catch (SQLiteException e) {
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void buscarFamilia(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        View view = View.inflate(getActivity(),R.layout.dialog_filtro_familia,null);
+        builder.setView(view);
+        final EditText txtFamilia = view.findViewById(R.id.txtFiltroFamilia);
+        RecyclerView recyclerView = view.findViewById(R.id.rvFiltroFamilia);
+        final List<ModFamilia> familias = new ArrayList<>();
+        final AdapterFamilias adapterFamilias = new AdapterFamilias(familias);
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapterFamilias);
+
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        txtFamilia.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER)
+                    if (event.getAction() == KeyEvent.ACTION_DOWN){
+                        com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
+                        values.put("api_key", Configuracion.API_KEY);
+                        StringRequest request = new StringRequest(Request.Method.GET, configuracion.getUrl() +
+                                "/filtrar_familia" + (!txtFamilia.getText().toString().equals("") ? "/" + txtFamilia.getText().toString() : "") + values.toString(),
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        Gson gson = new Gson();
+                                        familias.clear();
+                                        familias.addAll(Arrays.asList(gson.fromJson(response, ModFamilia[].class)));
+                                        adapterFamilias.notifyDataSetChanged();
+
+                                    }
+                                }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                try{
+                                    if (error.networkResponse!=null){
+                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                    }else{
+                                        msj("Error",error.getMessage());
+                                    }
+
+                                }catch (Exception e){
+                                    msj("Error",e.getMessage());
+                                }
+                            }
+                        });
+                        //Un minuto de timeout porque puede devolver varios registros y puede demorar
+                        request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+                        RequestQueue queue = Volley.newRequestQueue(getActivity());
+                        queue.add(request);
+
+                        return true ;
+                    }
+                return false;
+            }
+        });
+
+        adapterFamilias.setOnItemClickListener(new AdapterFamilias.OnItemClickListener() {
+            @Override
+            public void OnItemClick(int pos) {
+                cod_familia = familias.get(pos).getCod();
+                familia = familias.get(pos).getFamilia();
+                Toast.makeText(getActivity(), "Selected family : " + familia ,Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
     }
 
     private void buscarDescripcion() {

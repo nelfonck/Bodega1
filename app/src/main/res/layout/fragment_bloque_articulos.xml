@@ -9,35 +9,28 @@
         android:id="@+id/rvBlqueArticulos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/cvFamilia"
+        android:layout_above="@+id/btnFamilia"
         android:layout_marginBottom="10dp"
         android:layout_alignParentTop="true"
         />
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cvFamilia"
+
+
+    <Button
+        android:id="@+id/btnFamilia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="5dp"
-        android:layout_marginLeft="5dp"
+        android:layout_above="@id/btnScan"
         android:layout_marginBottom="10dp"
-        android:layout_above="@id/btnBuscarDescripcion"
-       android:backgroundTint="#fff"
-        >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textAlignment="center"
-            android:layout_margin="10dp"
-            android:textStyle="bold"
-            android:text="@string/click_aqu_para_elegir_una_familia"/>
+        android:textAlignment="center"
+        android:text="@string/click_aqu_para_elegir_una_familia"
+        android:backgroundTint="#fff"/>
 
-    </androidx.cardview.widget.CardView>
 
     <EditText
         android:id="@+id/txtCodigo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/cvFamilia"
+        android:layout_below="@id/btnFamilia"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="3dp"
