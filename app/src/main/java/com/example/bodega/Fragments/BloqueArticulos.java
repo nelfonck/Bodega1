@@ -32,6 +32,7 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -505,13 +506,11 @@ public class BloqueArticulos extends Fragment {
         if (lista.isEmpty())
             Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
         else {
-            Gson gson = new Gson();
+
             com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
-            values.put("cod_familia",cod_familia);
-            values.put("codigos",gson.toJson(lista));
             values.put("api_key",Configuracion.API_KEY);
 
-            StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulo/familia_bloque" + values.toString(),
+            StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() + "/articulo/familia_bloque" + values.toString(),
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
@@ -531,7 +530,17 @@ public class BloqueArticulos extends Fragment {
                         msj("Error",e.getMessage());
                     }
                 }
-            });
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Gson gson = new Gson() ;
+                    String jsonList =  gson.toJson(lista) ;
+                    Map<String, String> params = new HashMap<>();
+                    params.put("codigos",jsonList);
+                    params.put("cod_familia", cod_familia);
+                    return params;
+                }
+            } ;
             //Un minuto de timeout porque puede devolver varios registros y puede demorar
             request.setRetryPolicy(new DefaultRetryPolicy(60000,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
