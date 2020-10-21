@@ -73,6 +73,7 @@ public class BloqueArticulos extends Fragment {
     private EditText txtCodigo;
     private String user ;
     private String cod_familia = "", familia = "" ;
+    private Button btnFAmilia ;
 
     public BloqueArticulos() {
         // Required empty public constructor
@@ -139,7 +140,7 @@ public class BloqueArticulos extends Fragment {
 
         ImageButton btnScan = view.findViewById(R.id.btnScan);
         ImageButton btnBuscarDescripcion = view.findViewById(R.id.btnBuscarDescripcion);
-        Button btnFAmilia = view.findViewById(R.id.btnFamilia);
+        btnFAmilia = view.findViewById(R.id.btnFamilia);
 
         lista = new ArrayList<>();
         user = getArguments().getString("user");
@@ -404,7 +405,7 @@ public class BloqueArticulos extends Fragment {
             public void OnItemClick(int pos) {
                 cod_familia = familias.get(pos).getCod();
                 familia = familias.get(pos).getFamilia();
-                Toast.makeText(getActivity(), "Selected family : " + familia ,Toast.LENGTH_SHORT).show();
+                btnFAmilia.setText(familia);
                 dialog.dismiss();
             }
         });
@@ -504,7 +505,40 @@ public class BloqueArticulos extends Fragment {
         if (lista.isEmpty())
             Toast.makeText(getActivity(), "No hay registros aún.", Toast.LENGTH_SHORT).show();
         else {
-          //aqui codigo para asignar lista a la familia
+            Gson gson = new Gson();
+            com.example.bodega.Models.ContentValues values = new com.example.bodega.Models.ContentValues();
+            values.put("cod_familia",cod_familia);
+            values.put("codigos",gson.toJson(lista));
+            values.put("api_key",Configuracion.API_KEY);
+
+            StringRequest request = new StringRequest(Request.Method.PUT, configuracion.getUrl() + "/articulo/familia_bloque" + values.toString(),
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    try{
+                        if (error.networkResponse!=null){
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",error.getMessage());
+                        }
+
+                    }catch (Exception e){
+                        msj("Error",e.getMessage());
+                    }
+                }
+            });
+            //Un minuto de timeout porque puede devolver varios registros y puede demorar
+            request.setRetryPolicy(new DefaultRetryPolicy(60000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
+            queue.add(request);
         }
     }
 
