@@ -45,7 +45,7 @@ public class AdapterBloqueArticulos  extends RecyclerView.Adapter<AdapterBloqueA
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvCodigo, tvDescripcion ;
+        TextView tvCodigo, tvDescripcion ;//
         OnEliminarListener onEliminarListener ;
 
 
