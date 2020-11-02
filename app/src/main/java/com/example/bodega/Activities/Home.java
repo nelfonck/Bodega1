@@ -42,6 +42,7 @@ import com.example.bodega.Fragments.OrdenCompra;
 import com.example.bodega.Fragments.Preferencias;
 import com.example.bodega.Fragments.Proformas;
 import com.example.bodega.Fragments.RecepcionDocumentos;
+import com.example.bodega.Fragments.RegistroCompras;
 import com.example.bodega.Fragments.Salidas;
 
 import com.example.bodega.Models.Configuracion;
@@ -179,6 +180,14 @@ public class Home extends AppCompatActivity {
                         bba.putString("user",user);
                         fr.setArguments(bba);
                         titulo = "Asignar familia a bloque de artículos";
+                        break;
+                    case R.id.registro_compras:
+                        fr = new RegistroCompras();
+                        fragmentTransaction =true ;
+                        Bundle brc = new Bundle();
+                        brc.putString("user",user);
+                        fr.setArguments(brc);
+                        titulo = "Registro de compras";
                         break;
                     case R.id.salir :
                         finish();
