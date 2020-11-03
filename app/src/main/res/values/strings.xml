@@ -27,4 +27,5 @@
     <string name="hello_world">Hello Square World!</string>
     <string name="asignar_familia_a_bloque">Asignar familia a bloque</string>
     <string name="click_aqu_para_elegir_una_familia">CLICK AQUÍ PARA ELEGIR UNA FAMILIA</string>
+    <string name="title_activity_detalle_compra">DetalleCompra</string>
 </resources>

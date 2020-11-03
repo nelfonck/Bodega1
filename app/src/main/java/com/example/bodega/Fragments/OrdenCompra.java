@@ -319,10 +319,11 @@ public class OrdenCompra extends Fragment {
                 "/pedido/pedidos?api_key=" + Configuracion.API_KEY, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
+                if (progressDialog.isShowing()) progressDialog.dismiss();
                 Gson gson = new Gson() ;
+                ordenes.clear();
                 ordenes.addAll(Arrays.asList(gson.fromJson(response,ModOrden[].class)));
                 adapter.notifyDataSetChanged();
-                if (progressDialog.isShowing()) progressDialog.dismiss();
             }
         }, new Response.ErrorListener() {
             @Override

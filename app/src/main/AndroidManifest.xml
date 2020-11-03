@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.bodega">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature android:name="android.hardware.type.watch" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -21,9 +25,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <meta-data
-            android:name="com.google.android.wearable.standalone"
-            android:value="true" />
+
+        <activity
+            android:name=".Activities.DetalleCompra"
+            android:label="@string/title_activity_detalle_compra"></activity>
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
@@ -31,31 +36,31 @@
 
         <activity
             android:name=".Activities.DetalleOrden"
+            android:configChanges="orientation"
             android:label="@string/title_activity_detalle_orden"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.DetalleNotaCredito"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".Activities.DetalleNotaCredito"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.Home"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".Activities.Home"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".Activities.Login"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.Login"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".Activities.DetalleProforma"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
-             />
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
