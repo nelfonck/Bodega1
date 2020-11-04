@@ -3,10 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.bodega">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <uses-feature android:name="android.hardware.type.watch" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -28,7 +24,7 @@
 
         <activity
             android:name=".Activities.DetalleCompra"
-            android:label="@string/title_activity_detalle_compra"></activity>
+            android:label="@string/title_activity_detalle_compra"/>
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
