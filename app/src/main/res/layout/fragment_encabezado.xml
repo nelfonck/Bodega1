@@ -5,10 +5,52 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.Compra.Encabezado">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Encabezado" />
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Número de compra" />
+
+        <EditText
+            android:id="@+id/txtCompra"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvCodProveedor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="Codigo proveedor"/>
+
+
+        <TextView
+            android:id="@+id/tvRazonSocial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RAZON SOCIAL"/>
+
+        <TextView
+            android:id="@+id/tvRazonComercial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RAZON COMERCIAL"/>
+
+    <Button
+        android:id="@+id/btnParam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pasar parametro"/>
+
+    </LinearLayout>
+
+
 
 </FrameLayout>

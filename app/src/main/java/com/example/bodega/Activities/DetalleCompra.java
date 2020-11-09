@@ -1,5 +1,6 @@
 package com.example.bodega.Activities;
 
+import android.content.ContentValues;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +17,7 @@ public class DetalleCompra extends AppCompatActivity {
     TabItem tabEncabezado, tabDetalle, tabNota ;
     PageAdapter pageAdapter ;
 
+    private String myString = "hello";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,8 +29,12 @@ public class DetalleCompra extends AppCompatActivity {
         tabDetalle = findViewById(R.id.tabDetalle);
         tabNota = findViewById(R.id.tabNotas);
 
-        pageAdapter = new PageAdapter(getSupportFragmentManager(),tabLayout.getTabCount());
+        Bundle args = getIntent().getExtras();
+
+        pageAdapter = new PageAdapter(getSupportFragmentManager(),tabLayout.getTabCount(),args);
+
         viewPager.setAdapter(pageAdapter);
+
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -51,5 +57,14 @@ public class DetalleCompra extends AppCompatActivity {
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
+
+    }
+
+    public String getMyData() {
+        return myString;
+    }
+
+    public void setByData(String str){
+        this.myString = str ;
     }
 }

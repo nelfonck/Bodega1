@@ -134,11 +134,11 @@ public class RegistroCompras extends Fragment {
                     @Override
                     public void onClick(int pos) {
 
-                     /*  final String cod_proveedor = proveedorList.get(pos).getCod_proveedor();
+                       final String cod_proveedor = proveedorList.get(pos).getCod_proveedor();
                         final String razsocial = proveedorList.get(pos).getRazocial();
                         final String razon_comercial = proveedorList.get(pos).getRazon_comercial();
 
-                        StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() +
+                      /*  StringRequest request = new StringRequest(Request.Method.POST, configuracion.getUrl() +
                                 "/compra/guardar", new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -194,6 +194,15 @@ public class RegistroCompras extends Fragment {
 
                         RequestQueue queue = Volley.newRequestQueue(Objects.requireNonNull(getActivity()));
                         queue.add(request); */
+
+                        Intent detalle = new Intent(getActivity(),DetalleCompra.class);
+
+                        detalle.putExtra("cod_proveedor", cod_proveedor);
+                        detalle.putExtra("razon_social",razsocial);
+                        detalle.putExtra("razon_comercial",razon_comercial);
+                        detalle.putExtra("user",getArguments().getString("user"));
+                        startActivity(detalle);
+
                         dialog.dismiss();
                     }
                 });
