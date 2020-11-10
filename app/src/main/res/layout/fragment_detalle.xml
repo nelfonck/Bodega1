@@ -4,23 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.Compra.Detalle">
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
         <!-- TODO: Update blank fragment layout -->
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Detalle" />
 
-        <Button
-            android:id="@+id/btnGet"
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvDetalleCompra"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabNuevoArticulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Get Data"/>
-    </LinearLayout>
+            android:layout_margin="10dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:backgroundTint="@color/colorPrimary"
+            android:src="@drawable/ic_add"/>
+
+    </RelativeLayout>
 
 
 </FrameLayout>
