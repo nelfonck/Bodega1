@@ -33,14 +33,8 @@ public class Detalle extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_detalle,container,false);
-        final TextView textView = v.findViewById(R.id.tvTitle);
-        Button btnGet = v.findViewById(R.id.btnGet);
-        btnGet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText(((DetalleCompra)getActivity()).getMyData());
-            }
-        });
+
+
 
         return v;
     }

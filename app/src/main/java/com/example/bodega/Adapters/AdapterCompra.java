@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bodega.Models.ModCompra;
 import com.example.bodega.R;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class AdapterCompra extends RecyclerView.Adapter<AdapterCompra.ViewHolder> {
@@ -39,11 +40,12 @@ public class AdapterCompra extends RecyclerView.Adapter<AdapterCompra.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        DecimalFormat formatter = new DecimalFormat("#,###,###.##");
         holder.tvCompra.setText(("# " + compras.get(position).getNumero_compra()));
         holder.tvCodProveedor.setText(("Proveedor: " + compras.get(position).getCod_proveedor()));
         holder.tvRazonScocial.setText(compras.get(position).getRazon_social());
         holder.tvEstado.setText(compras.get(position).getEstado());
-        holder.tvTotal.setText(("Total ₡ " + compras.get(position).getTotal()));
+        holder.tvTotal.setText(("Total ₡ " + formatter.format(compras.get(position).getTotal())));
         holder.tvFecha.setText(compras.get(position).getFecha());
     }
 
