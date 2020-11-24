@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context=".Fragments.Compra.Encabezado">
 
     <LinearLayout
+        android:id="@+id/linearlayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
         android:orientation="vertical">
         <TextView
+            android:id="@+id/tvNumCompra"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Número de compra" />
 
-        <EditText
-            android:id="@+id/txtCompra"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/tvCodProveedor"
@@ -43,14 +39,70 @@
             android:layout_height="wrap_content"
             android:text="RAZON COMERCIAL"/>
 
-    <Button
-        android:id="@+id/btnParam"
+    </LinearLayout>
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/linearlayout"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Pasar parametro"/>
+        android:layout_below="@id/separator"
+        android:text="Subtotal:"/>
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/tvSubTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/separator"
+        android:layout_alignParentEnd="true"
+        android:text="0.00"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvSubTotal"
+        android:text="Impuestos:"/>
 
+    <TextView
+        android:id="@+id/tvImpuestos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvSubTotal"
+        android:layout_alignParentEnd="true"
+        android:text="0.00"/>
 
-</FrameLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvImpuestos"
+        android:text="Descuento:"/>
+
+    <TextView
+        android:id="@+id/tvDescuento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvImpuestos"
+        android:layout_alignParentEnd="true"
+        android:text="0.00"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvDescuento"
+        android:text="Total:"/>
+
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvDescuento"
+        android:layout_alignParentEnd="true"
+        android:textStyle="bold"
+        android:text="0.00"/>
+
+</RelativeLayout>

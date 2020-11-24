@@ -20,6 +20,10 @@ public class AdapterDetalleCompra extends RecyclerView.Adapter<AdapterDetalleCom
     private OnEliminarListener onEliminarListener ;
     private OnModificarListener onModificarListener ;
 
+    public AdapterDetalleCompra(List<ModDetalleCompra> detalle) {
+        this.detalle = detalle;
+    }
+
     public void SetOnEliminarListener(OnEliminarListener onEliminarListener){
         this.onEliminarListener = onEliminarListener ;
     }

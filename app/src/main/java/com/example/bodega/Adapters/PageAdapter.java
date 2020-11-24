@@ -14,13 +14,13 @@ import com.example.bodega.Fragments.Compra.Notas;
 public class PageAdapter extends FragmentPagerAdapter {
 
     int numTabs ;
-    Bundle bundle ;
 
-    public PageAdapter(@NonNull FragmentManager fm, int behavior,Bundle bundle) {
+    public PageAdapter(@NonNull FragmentManager fm, int behavior) {
         super(fm, behavior);
         this.numTabs = behavior;
-        this.bundle = bundle ;
+
     }
+
 
     @NonNull
     @Override
@@ -28,15 +28,12 @@ public class PageAdapter extends FragmentPagerAdapter {
         switch (position){
             case 0:
                 Encabezado encabezado = new Encabezado();
-                encabezado.setArguments(bundle);
                 return encabezado;
             case 1:
                 Detalle detalle = new Detalle();
-                detalle.setArguments(bundle);
                 return detalle;
             case 2:
                 Notas notas = new Notas();
-                notas.setArguments(bundle);
                 return notas;
             default:
                 return null ;
