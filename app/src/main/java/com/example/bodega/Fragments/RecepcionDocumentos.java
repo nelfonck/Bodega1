@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -16,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -81,6 +83,7 @@ public class RecepcionDocumentos extends Fragment {
 
 
         txtConsecutivo.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -93,6 +96,7 @@ public class RecepcionDocumentos extends Fragment {
         });
 
         txtTotalFactura.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -136,7 +140,8 @@ public class RecepcionDocumentos extends Fragment {
     }
     //OVERLOAD METHODS
 
-    private void verificar(String consecutivo,String totalFactura){
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void verificar(String consecutivo, String totalFactura){
         ContentValues values = new ContentValues();
         values.put("consecutivo", (consecutivo.length() >0) ? consecutivo : "");
         values.put("total", (totalFactura.length() >0) ? totalFactura : "");
@@ -195,6 +200,7 @@ public class RecepcionDocumentos extends Fragment {
         queue.add(stringRequest);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void verificar(int id, String consecutivo){
         ContentValues values = new ContentValues();
         values.put("consecutivo", consecutivo);
@@ -288,6 +294,7 @@ public class RecepcionDocumentos extends Fragment {
         final AlertDialog dialog = builder.create();
 
         adapterDocumentos.SetOnItemClick(new AdapterDocumentos.OnItemClick() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void itemClick(int pos) {
                 txtConsecutivo.setText(listDocumentos.get(pos).getConsecutivo_hacienda());

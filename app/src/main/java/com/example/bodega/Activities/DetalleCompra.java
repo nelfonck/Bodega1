@@ -3,9 +3,11 @@ package com.example.bodega.Activities;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
@@ -131,6 +133,7 @@ public class DetalleCompra extends AppCompatActivity  {
                 }
             }
         }, new Response.ErrorListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse!=null){

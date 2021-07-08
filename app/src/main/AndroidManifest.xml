@@ -42,7 +42,9 @@
         <activity
             android:name=".Activities.Home"
             android:configChanges="orientation"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" >
+
+        </activity>
         <activity
             android:name=".Activities.Login"
             android:configChanges="orientation"

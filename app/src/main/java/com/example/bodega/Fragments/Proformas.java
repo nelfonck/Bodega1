@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -20,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -222,7 +224,10 @@ public class Proformas extends Fragment {
 
                     incluirProforma(baseAdapter,cod_cliente,cliente);
                     String consecutivo = String.valueOf(getLastId(baseAdapter));
-                    String date = new SimpleDateFormat("Y-m-d", Locale.getDefault()).format(new Date());
+                    String date = null;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                        date = new SimpleDateFormat("Y-m-d", Locale.getDefault()).format(new Date());
+                    }
                     proformaList.add(new ModProforma(consecutivo,cod_cliente,cliente,date,0,0,0,0,0,0,0));
                     Intent detalleProforma = new Intent(getActivity(), DetalleProforma.class);
                     detalleProforma.putExtra("consecutivo",consecutivo);
@@ -307,6 +312,7 @@ public class Proformas extends Fragment {
 
             }
         }, new Response.ErrorListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onErrorResponse(VolleyError error) {
                 try{
@@ -378,6 +384,7 @@ public class Proformas extends Fragment {
                 }
             }
         }, new Response.ErrorListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onErrorResponse(VolleyError error) {
                 try{

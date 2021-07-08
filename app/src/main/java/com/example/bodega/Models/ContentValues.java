@@ -15,7 +15,7 @@ public class ContentValues {
         parametros = new StringBuilder();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+
     public void put(String key, String value) {
 
 

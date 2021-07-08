@@ -438,6 +438,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
         dialog.show();
 
         txtArticulo.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -732,6 +733,7 @@ public class DetalleNotaCredito extends AppCompatActivity {
 
                 }
             }, new Response.ErrorListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     try{

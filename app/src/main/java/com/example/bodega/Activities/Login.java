@@ -1,6 +1,7 @@
 package com.example.bodega.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -92,6 +94,8 @@ public class Login extends AppCompatActivity {
         });
     }
 
+
+
     public void showKeyboard(Context activityContext, final EditText editText){
 
         final InputMethodManager imm = (InputMethodManager)
@@ -130,6 +134,7 @@ public class Login extends AppCompatActivity {
                     }
                 }
             }, new Response.ErrorListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     try{

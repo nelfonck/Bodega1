@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,6 +53,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -76,6 +79,7 @@ public class DetalleOrden extends AppCompatActivity {
     private Totales totales ;
     private  Bundle extras ;
     private boolean scanned_from_scan ;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +159,7 @@ public class DetalleOrden extends AppCompatActivity {
         });
 
         txtCant.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -173,6 +178,7 @@ public class DetalleOrden extends AppCompatActivity {
         });
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View v) {
                 if (validarTextos(txtCodigo,txtCant)){
@@ -192,6 +198,7 @@ public class DetalleOrden extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(DetalleOrden.this);
                 builder.setTitle("Advertencia").setMessage("Seguro(a) de eliminar esta linea?");
                 builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         ContentValues values = new ContentValues();
@@ -209,7 +216,11 @@ public class DetalleOrden extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 try{
                                     if (error.networkResponse!=null){
-                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                        }else{
+                                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                                        }
                                     }else{
                                         msj("Error",error.getMessage());
                                     }
@@ -272,6 +283,7 @@ public class DetalleOrden extends AppCompatActivity {
                     public void onShow(final DialogInterface dialog) {
                         Button btnCambiar = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
                         btnCambiar.setOnClickListener(new View.OnClickListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                             @Override
                             public void onClick(View v) {
                                 if (txtCant.getText().toString().equals("")){
@@ -300,8 +312,11 @@ public class DetalleOrden extends AppCompatActivity {
                                         public void onErrorResponse(VolleyError error) {
                                             try{
                                                 if (error.networkResponse!=null){
-                                                    msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                                                }else{
+                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                                    }else{
+                                                        msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                                                    }                                                }else{
                                                     msj("Error",error.getMessage());
                                                 }
 
@@ -346,6 +361,7 @@ public class DetalleOrden extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(DetalleOrden.this);
                 builder.setTitle("Warning").setMessage("Se eliminará toda la lista \n desea continuar?");
                 builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         limpiarLista();
@@ -413,7 +429,12 @@ public class DetalleOrden extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 try{
                     if (error.networkResponse!=null){
-                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                        }
+
                     }else{
                         msj("Error",error.getMessage());
                     }
@@ -486,8 +507,11 @@ public class DetalleOrden extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 try{
                                     if (error.networkResponse!=null){
-                                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                                    }else{
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                                        }else{
+                                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                                        }                                    }else{
                                         msj("Error",error.getMessage());
                                     }
 
@@ -552,8 +576,11 @@ public class DetalleOrden extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 try{
                     if (error.networkResponse!=null){
-                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                    }else{
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                        }                    }else{
                         msj("Error",error.getMessage());
                     }
 
@@ -582,8 +609,11 @@ public class DetalleOrden extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 try{
                     if (error.networkResponse!=null){
-                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                    }else{
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                        }                    }else{
                         msj("Error",error.getMessage());
                     }
 
@@ -687,8 +717,11 @@ public class DetalleOrden extends AppCompatActivity {
               public void onErrorResponse(VolleyError error) {
                   try{
                       if (error.networkResponse!=null){
-                          msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                      }else{
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                              msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                          }else{
+                              msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                          }                      }else{
                           msj("Error",error.getMessage());
                       }
 
@@ -758,8 +791,11 @@ public class DetalleOrden extends AppCompatActivity {
               public void onErrorResponse(VolleyError error) {
                   try{
                       if (error.networkResponse!=null){
-                          msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                      }else{
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                              msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                          }else{
+                              msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                          }                      }else{
                           msj("Error",error.getMessage());
                       }
 
@@ -791,6 +827,7 @@ public class DetalleOrden extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(response);
                     if (jsonObject.length() > 0){
                         objArticulo = jsonObject ;
+                        txtCodigo.setText(objArticulo.getString("cod_articulo"));
                         tvDescripcion.setText(objArticulo.getString("descripcion"));
                         tvFechaUltimaCompra.setText(("Fecha: " + objArticulo.getJSONObject("movimiento").getString("fecha_ultimo_pedido")));
                         tvPedido.setText(("Se pidieron: " + objArticulo.getJSONObject("movimiento").getString("pedido")));
@@ -815,8 +852,11 @@ public class DetalleOrden extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 try{
                     if (error.networkResponse!=null){
-                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                    }else{
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                        }                    }else{
                         msj("Error",error.getMessage());
                     }
 
@@ -857,8 +897,11 @@ public class DetalleOrden extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 try{
                     if (error.networkResponse!=null){
-                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                    }else{
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                        }                    }else{
                         msj("Error",error.getMessage());
                     }
 
@@ -926,8 +969,11 @@ public class DetalleOrden extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 try{
                     if (error.networkResponse!=null){
-                        msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
-                    }else{
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            msj("Error",new String(error.networkResponse.data,StandardCharsets.UTF_8));
+                        }else{
+                            msj("Error",new String(error.networkResponse.data, Charset.forName("UTF-8")));
+                        }                    }else{
                         msj("Error",error.getMessage());
                     }
 

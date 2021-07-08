@@ -86,6 +86,7 @@ public class BloqueArticulos extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -103,6 +104,7 @@ public class BloqueArticulos extends Fragment {
         return false;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -171,6 +173,7 @@ public class BloqueArticulos extends Fragment {
         });
 
         txtCodigo.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -355,6 +358,7 @@ public class BloqueArticulos extends Fragment {
         dialog.show();
 
         txtFamilia.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -501,6 +505,7 @@ public class BloqueArticulos extends Fragment {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void enviar(final List<ModBloqueArticulos> lista) {
 
         if (lista.isEmpty())

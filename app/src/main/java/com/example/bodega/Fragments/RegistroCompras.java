@@ -78,6 +78,7 @@ public class RegistroCompras extends Fragment {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -117,6 +118,7 @@ public class RegistroCompras extends Fragment {
         cargarCompras();
 
         fabNuevaCompra.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -131,6 +133,7 @@ public class RegistroCompras extends Fragment {
                 rvProveedores.setAdapter(adapter);
 
                 txtFiltroProveedor.setOnKeyListener(new View.OnKeyListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -202,6 +205,7 @@ public class RegistroCompras extends Fragment {
 
                                     }
                                 }, new Response.ErrorListener() {
+                                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
                                         if (error.networkResponse!=null){
@@ -295,6 +299,7 @@ public class RegistroCompras extends Fragment {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void cargarCompras(){
 
         progressDialog.show();

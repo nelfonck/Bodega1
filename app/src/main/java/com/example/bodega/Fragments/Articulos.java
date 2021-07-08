@@ -115,6 +115,7 @@ public class Articulos extends Fragment {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -336,6 +337,7 @@ public class Articulos extends Fragment {
         dialog.show();
 
         txtArticulo.setOnKeyListener(new View.OnKeyListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -391,6 +393,7 @@ public class Articulos extends Fragment {
         });
 
         adapter.SetOnItemClickListener(new FiltroArticuloAdapter.OnItemClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void OnItemClick(int pos) {
                 obtArticulo(articulos.get(pos).getCodigo());
@@ -399,6 +402,7 @@ public class Articulos extends Fragment {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void populateFamilias() {
 
             final Gson gson = new Gson();
@@ -416,6 +420,7 @@ public class Articulos extends Fragment {
                     }
                 }
             }, new Response.ErrorListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onErrorResponse(VolleyError error) {
                    try{
@@ -443,6 +448,7 @@ public class Articulos extends Fragment {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void populateImpuestos(final ArrayAdapter<ModImpuesto> adapterImpuestos) {
 
             final Gson gson = new Gson();
@@ -460,6 +466,7 @@ public class Articulos extends Fragment {
                     }
                 }
             }, new Response.ErrorListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     try{
@@ -484,6 +491,7 @@ public class Articulos extends Fragment {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void populateMarcas(final ArrayAdapter<ModMarca> adapterMarcas) {
 
             final Gson gson = new Gson();
@@ -499,6 +507,7 @@ public class Articulos extends Fragment {
                     adapterMarcas.notifyDataSetChanged();
                 }
             }, new Response.ErrorListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     try{
@@ -522,6 +531,7 @@ public class Articulos extends Fragment {
             queue.add(jsonArrayRequest);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void populateUnidadMedida() {
 
             final Gson gson = new Gson();
@@ -620,6 +630,7 @@ public class Articulos extends Fragment {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -639,6 +650,7 @@ public class Articulos extends Fragment {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void obtArticulo(final String codigo) {
         block = true ;
         progress.setTitle("Obteniendo datos");
@@ -923,6 +935,7 @@ public class Articulos extends Fragment {
                                     public void onResponse(String response) {
                                         Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
                                     }}, new Response.ErrorListener() {
+                                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
                                         try{

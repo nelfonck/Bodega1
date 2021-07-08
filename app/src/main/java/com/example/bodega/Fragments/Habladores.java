@@ -421,6 +421,7 @@ public class Habladores extends Fragment {
                             db.execSQL("delete from " + BaseAdapter.HABLADORES.TABLE_NAME);
                     }
                 }, new Response.ErrorListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onErrorResponse(final VolleyError error) {
                         try{

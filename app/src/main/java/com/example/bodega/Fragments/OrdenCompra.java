@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,6 +117,7 @@ public class OrdenCompra extends Fragment {
                                adapter.notifyDataSetChanged();
                             }
                         }, new Response.ErrorListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 try{
@@ -152,6 +154,7 @@ public class OrdenCompra extends Fragment {
 
         FloatingActionButton fab = v.findViewById(R.id.fabNuevaOrden);
         fab.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -166,6 +169,7 @@ public class OrdenCompra extends Fragment {
                 rvProveedores.setAdapter(adapter);
 
                 txtFiltroProveedor.setOnKeyListener(new View.OnKeyListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (keyCode == KeyEvent.KEYCODE_ENTER)
@@ -216,6 +220,7 @@ public class OrdenCompra extends Fragment {
                                 //getOrders();
                             }
                         }, new Response.ErrorListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 try{
@@ -326,6 +331,7 @@ public class OrdenCompra extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         }, new Response.ErrorListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (progressDialog.isShowing()) progressDialog.dismiss();
